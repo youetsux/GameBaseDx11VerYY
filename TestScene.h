@@ -1,7 +1,6 @@
 #pragma once
 #include "Engine/GameObject.h"
 #include "Engine/Model.h"
-#include "Weapon.h"
 
 //テストシーンを管理するクラス
 class TestScene : public GameObject
@@ -23,5 +22,4 @@ public:
 	//開放
 	void Release() override;
 	
-	Weapon* pWp;
 };

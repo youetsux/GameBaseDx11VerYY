@@ -1,15 +1,12 @@
 #pragma once
 #include "Engine/GameObject.h"
-#include "Weapon.h"
 
-class JointBall;
+
+
 class Player :
     public GameObject
 {
 	int hSilly;
-	Weapon* pWep;
-	XMVECTOR swordDir;
-	JointBall *jb[2];
 public:
 	//コンストラクタ
 	//引数：parent  親オブジェクト（SceneManager）
