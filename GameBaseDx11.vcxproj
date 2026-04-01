@@ -142,6 +142,7 @@
     <ClCompile Include="Engine\Debug.cpp" />
     <ClCompile Include="Engine\Direct3D.cpp" />
     <ClCompile Include="Engine\Fbx.cpp" />
+    <ClCompile Include="Engine\FbxChecker.cpp" />
     <ClCompile Include="Engine\FbxParts.cpp" />
     <ClCompile Include="Engine\GameObject.cpp" />
     <ClCompile Include="Engine\Image.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="TestScene.cpp" />
+    <ClCompile Include="ViewerScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Audio.h" />
@@ -169,6 +171,7 @@
     <ClInclude Include="Engine\Debug.h" />
     <ClInclude Include="Engine\Direct3D.h" />
     <ClInclude Include="Engine\Fbx.h" />
+    <ClInclude Include="Engine\FbxChecker.h" />
     <ClInclude Include="Engine\FbxParts.h" />
     <ClInclude Include="Engine\GameObject.h" />
     <ClInclude Include="Engine\Global.h" />
@@ -185,6 +188,7 @@
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="TestScene.h" />
+    <ClInclude Include="ViewerScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">
@@ -204,6 +208,9 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Docs\Maya_vs_Blender_FBX.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

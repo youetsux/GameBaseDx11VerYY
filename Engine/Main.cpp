@@ -1,11 +1,12 @@
 
 //
-//@ÅIXV“úF2023/10/20
+//ã€€æœ€çµ‚æ›´æ–°æ—¥ï¼š2023/10/20
 //
 
 
 
 #include <Windows.h>
+#include <shellapi.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
@@ -18,19 +19,21 @@
 #include "Input.h"
 #include "Audio.h"
 #include "VFX.h"
+#include "../ViewerScene.h"
 
-#pragma comment(lib,"Winmm.lib")
+#pragma comment(lib, "shell32.lib")
+#pragma comment(lib, "Winmm.lib")
 
-//’è”éŒ¾
-const char* WIN_CLASS_NAME = "SampleGame";	//ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX–¼
+//å®šæ•°å®£è¨€
+const char* WIN_CLASS_NAME = "SampleGame";	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹å
 
 
-//ƒvƒƒgƒ^ƒCƒvéŒ¾
+//ãƒ—ãƒ­ãƒˆã‚¿ã‚¤ãƒ—å®£è¨€
 HWND InitApp(HINSTANCE hInstance, int screenWidth, int screenHeight, int nCmdShow);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
-// ƒGƒ“ƒgƒŠ[ƒ|ƒCƒ“ƒg
+// ã‚¨ãƒ³ãƒˆãƒªãƒ¼ãƒã‚¤ãƒ³ãƒˆ
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 //#if defined(DEBUG) | defined(_DEBUG)
@@ -40,66 +43,66 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	srand((unsigned)time(NULL));
 	SetCurrentDirectory("Assets");
 
-	//‰Šú‰»ƒtƒ@ƒCƒ‹isetup.inij‚©‚ç•K—v‚Èî•ñ‚ðŽæ“¾
-	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");		//ƒXƒNƒŠ[ƒ“‚Ì•
-	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");	//ƒXƒNƒŠ[ƒ“‚Ì‚‚³
-	int fpsLimit = GetPrivateProfileInt("GAME", "Fps", 60, ".\\setup.ini");				//FPSi‰æ–ÊXV‘¬“xj
-	int isDrawFps = GetPrivateProfileInt("DEBUG", "ViewFps", 0, ".\\setup.ini");		//ƒLƒƒƒvƒVƒ‡ƒ“‚ÉŒ»Ý‚ÌFPS‚ð•\Ž¦‚·‚é‚©‚Ç‚¤‚©
+	//åˆæœŸåŒ–ãƒ•ã‚¡ã‚¤ãƒ«ï¼ˆsetup.iniï¼‰ã‹ã‚‰å¿…è¦ãªæƒ…å ±ã‚’å–å¾—
+	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");		//ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã®å¹…
+	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");	//ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã®é«˜ã•
+	int fpsLimit = GetPrivateProfileInt("GAME", "Fps", 60, ".\\setup.ini");				//FPSï¼ˆç”»é¢æ›´æ–°é€Ÿåº¦ï¼‰
+	int isDrawFps = GetPrivateProfileInt("DEBUG", "ViewFps", 0, ".\\setup.ini");		//ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã«ç¾åœ¨ã®FPSã‚’è¡¨ç¤ºã™ã‚‹ã‹ã©ã†ã‹
 
 
 
 
-	//ƒEƒBƒ“ƒhƒE‚ðì¬
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆ
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
 
-	//Direct3D€”õ
+	//Direct3Dæº–å‚™
 	Direct3D::Initialize(hWnd, screenWidth, screenHeight);
 
-	//ƒJƒƒ‰‚ð€”õ
+	//ã‚«ãƒ¡ãƒ©ã‚’æº–å‚™
 	Camera::Initialize();
 
-	//“ü—Íˆ—iƒL[ƒ{[ƒhAƒ}ƒEƒXAƒRƒ“ƒgƒ[ƒ‰[j‚Ì€”õ
+	//å…¥åŠ›å‡¦ç†ï¼ˆã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã€ãƒžã‚¦ã‚¹ã€ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ï¼‰ã®æº–å‚™
 	Input::Initialize(hWnd);
 
-	//ƒI[ƒfƒBƒIiŒø‰Ê‰¹j‚Ì€”õ
+	//ã‚ªãƒ¼ãƒ‡ã‚£ã‚ªï¼ˆåŠ¹æžœéŸ³ï¼‰ã®æº–å‚™
 	Audio::Initialize();
 
 
-	//ƒ‹[ƒgƒIƒuƒWƒFƒNƒg€”õ
-	//‚·‚×‚Ä‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚Ìe‚Æ‚È‚éƒIƒuƒWƒFƒNƒg
+	//ãƒ«ãƒ¼ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆæº–å‚™
+	//ã™ã¹ã¦ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¦ªã¨ãªã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	RootObject* pRootObject = new RootObject;
 	pRootObject->Initialize();
 
 
-	//ƒƒbƒZ[ƒWƒ‹[ƒvi‰½‚©‹N‚«‚é‚Ì‚ð‘Ò‚Âj
+	//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒ«ãƒ¼ãƒ—ï¼ˆä½•ã‹èµ·ãã‚‹ã®ã‚’å¾…ã¤ï¼‰
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
 	while (msg.message != WM_QUIT)
 	{
-		//ƒƒbƒZ[ƒW‚ ‚èi‚±‚Á‚¿‚ª—Dæj
+		//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ã‚Šï¼ˆã“ã£ã¡ãŒå„ªå…ˆï¼‰
 		if (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
-		//ƒƒbƒZ[ƒW‚È‚µi‚±‚±‚ÅƒQ[ƒ€‚Ìˆ—j
+		//ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãªã—ï¼ˆã“ã“ã§ã‚²ãƒ¼ãƒ ã®å‡¦ç†ï¼‰
 		else
 		{
-			//ŽžŠÔŒv‘ª
-			timeBeginPeriod(1);	//ŽžŠÔŒv‘ª‚Ì§“x‚ðã‚°‚é
-			static int FPS = 0;								//‰æ–ÊXV‰ñ”‚ÌƒJƒEƒ“ƒ^
-			static DWORD lastFpsResetTime = timeGetTime();	//ÅŒã‚ÉƒLƒƒƒvƒVƒ‡ƒ“‚ÉFPS‚ð•\Ž¦‚µ‚½
-			static DWORD lastUpdateTime = timeGetTime();	//ÅŒã‚É‰æ–Ê‚ðXV‚µ‚½ŽžŠÔ
-			DWORD nowTime = timeGetTime();					//Œ»Ý‚ÌŽžŠÔ
+			//æ™‚é–“è¨ˆæ¸¬
+			timeBeginPeriod(1);	//æ™‚é–“è¨ˆæ¸¬ã®åˆ¶åº¦ã‚’ä¸Šã’ã‚‹
+			static int FPS = 0;								//ç”»é¢æ›´æ–°å›žæ•°ã®ã‚«ã‚¦ãƒ³ã‚¿
+			static DWORD lastFpsResetTime = timeGetTime();	//æœ€å¾Œã«ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã«FPSã‚’è¡¨ç¤ºã—ãŸ
+			static DWORD lastUpdateTime = timeGetTime();	//æœ€å¾Œã«ç”»é¢ã‚’æ›´æ–°ã—ãŸæ™‚é–“
+			DWORD nowTime = timeGetTime();					//ç¾åœ¨ã®æ™‚é–“
 
-			//ƒLƒƒƒvƒVƒ‡ƒ“‚ÉŒ»Ý‚ÌFPS‚ð•\Ž¦‚·‚é
+			//ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã«ç¾åœ¨ã®FPSã‚’è¡¨ç¤ºã™ã‚‹
 			if (isDrawFps)
 			{
-				//1•bi1000ƒ~ƒŠ•bjŒo‚Á‚½‚ç
+				//1ç§’ï¼ˆ1000ãƒŸãƒªç§’ï¼‰çµŒã£ãŸã‚‰
 				if (nowTime - lastFpsResetTime > 1000)
 				{
-					//FPS‚Ì’l‚ð•\Ž¦
+					//FPSã®å€¤ã‚’è¡¨ç¤º
 					char string[16];
 					wsprintf(string, "FPS:%d", FPS);
 					SetWindowText(GetActiveWindow(), string);
@@ -109,56 +112,56 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 
-			//Žw’è‚µ‚½ŽžŠÔiFPS‚ð60‚ÉÝ’è‚µ‚½ê‡‚Í60•ª‚Ì1•bjŒo‰ß‚µ‚Ä‚¢‚½‚çXVˆ—
+			//æŒ‡å®šã—ãŸæ™‚é–“ï¼ˆFPSã‚’60ã«è¨­å®šã—ãŸå ´åˆã¯60åˆ†ã®1ç§’ï¼‰çµŒéŽã—ã¦ã„ãŸã‚‰æ›´æ–°å‡¦ç†
 			if ((nowTime - lastUpdateTime) * fpsLimit > 1000.0f)
 			{
-				//ŽžŠÔŒv‘ªŠÖ˜A
-				lastUpdateTime = nowTime;	//Œ»Ý‚ÌŽžŠÔiÅŒã‚É‰æ–Ê‚ðXV‚µ‚½ŽžŠÔj‚ðŠo‚¦‚Ä‚¨‚­
-				FPS++;						//‰æ–ÊXV‰ñ”‚ðƒJƒEƒ“ƒg‚·‚é
+				//æ™‚é–“è¨ˆæ¸¬é–¢é€£
+				lastUpdateTime = nowTime;	//ç¾åœ¨ã®æ™‚é–“ï¼ˆæœ€å¾Œã«ç”»é¢ã‚’æ›´æ–°ã—ãŸæ™‚é–“ï¼‰ã‚’è¦šãˆã¦ãŠã
+				FPS++;						//ç”»é¢æ›´æ–°å›žæ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹
 
 
 
 
-				//“ü—ÍiƒL[ƒ{[ƒhAƒ}ƒEƒXAƒRƒ“ƒgƒ[ƒ‰[jî•ñ‚ðXV
+				//å…¥åŠ›ï¼ˆã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã€ãƒžã‚¦ã‚¹ã€ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ï¼‰æƒ…å ±ã‚’æ›´æ–°
 				Input::Update();
 
-				//‘SƒIƒuƒWƒFƒNƒg‚ÌXVˆ—
-				//ƒ‹[ƒgƒIƒuƒWƒFƒNƒg‚ÌUpdate‚ðŒÄ‚ñ‚¾‚ ‚ÆAŽ©“®“I‚ÉŽqA‘·‚ÌUpdate‚ªŒÄ‚Î‚ê‚é
+				//å…¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ›´æ–°å‡¦ç†
+				//ãƒ«ãƒ¼ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®Updateã‚’å‘¼ã‚“ã ã‚ã¨ã€è‡ªå‹•çš„ã«å­ã€å­«ã®UpdateãŒå‘¼ã°ã‚Œã‚‹
 				pRootObject->UpdateSub();
 
-				//ƒJƒƒ‰‚ðXV
+				//ã‚«ãƒ¡ãƒ©ã‚’æ›´æ–°
 				Camera::Update();
 
-				//ƒGƒtƒFƒNƒg‚ÌXV
+				//ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã®æ›´æ–°
 				VFX::Update();
 
 
-				//‚±‚ÌƒtƒŒ[ƒ€‚Ì•`‰æŠJŽn
+				//ã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®æç”»é–‹å§‹
 				Direct3D::BeginDraw();
 
-				//‘SƒIƒuƒWƒFƒNƒg‚ð•`‰æ
-				//ƒ‹[ƒgƒIƒuƒWƒFƒNƒg‚ÌDraw‚ðŒÄ‚ñ‚¾‚ ‚ÆAŽ©“®“I‚ÉŽqA‘·‚ÌUpdate‚ªŒÄ‚Î‚ê‚é
+				//å…¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æç”»
+				//ãƒ«ãƒ¼ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®Drawã‚’å‘¼ã‚“ã ã‚ã¨ã€è‡ªå‹•çš„ã«å­ã€å­«ã®UpdateãŒå‘¼ã°ã‚Œã‚‹
 				pRootObject->DrawSub();
 
-				//ƒGƒtƒFƒNƒg‚Ì•`‰æ
+				//ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã®æç”»
 				VFX::Draw();
 
-				//•`‰æI—¹
+				//æç”»çµ‚äº†
 				Direct3D::EndDraw();
 
 
 
 				
-				//‚¿‚å‚Á‚Æ‹x‚Ü‚¹‚é
+				//ã¡ã‚‡ã£ã¨ä¼‘ã¾ã›ã‚‹
 				Sleep(1);
 			}
-			timeEndPeriod(1);	//ŽžŠÔŒv‘ª‚Ì§“x‚ð–ß‚·
+			timeEndPeriod(1);	//æ™‚é–“è¨ˆæ¸¬ã®åˆ¶åº¦ã‚’æˆ»ã™
 		}
 	}
 
 	
 
-	//‚¢‚ë‚¢‚ë‰ð•ú
+	//ã„ã‚ã„ã‚è§£æ”¾
 	VFX::Release();
 	Audio::AllRelease();
 	Model::AllRelease();
@@ -171,68 +174,82 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 }
 
 
-//ƒEƒBƒ“ƒhƒE‚Ìì¬
+//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ä½œæˆ
 HWND InitApp(HINSTANCE hInstance, int screenWidth, int screenHeight, int nCmdShow)
 {
-	//ƒEƒBƒ“ƒhƒEƒNƒ‰ƒXiÝŒv}j‚ðì¬
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹ï¼ˆè¨­è¨ˆå›³ï¼‰ã‚’ä½œæˆ
 	WNDCLASSEX wc;
-	wc.cbSize = sizeof(WNDCLASSEX);					//‚±‚Ì\‘¢‘Ì‚ÌƒTƒCƒY
-	wc.hInstance = hInstance;						//ƒCƒ“ƒXƒ^ƒ“ƒXƒnƒ“ƒhƒ‹
-	wc.lpszClassName = WIN_CLASS_NAME;				//ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX–¼
-	wc.lpfnWndProc = WndProc;						//ƒEƒBƒ“ƒhƒEƒvƒƒV[ƒWƒƒ
-	wc.style = CS_VREDRAW | CS_HREDRAW;				//ƒXƒ^ƒCƒ‹iƒfƒtƒHƒ‹ƒgj
-	wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);	//ƒAƒCƒRƒ“
-	wc.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);	//¬‚³‚¢ƒAƒCƒRƒ“
-	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);	//ƒ}ƒEƒXƒJ[ƒ\ƒ‹
-	wc.lpszMenuName = nullptr;						//ƒƒjƒ…[i‚È‚µj
+	wc.cbSize = sizeof(WNDCLASSEX);					//ã“ã®æ§‹é€ ä½“ã®ã‚µã‚¤ã‚º
+	wc.hInstance = hInstance;						//ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãƒãƒ³ãƒ‰ãƒ«
+	wc.lpszClassName = WIN_CLASS_NAME;				//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹å
+	wc.lpfnWndProc = WndProc;						//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£
+	wc.style = CS_VREDRAW | CS_HREDRAW;				//ã‚¹ã‚¿ã‚¤ãƒ«ï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼‰
+	wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);	//ã‚¢ã‚¤ã‚³ãƒ³
+	wc.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);	//å°ã•ã„ã‚¢ã‚¤ã‚³ãƒ³
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);	//ãƒžã‚¦ã‚¹ã‚«ãƒ¼ã‚½ãƒ«
+	wc.lpszMenuName = nullptr;						//ãƒ¡ãƒ‹ãƒ¥ãƒ¼ï¼ˆãªã—ï¼‰
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);	//”wŒii”’j
+	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);	//èƒŒæ™¯ï¼ˆç™½ï¼‰
 	RegisterClassEx(&wc);
 
-	//ƒEƒBƒ“ƒhƒEƒTƒCƒY‚ÌŒvŽZ
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚ºã®è¨ˆç®—
 	RECT winRect = { 0, 0, screenWidth, screenHeight };
 	AdjustWindowRect(&winRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-	//ƒ^ƒCƒgƒ‹ƒo[‚É•\Ž¦‚·‚é“à—e
+	//ã‚¿ã‚¤ãƒˆãƒ«ãƒãƒ¼ã«è¡¨ç¤ºã™ã‚‹å†…å®¹
 	char caption[64];
 	GetPrivateProfileString("SCREEN", "Caption", "***", caption, 64, ".\\setup.ini");
 
-	//ƒEƒBƒ“ƒhƒE‚ðì¬
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆ
 	HWND hWnd = CreateWindow(
-		WIN_CLASS_NAME,					//ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX–¼
-		caption,						//ƒ^ƒCƒgƒ‹ƒo[‚É•\Ž¦‚·‚é“à—e
-		WS_OVERLAPPEDWINDOW,			//ƒXƒ^ƒCƒ‹i•’Ê‚ÌƒEƒBƒ“ƒhƒEj
-		CW_USEDEFAULT,					//•\Ž¦ˆÊ’u¶i‚¨‚Ü‚©‚¹j
-		CW_USEDEFAULT,					//•\Ž¦ˆÊ’uãi‚¨‚Ü‚©‚¹j
-		winRect.right - winRect.left,	//ƒEƒBƒ“ƒhƒE•
-		winRect.bottom - winRect.top,	//ƒEƒBƒ“ƒhƒE‚‚³
-		nullptr,						//eƒEƒCƒ“ƒhƒEi‚È‚µj
-		nullptr,						//ƒƒjƒ…[i‚È‚µj
-		hInstance,						//ƒCƒ“ƒXƒ^ƒ“ƒX
-		nullptr							//ƒpƒ‰ƒ[ƒ^i‚È‚µj
+		WIN_CLASS_NAME,					//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹å
+		caption,						//ã‚¿ã‚¤ãƒˆãƒ«ãƒãƒ¼ã«è¡¨ç¤ºã™ã‚‹å†…å®¹
+		WS_OVERLAPPEDWINDOW,			//ã‚¹ã‚¿ã‚¤ãƒ«ï¼ˆæ™®é€šã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ï¼‰
+		CW_USEDEFAULT,					//è¡¨ç¤ºä½ç½®å·¦ï¼ˆãŠã¾ã‹ã›ï¼‰
+		CW_USEDEFAULT,					//è¡¨ç¤ºä½ç½®ä¸Šï¼ˆãŠã¾ã‹ã›ï¼‰
+		winRect.right - winRect.left,	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å¹…
+		winRect.bottom - winRect.top,	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦é«˜ã•
+		nullptr,						//è¦ªã‚¦ã‚¤ãƒ³ãƒ‰ã‚¦ï¼ˆãªã—ï¼‰
+		nullptr,						//ãƒ¡ãƒ‹ãƒ¥ãƒ¼ï¼ˆãªã—ï¼‰
+		hInstance,						//ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
+		nullptr							//ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ï¼ˆãªã—ï¼‰
 	);
 
-	//ƒEƒBƒ“ƒhƒE‚ð•\Ž¦
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’è¡¨ç¤º
 	ShowWindow(hWnd, nCmdShow);
+
+	// ãƒ‰ãƒ©ãƒƒã‚°ï¼†ãƒ‰ãƒ­ãƒƒãƒ—ã‚’å—ã‘ä»˜ã‘ã‚‹
+	DragAcceptFiles(hWnd, TRUE);
 
 	return hWnd;
 }
 
 
-//ƒEƒBƒ“ƒhƒEƒvƒƒV[ƒWƒƒi‰½‚©‚ ‚Á‚½Žž‚É‚æ‚Î‚ê‚éŠÖ”j
+//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£ï¼ˆä½•ã‹ã‚ã£ãŸæ™‚ã«ã‚ˆã°ã‚Œã‚‹é–¢æ•°ï¼‰
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
-	//ƒEƒBƒ“ƒhƒE‚ð•Â‚¶‚½
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‰ã˜ãŸ
 	case WM_DESTROY:
-		PostQuitMessage(0);	//ƒvƒƒOƒ‰ƒ€I—¹
+		PostQuitMessage(0);	//ãƒ—ãƒ­ã‚°ãƒ©ãƒ çµ‚äº†
 		return 0;
 
-	//ƒ}ƒEƒX‚ª“®‚¢‚½
+	//ãƒžã‚¦ã‚¹ãŒå‹•ã„ãŸ
 	case WM_MOUSEMOVE:
 		Input::SetMousePosition(LOWORD(lParam), HIWORD(lParam));
+		return 0;
+
+	// ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‰ãƒ©ãƒƒã‚°ï¼†ãƒ‰ãƒ­ãƒƒãƒ—
+	case WM_DROPFILES:
+		{
+			HDROP hDrop = reinterpret_cast<HDROP>(wParam);
+			char filePath[MAX_PATH];
+			DragQueryFileA(hDrop, 0, filePath, MAX_PATH);
+			DragFinish(hDrop);
+			ViewerScene::OnDropFile(filePath);
+		}
 		return 0;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);

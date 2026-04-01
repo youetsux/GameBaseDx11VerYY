@@ -97,6 +97,8 @@
       <Filter>01Engine\ResourceManager</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Engine\FbxChecker.cpp" />
+    <ClCompile Include="ViewerScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -170,6 +172,8 @@
       <Filter>01Engine\ResourceManager</Filter>
     </ClInclude>
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Engine\FbxChecker.h" />
+    <ClInclude Include="ViewerScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">
@@ -184,5 +188,8 @@
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">
       <Filter>02Shader</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Docs\Maya_vs_Blender_FBX.md" />
   </ItemGroup>
 </Project>

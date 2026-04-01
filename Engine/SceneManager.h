@@ -2,21 +2,22 @@
 #include "global.h"
 #include "GameObject.h"
 
-//ƒQ[ƒ€‚É“oê‚·‚éƒV[ƒ“
+//ã‚²ãƒ¼ãƒ ã«ç™»å ´ã™ã‚‹ã‚·ãƒ¼ãƒ³
 enum SCENE_ID
 {
-	SCENE_ID_TEST = 0,
+	SCENE_ID_TEST   = 0,
+	SCENE_ID_VIEWER = 1,
 };
 
 //-----------------------------------------------------------
-//ƒV[ƒ“Ø‚è‘Ö‚¦‚ğ’S“–‚·‚éƒIƒuƒWƒFƒNƒg
+//ã‚·ãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆã‚’æ‹…å½“ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 //-----------------------------------------------------------
 class SceneManager : public GameObject
 {
 public:
 
-	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-	//ˆø”Fparent	eƒIƒuƒWƒFƒNƒgiŠî–{“I‚ÉƒQ[ƒ€ƒ}ƒl[ƒWƒƒ[j
+	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	//å¼•æ•°ï¼šparent	è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆåŸºæœ¬çš„ã«ã‚²ãƒ¼ãƒ ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ï¼‰
 	SceneManager(GameObject* parent);
 
 	void Initialize() override;
@@ -24,12 +25,12 @@ public:
 	void Draw() override;
 	void Release() override;
 
-	//ƒV[ƒ“Ø‚è‘Ö‚¦iÀÛ‚ÉØ‚è‘Ö‚í‚é‚Ì‚Í‚±‚ÌŸ‚ÌƒtƒŒ[ƒ€j
-	//ˆø”Fnext	Ÿ‚ÌƒV[ƒ“‚ÌID
+	//ã‚·ãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆï¼ˆå®Ÿéš›ã«åˆ‡ã‚Šæ›¿ã‚ã‚‹ã®ã¯ã“ã®æ¬¡ã®ãƒ•ãƒ¬ãƒ¼ãƒ ï¼‰
+	//å¼•æ•°ï¼šnext	æ¬¡ã®ã‚·ãƒ¼ãƒ³ã®ID
 	void ChangeScene(SCENE_ID next);
 
 private:
-	SCENE_ID currentSceneID_;	//Œ»İ‚ÌƒV[ƒ“
-	SCENE_ID nextSceneID_;		//Ÿ‚ÌƒV[ƒ“
+	SCENE_ID currentSceneID_;	//ç¾åœ¨ã®ã‚·ãƒ¼ãƒ³
+	SCENE_ID nextSceneID_;		//æ¬¡ã®ã‚·ãƒ¼ãƒ³
 
 };
