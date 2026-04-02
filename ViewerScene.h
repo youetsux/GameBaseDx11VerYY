@@ -11,6 +11,7 @@
 //   Mouse Left Drag  : rotate model
 //   Mouse Wheel      : zoom in/out
 //   R key            : reset camera
+//   Space key        : toggle animation / static
 //-----------------------------------------------------------
 class ViewerScene : public GameObject
 {
@@ -31,6 +32,11 @@ class ViewerScene : public GameObject
     // Fit distance computed from AABB
     float fitDist_;
 
+    // Animation
+    bool  isAnimPlaying_;   // true=animation  false=static
+    int   animEndFrame_;    // total frame count detected at load
+    static const float ANIM_SPEED;
+
     // Drag state
     bool  isDragging_;
     float prevMouseX_;
@@ -39,6 +45,7 @@ class ViewerScene : public GameObject
     void LoadFbx(const std::string& filePath);
     void FitCameraToAABB();
     void UpdateCamera();
+    void UpdateAnimation();
     void DrawCheckResults();
 
 public:

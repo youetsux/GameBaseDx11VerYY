@@ -7,6 +7,7 @@
 #include "Engine/Fbx.h"
 
 std::string ViewerScene::pendingDropFile_;
+const float ViewerScene::ANIM_SPEED = 0.5f;
 
 static const float INIT_DIST  = 10.0f;
 static const float INIT_PITCH = 15.0f;
@@ -16,7 +17,8 @@ ViewerScene::ViewerScene(GameObject* parent)
     : GameObject(parent, "ViewerScene"),
       hModel_(-1), checked_(false), hasAABB_(false), fitDist_(INIT_DIST),
       camYaw_(INIT_YAW), camPitch_(INIT_PITCH), camDist_(INIT_DIST),
-      isDragging_(false), prevMouseX_(0.0f), prevMouseY_(0.0f)
+      isDragging_(false), prevMouseX_(0.0f), prevMouseY_(0.0f),
+      isAnimPlaying_(false), animEndFrame_(0)
 {
 }
 
@@ -71,6 +73,32 @@ void ViewerScene::LoadFbx(const std::string& filePath)
             modelAABB_ = Model::GetAABB(hModel_);
             hasAABB_   = true;
             FitCameraToAABB();
+
+            // アニメーションのフレーム数をFBXシーンから取得
+            animEndFrame_ = 0;
+            const Model::ModelData* data = Model::GetData(hModel_);
+            if (data && data->pFbx)
+            {
+                FbxScene* fbxScene = data->pFbx->GetFbxScene();
+                // GetCurrentAnimationStack() は未設定だと nullptr になるので
+                // GetSrcObject で最初のスタックを確実に取得してからセットする
+                FbxAnimStack* stack = fbxScene->GetSrcObject<FbxAnimStack>(0);
+                if (stack)
+                {
+                    fbxScene->SetCurrentAnimationStack(stack);
+                    FbxTimeSpan span    = stack->GetLocalTimeSpan();
+                    FbxTime::EMode mode = fbxScene->GetGlobalSettings().GetTimeMode();
+                    animEndFrame_ = (int)span.GetDuration().GetFrameCount(mode);
+                }
+            }
+
+            char buf[64];
+            wsprintfA(buf, "[Viewer] animEndFrame=%d", animEndFrame_);
+            Debug::Log(buf, true);
+
+            // ロード直後は静止モード（frame=0）
+            isAnimPlaying_ = false;
+            Model::SetAnimFrame(hModel_, 0, animEndFrame_, 0.0f);
         }
         else
         {
@@ -109,6 +137,23 @@ void ViewerScene::FitCameraToAABB()
         modelAABB_.Size().x, modelAABB_.Size().y, modelAABB_.Size().z,
         fitDist_);
     Debug::Log(buf, true);
+}
+
+//-----------------------------------------------------------
+// Animation toggle (Space key)
+//-----------------------------------------------------------
+void ViewerScene::UpdateAnimation()
+{
+    if (hModel_ < 0) return;
+
+    if (Input::IsKeyDown(DIK_SPACE))
+    {
+        isAnimPlaying_ = !isAnimPlaying_;
+        if (isAnimPlaying_)
+            Model::SetAnimFrame(hModel_, 0, animEndFrame_, ANIM_SPEED);
+        else
+            Model::SetAnimFrame(hModel_, 0, animEndFrame_, 0.0f);
+    }
 }
 
 //-----------------------------------------------------------
@@ -189,12 +234,13 @@ void ViewerScene::DrawCheckResults()
         fname = fname.substr(sep + 1);
 
     char title[256];
+    const char* animState = isAnimPlaying_ ? "[ANIM]" : "[STATIC]";
     if (errCnt > 0)
-        wsprintfA(title, "FBX Viewer [%s]  ERROR:%d WARN:%d OK:%d  <- Cannot display", fname.c_str(), errCnt, warnCnt, okCnt);
+        wsprintfA(title, "FBX Viewer %s [%s]  ERROR:%d WARN:%d OK:%d  <- Cannot display", animState, fname.c_str(), errCnt, warnCnt, okCnt);
     else if (warnCnt > 0)
-        wsprintfA(title, "FBX Viewer [%s]  WARN:%d OK:%d  <- Displayable (check warnings)", fname.c_str(), warnCnt, okCnt);
+        wsprintfA(title, "FBX Viewer %s [%s]  WARN:%d OK:%d  <- Displayable (check warnings)", animState, fname.c_str(), warnCnt, okCnt);
     else
-        wsprintfA(title, "FBX Viewer [%s]  OK:%d  <- All checks passed", fname.c_str(), okCnt);
+        wsprintfA(title, "FBX Viewer %s [%s]  OK:%d  <- All checks passed", animState, fname.c_str(), okCnt);
 
     SetWindowTextA(GetActiveWindow(), title);
 }
@@ -209,6 +255,7 @@ void ViewerScene::Update()
         LoadFbx(pendingDropFile_);
         pendingDropFile_.clear();
     }
+    UpdateAnimation();
     UpdateCamera();
 }
 
