@@ -128,7 +128,6 @@ public:
 	FbxParts(Fbx* parent);
 	~FbxParts();
 
-
 	Fbx* parent_;
 	//FBXファイルから情報をロードして諸々準備する
 	//引数：pNode　情報が入っているノード
