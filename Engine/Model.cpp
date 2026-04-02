@@ -1,29 +1,29 @@
 #include "Global.h"
 #include "Model.h"
 
-//3Dƒ‚ƒfƒ‹iFBXƒtƒ@ƒCƒ‹j‚ğŠÇ—‚·‚é
+//3Dãƒ¢ãƒ‡ãƒ«ï¼ˆFBXãƒ•ã‚¡ã‚¤ãƒ«ï¼‰ã‚’ç®¡ç†ã™ã‚‹
 namespace Model
 {
-	//ƒ[ƒhÏ‚İ‚Ìƒ‚ƒfƒ‹ƒf[ƒ^ˆê——
+	//ãƒ­ãƒ¼ãƒ‰æ¸ˆã¿ã®ãƒ¢ãƒ‡ãƒ«ãƒ‡ãƒ¼ã‚¿ä¸€è¦§
 	std::vector<ModelData*>	_datas;
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void Initialize()
 	{
 		AllRelease();
 	}
 
-	//ƒ‚ƒfƒ‹‚ğƒ[ƒh
+	//ãƒ¢ãƒ‡ãƒ«ã‚’ãƒ­ãƒ¼ãƒ‰
 	int Load(std::string fileName)
 	{
 			ModelData* pData = new ModelData;
 
 
-			//ŠJ‚¢‚½ƒtƒ@ƒCƒ‹ˆê——‚©‚ç“¯‚¶ƒtƒ@ƒCƒ‹–¼‚Ì‚à‚Ì‚ª–³‚¢‚©’T‚·
+			//é–‹ã„ãŸãƒ•ã‚¡ã‚¤ãƒ«ä¸€è¦§ã‹ã‚‰åŒã˜ãƒ•ã‚¡ã‚¤ãƒ«åã®ã‚‚ã®ãŒç„¡ã„ã‹æ¢ã™
 			bool isExist = false;
 			for (int i = 0; i < _datas.size(); i++)
 			{
-				//‚·‚Å‚ÉŠJ‚¢‚Ä‚¢‚éê‡
+				//ã™ã§ã«é–‹ã„ã¦ã„ã‚‹å ´åˆ
 				if (_datas[i] != nullptr && _datas[i]->fileName == fileName)
 				{
 					pData->pFbx = _datas[i]->pFbx;
@@ -32,24 +32,24 @@ namespace Model
 				}
 			}
 
-			//V‚½‚Éƒtƒ@ƒCƒ‹‚ğŠJ‚­
+			//æ–°ãŸã«ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
 			if (isExist == false)
 			{
 				pData->pFbx = new Fbx;
 				if (FAILED(pData->pFbx->Load(fileName)))
 				{
-					//ŠJ‚¯‚È‚©‚Á‚½
+					//é–‹ã‘ãªã‹ã£ãŸ
 					SAFE_DELETE(pData->pFbx);
 					SAFE_DELETE(pData);
 					return -1;
 				}
 
-				//–³–ŠJ‚¯‚½
+				//ç„¡äº‹é–‹ã‘ãŸ
 				pData->fileName = fileName;
 			}
 
 
-			//g‚Á‚Ä‚È‚¢”Ô†‚ª–³‚¢‚©’T‚·
+			//ä½¿ã£ã¦ãªã„ç•ªå·ãŒç„¡ã„ã‹æ¢ã™
 			for (int i = 0; i < _datas.size(); i++)
 			{
 				if (_datas[i] == nullptr)
@@ -59,14 +59,14 @@ namespace Model
 				}
 			}
 
-			//V‚½‚É’Ç‰Á
+			//æ–°ãŸã«è¿½åŠ 
 			_datas.push_back(pData);
 			return (int)_datas.size() - 1;
 	}
 
 
 
-	//•`‰æ
+	//æç”»
 	void Draw(int handle)
 	{
 		if (handle < 0 || handle >= _datas.size() || _datas[handle] == nullptr)
@@ -74,10 +74,10 @@ namespace Model
 			return;
 		}
 
-		//ƒAƒjƒ[ƒVƒ‡ƒ“‚ği‚ß‚é
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’é€²ã‚ã‚‹
 		_datas[handle]->nowFrame += _datas[handle]->animSpeed;
 
-		//ÅŒã‚Ü‚ÅƒAƒjƒ[ƒVƒ‡ƒ“‚µ‚½‚ç–ß‚·
+		//æœ€å¾Œã¾ã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã—ãŸã‚‰æˆ»ã™
 		if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
 			_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
 
@@ -90,7 +90,7 @@ namespace Model
 	}
 
 
-	//”CˆÓ‚Ìƒ‚ƒfƒ‹‚ğŠJ•ú
+	//ä»»æ„ã®ãƒ¢ãƒ‡ãƒ«ã‚’é–‹æ”¾
 	void Release(int handle)
 	{
 		if (handle < 0 || handle >= _datas.size() || _datas[handle] == nullptr)
@@ -98,11 +98,11 @@ namespace Model
 			return;
 		}
 
-		//“¯‚¶ƒ‚ƒfƒ‹‚ğ‘¼‚Å‚àg‚Á‚Ä‚¢‚È‚¢‚©
+		//åŒã˜ãƒ¢ãƒ‡ãƒ«ã‚’ä»–ã§ã‚‚ä½¿ã£ã¦ã„ãªã„ã‹
 		bool isExist = false;
 		for (int i = 0; i < _datas.size(); i++)
 		{
-			//‚·‚Å‚ÉŠJ‚¢‚Ä‚¢‚éê‡
+			//ã™ã§ã«é–‹ã„ã¦ã„ã‚‹å ´åˆ
 			if (_datas[i] != nullptr && i != handle && _datas[i]->pFbx == _datas[handle]->pFbx)
 			{
 				isExist = true;
@@ -110,7 +110,7 @@ namespace Model
 			}
 		}
 
-		//g‚Á‚Ä‚È‚¯‚ê‚Îƒ‚ƒfƒ‹‰ğ•ú
+		//ä½¿ã£ã¦ãªã‘ã‚Œã°ãƒ¢ãƒ‡ãƒ«è§£æ”¾
 		if (isExist == false )
 		{
 			SAFE_DELETE(_datas[handle]->pFbx);
@@ -121,7 +121,7 @@ namespace Model
 	}
 
 
-	//‘S‚Ä‚Ìƒ‚ƒfƒ‹‚ğ‰ğ•ú
+	//å…¨ã¦ã®ãƒ¢ãƒ‡ãƒ«ã‚’è§£æ”¾
 	void AllRelease()
 	{
 		for (int i = 0; i < _datas.size(); i++)
@@ -135,21 +135,21 @@ namespace Model
 	}
 
 
-	//ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌƒtƒŒ[ƒ€”‚ğƒZƒbƒg
+	//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒ•ãƒ¬ãƒ¼ãƒ æ•°ã‚’ã‚»ãƒƒãƒˆ
 	void SetAnimFrame(int handle, int startFrame, int endFrame, float animSpeed)
 	{
 		_datas[handle]->SetAnimFrame(startFrame, endFrame, animSpeed);
 	}
 
 
-	//Œ»İ‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ÌƒtƒŒ[ƒ€‚ğæ“¾
+	//ç¾åœ¨ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’å–å¾—
 	int GetAnimFrame(int handle)
 	{
 		return (int)_datas[handle]->nowFrame;
 	}
 
 
-	//”CˆÓ‚Ìƒ{[ƒ“‚ÌˆÊ’u‚ğæ“¾
+	//ä»»æ„ã®ãƒœãƒ¼ãƒ³ã®ä½ç½®ã‚’å–å¾—
 	XMFLOAT3 GetBonePosition(int handle, std::string boneName)
 	{
 		XMFLOAT3 pos = _datas[handle]->pFbx->GetBonePosition(boneName);
@@ -167,7 +167,7 @@ namespace Model
 		return pos;
 	}
 
-	//ƒ[ƒ‹ƒhs—ñ‚ğİ’è
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’è¨­å®š
 	void SetTransform(int handle, Transform & transform)
 	{
 		if (handle < 0 || handle >= _datas.size())
@@ -179,14 +179,14 @@ namespace Model
 	}
 
 
-	//ƒ[ƒ‹ƒhs—ñ‚Ìæ“¾
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã®å–å¾—
 	XMMATRIX GetMatrix(int handle)
 	{
 		return _datas[handle]->transform.GetWorldMatrix();
 	}
 
 
-	//ƒŒƒCƒLƒƒƒXƒgiƒŒƒC‚ğ”ò‚Î‚µ‚Ä“–‚½‚è”»’èj
+	//ãƒ¬ã‚¤ã‚­ãƒ£ã‚¹ãƒˆï¼ˆãƒ¬ã‚¤ã‚’é£›ã°ã—ã¦å½“ãŸã‚Šåˆ¤å®šï¼‰
 	void RayCast(int handle, RayCastData *data)
 	{
 			XMFLOAT3 target = Transform::Float3Add(data->start, data->dir);
@@ -199,5 +199,23 @@ namespace Model
 			XMStoreFloat3(&data->dir, vecDir);
 
 			_datas[handle]->pFbx->RayCast(data); 
+	}
+
+	// AABBã‚’å–å¾—
+	AABB GetAABB(int handle)
+	{
+		if (handle < 0 || handle >= (int)_datas.size() || _datas[handle] == nullptr)
+			return AABB();
+		if (_datas[handle]->pFbx == nullptr)
+			return AABB();
+		return _datas[handle]->pFbx->GetAABB();
+	}
+
+	// å†…éƒ¨ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—
+	const ModelData* GetData(int handle)
+	{
+		if (handle < 0 || handle >= (int)_datas.size())
+			return nullptr;
+		return _datas[handle];
 	}
 }

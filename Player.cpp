@@ -7,14 +7,14 @@
 
 Player::Player(GameObject* parent)
 	:GameObject(parent), hSilly(-1){
-	//swordDir�ɂ́A���������Ƃ��āA���[�J�����f���̌��̍���������
-	//��[�܂ł̃x�N�g���Ƃ��āi0,1,0)�������Ă���
-	//�����ʒu�͌��_
+	//swordDirには、初期方向として、ローカルモデルの剣の根っこから
+	//先端までのベクトルとして（0,1,0)を代入しておく
+	//初期位置は原点
 }
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("GS_MotionSet.fbx");
+	hSilly = Model::Load("skg.fbx");
 	Model::SetAnimFrame(hSilly, 0, 1200, 1.0);
 
 

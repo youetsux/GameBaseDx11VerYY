@@ -113,6 +113,18 @@ HRESULT FbxParts::Init(fbxsdk::FbxMesh* pMesh)
 	InitSkelton(pMesh);		//骨の情報を準備
 	IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
 
+	// 頂点データからAABBを計算
+	for (DWORD i = 0; i < vertexCount_; i++)
+	{
+		const XMFLOAT3& p = pVertexData_[i].position;
+		if (p.x < aabb_.min_.x) aabb_.min_.x = p.x;
+		if (p.y < aabb_.min_.y) aabb_.min_.y = p.y;
+		if (p.z < aabb_.min_.z) aabb_.min_.z = p.z;
+		if (p.x > aabb_.max_.x) aabb_.max_.x = p.x;
+		if (p.y > aabb_.max_.y) aabb_.max_.y = p.y;
+		if (p.z > aabb_.max_.z) aabb_.max_.z = p.z;
+	}
+
 	return E_NOTIMPL;
 }
 

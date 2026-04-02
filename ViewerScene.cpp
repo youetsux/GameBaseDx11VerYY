@@ -68,14 +68,9 @@ void ViewerScene::LoadFbx(const std::string& filePath)
         hModel_ = Model::Load(filePath);
         if (hModel_ >= 0)
         {
-            // Retrieve AABB computed during Fbx::Load
-            const Model::ModelData* data = Model::GetData(hModel_);
-            if (data && data->pFbx)
-            {
-                modelAABB_ = data->pFbx->GetAABB();
-                hasAABB_   = true;
-                FitCameraToAABB();
-            }
+            modelAABB_ = Model::GetAABB(hModel_);
+            hasAABB_   = true;
+            FitCameraToAABB();
         }
         else
         {

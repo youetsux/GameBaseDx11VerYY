@@ -22,6 +22,48 @@ struct RayCastData
 };
 
 //-----------------------------------------------------------
+// Axis-Aligned Bounding Box
+//-----------------------------------------------------------
+struct AABB
+{
+	XMFLOAT3 min_;
+	XMFLOAT3 max_;
+
+	AABB()
+		: min_(XMFLOAT3( 1e30f,  1e30f,  1e30f))
+		, max_(XMFLOAT3(-1e30f, -1e30f, -1e30f))
+	{}
+
+	// 中心座標
+	XMFLOAT3 Center() const
+	{
+		return XMFLOAT3(
+			(min_.x + max_.x) * 0.5f,
+			(min_.y + max_.y) * 0.5f,
+			(min_.z + max_.z) * 0.5f);
+	}
+
+	// 各軸のサイズ
+	XMFLOAT3 Size() const
+	{
+		return XMFLOAT3(
+			max_.x - min_.x,
+			max_.y - min_.y,
+			max_.z - min_.z);
+	}
+
+	// 最長辺の長さ
+	float LongestEdge() const
+	{
+		XMFLOAT3 s = Size();
+		float m = s.x;
+		if (s.y > m) m = s.y;
+		if (s.z > m) m = s.z;
+		return m;
+	}
+};
+
+//-----------------------------------------------------------
 //　FBXファイルを扱うクラス
 //　ほとんどの処理は各パーツごとにFbxPartsクラスで行う
 //-----------------------------------------------------------

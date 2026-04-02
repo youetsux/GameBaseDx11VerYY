@@ -122,23 +122,19 @@ HRESULT Fbx::Load(std::string fileName)
 	return S_OK;
 }
 
-// 全パーツの頂点座標を走査してAABBを計算
+// 全パーツのAABBをマージして全体のAABBを計算
 void Fbx::CalcAABB()
 {
 	aabb_ = AABB();
 	for (int i = 0; i < (int)parts_.size(); i++)
 	{
-		FbxParts* p = parts_[i];
-		for (DWORD v = 0; v < p->vertexCount_; v++)
-		{
-			const XMFLOAT3& pos = p->pVertexData_[v].position;
-			if (pos.x < aabb_.min_.x) aabb_.min_.x = pos.x;
-			if (pos.y < aabb_.min_.y) aabb_.min_.y = pos.y;
-			if (pos.z < aabb_.min_.z) aabb_.min_.z = pos.z;
-			if (pos.x > aabb_.max_.x) aabb_.max_.x = pos.x;
-			if (pos.y > aabb_.max_.y) aabb_.max_.y = pos.y;
-			if (pos.z > aabb_.max_.z) aabb_.max_.z = pos.z;
-		}
+		const AABB& pa = parts_[i]->GetAABB();
+		if (pa.min_.x < aabb_.min_.x) aabb_.min_.x = pa.min_.x;
+		if (pa.min_.y < aabb_.min_.y) aabb_.min_.y = pa.min_.y;
+		if (pa.min_.z < aabb_.min_.z) aabb_.min_.z = pa.min_.z;
+		if (pa.max_.x > aabb_.max_.x) aabb_.max_.x = pa.max_.x;
+		if (pa.max_.y > aabb_.max_.y) aabb_.max_.y = pa.max_.y;
+		if (pa.max_.z > aabb_.max_.z) aabb_.max_.z = pa.max_.z;
 	}
 }
 

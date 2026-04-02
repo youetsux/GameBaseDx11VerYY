@@ -7,36 +7,36 @@
 #include "Transform.h"
 
 //-----------------------------------------------------------
-//3D���f���iFBX�t�@�C���j���Ǘ�����
+//3Dモデル（FBXファイル）を管理する
 //-----------------------------------------------------------
 namespace Model
 {
-	//���f�����
+	//モデル情報
 	struct ModelData
 	{
-		//�t�@�C����
+		//ファイル名
 		std::string fileName;
 
-		//���[�h�������f���f�[�^�̃A�h���X
+		//ロードしたモデルデータのアドレス
 		Fbx*		pFbx;
 
-		//�s��
+		//行列
 		Transform 	transform;
 
-		//�A�j���[�V�����̃t���[��
+		//アニメーションのフレーム
 		float nowFrame, animSpeed;
 		int startFrame, endFrame;
 
 
-		//������
+		//初期化
 		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0)
 		{
 		}
 
-		//�A�j���[�V�����̃t���[�������Z�b�g
-		//�����FstartFrame	�J�n�t���[��
-		//�����FendFrame	�I���t���[��
-		//�����FanimSpeed	�A�j���[�V�������x
+		//アニメーションのフレーム数をセット
+		//引数：startFrame	開始フレーム
+		//引数：endFrame	終了フレーム
+		//引数：animSpeed	アニメーション速度
 		void SetAnimFrame(int start, int end, float speed)
 		{
 			nowFrame = (float)start;
@@ -47,63 +47,73 @@ namespace Model
 	};
 
 
-	//������
+	//初期化
 	void Initialize();
 
-	//���f�������[�h
-	//�����FfileName�@�t�@�C����
-	//�ߒl�F���̃��f���f�[�^�Ɋ��蓖�Ă�ꂽ�ԍ�
+	//モデルをロード
+	//引数：fileName　ファイル名
+	//戻値：そのモデルデータに割り当てられた番号
 	int Load(std::string fileName);
 
-	//�`��
-	//�����Fhandle	�`�悵�������f���̔ԍ�
-	//�����Fmatrix	���[���h�s��
+	//描画
+	//引数：handle	描画したいモデルの番号
+	//引数：matrix	ワールド行列
 	void Draw(int handle);
 
-	//�C�ӂ̃��f�����J��
-	//�����Fhandle	�J�����������f���̔ԍ�
+	//任意のモデルを開放
+	//引数：handle	開放したいモデルの番号
 	void Release(int handle);
 
-	//�S�Ẵ��f�������
-	//�i�V�[�����؂�ւ��Ƃ��͕K�����s�j
+	//全てのモデルを解放
+	//（シーンが切り替わるときは必ず実行）
 	void AllRelease();
 
-	//�A�j���[�V�����̃t���[�������Z�b�g
-	//�����Fhandle		�ݒ肵�������f���̔ԍ�
-	//�����FstartFrame	�J�n�t���[��
-	//�����FendFrame	�I���t���[��
-	//�����FanimSpeed	�A�j���[�V�������x
+	//アニメーションのフレーム数をセット
+	//引数：handle		設定したいモデルの番号
+	//引数：startFrame	開始フレーム
+	//引数：endFrame	終了フレーム
+	//引数：animSpeed	アニメーション速度
 	void SetAnimFrame(int handle, int startFrame, int endFrame, float animSpeed);
 
-	//���݂̃A�j���[�V�����̃t���[�����擾
+	//現在のアニメーションのフレームを取得
 	int GetAnimFrame(int handle);
 
-	//�C�ӂ̃{�[���̈ʒu���擾
-	//�����Fhandle		���ׂ������f���̔ԍ�
-	//�����FboneName	���ׂ����{�[���̖��O
-	//�ߒl�F�{�[���̈ʒu�i���[���h���W�j
+	//任意のボーンの位置を取得
+	//引数：handle		調べたいモデルの番号
+	//引数：boneName	調べたいボーンの名前
+	//戻値：ボーンの位置（ワールド座標）
 	XMFLOAT3 GetBonePosition(int handle, std::string boneName);
 
-	//�X�L�����b�V���A�j�����̌��ݎ����̔C�ӂ̃{�[���̈ʒu���擾
-	//�����Fhandle		���ׂ������f���̔ԍ�
-	//�����FboneName	���ׂ����{�[���̖��O
-	//�ߒl�F�{�[���̈ʒu�i���[���h���W�j
+	//スキンメッシュアニメ中の現在時刻の任意のボーンの位置を取得
+	//引数：handle		調べたいモデルの番号
+	//引数：boneName	調べたいボーンの名前
+	//戻値：ボーンの位置（ワールド座標）
 	XMFLOAT3 GetAnimBonePosition(int handle, std::string boneName);
 
-	//���[���h�s���ݒ�
-	//�����Fhandle	�ݒ肵�������f���̔ԍ�
-	//�����Fmatrix	���[���h�s��
+	//ワールド行列を設定
+	//引数：handle	設定したいモデルの番号
+	//引数：matrix	ワールド行列
 	void SetTransform(int handle, Transform& transform);
 
-	//���[���h�s��̎擾
-	//�����Fhandle	�m�肽�����f���̔ԍ�
-	//�ߒl�F���[���h�s��
+	//ワールド行列の取得
+	//引数：handle	知りたいモデルの番号
+	//戻値：ワールド行列
 	XMMATRIX GetMatrix(int handle);
 
 
-	//���C�L���X�g�i���C���΂��ē����蔻��j�@��������
-	//�����Fhandle	���肵�������f���̔ԍ�
-	//�����Fdata	�K�v�Ȃ��̂��܂Ƃ߂��f�[�^
+	//レイキャスト（レイを飛ばして当たり判定）　※未実装
+	//引数：handle	判定したいモデルの番号
+	//引数：data	必要なものをまとめたデータ
 	void RayCast(int handle, RayCastData *data);
+
+	// モデルのAABBを取得（Load後に有効）
+	// 引数：handle モデルの番号
+	// 戻値：AABB（無効なハンドルの場合はデフォルト値）
+	AABB GetAABB(int handle);
+
+	// 内部データへのポインタを取得（ViewerScene等で使用）
+	// 引数：handle モデルの番号
+	// 戻値：ModelData*（無効なハンドルの場合は nullptr）
+	const ModelData* GetData(int handle);
 
 };

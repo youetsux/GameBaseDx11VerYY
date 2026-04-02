@@ -3,7 +3,6 @@
 #include "Engine/FbxChecker.h"
 #include "Engine/Fbx.h"
 #include <string>
-#include <vector>
 
 //-----------------------------------------------------------
 // FBX Checker + Simple Model Viewer Scene
