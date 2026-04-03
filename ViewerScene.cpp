@@ -16,7 +16,8 @@ static const float INIT_YAW   = 0.0f;
 ViewerScene::ViewerScene(GameObject* parent)
     : GameObject(parent, "ViewerScene"),
       hModel_(-1), checked_(false), hasAABB_(false), fitDist_(INIT_DIST),
-      camYaw_(INIT_YAW), camPitch_(INIT_PITCH), camDist_(INIT_DIST),
+      camYaw_(INIT_YAW), camPitch_(INIT_PITCH),
+      camDist_(INIT_DIST), camDistTarget_(INIT_DIST),
       isDragging_(false), prevMouseX_(0.0f), prevMouseY_(0.0f),
       isAnimPlaying_(false), animEndFrame_(0)
 {
@@ -123,7 +124,8 @@ void ViewerScene::FitCameraToAABB()
     fitDist_ = halfExtent / 0.4142f + halfExtent; // margin = 1 extra halfExtent
     if (fitDist_ < 1.0f) fitDist_ = 1.0f;
 
-    camDist_  = fitDist_;
+    camDist_       = fitDist_;
+    camDistTarget_ = fitDist_;
     camYaw_   = INIT_YAW;
     camPitch_ = INIT_PITCH;
 
@@ -182,18 +184,26 @@ void ViewerScene::UpdateCamera()
         prevMouseY_ = pos.y;
     }
 
-    // Wheel zoom
-    float wheel = Input::GetMouseMove().z;
-    camDist_ -= wheel * 0.5f;
-    if (camDist_ <  1.0f)  camDist_ =  1.0f;
-    if (camDist_ > 200.0f) camDist_ = 200.0f;
+    // Wheel zoom: lZ は1ノッチ=±120なので120で割ってノッチ数に正規化
+    // fitDist_ 基準の割合で目標距離を変化させる
+    float wheel = Input::GetMouseMove().z / 120.0f;
+    float zoomBase = hasAABB_ ? fitDist_ : INIT_DIST;
+    camDistTarget_ -= wheel * zoomBase * 0.15f;
+    float minDist = zoomBase * 0.05f;
+    float maxDist = zoomBase * 10.0f;
+    if (camDistTarget_ < minDist) camDistTarget_ = minDist;
+    if (camDistTarget_ > maxDist) camDistTarget_ = maxDist;
+
+    // 現在距離を目標距離へ滑らかに近づける（lerp）
+    camDist_ += (camDistTarget_ - camDist_) * 0.15f;
 
     // R: reset camera to fitted position
     if (Input::IsKeyDown(DIK_R))
     {
-        camYaw_   = INIT_YAW;
-        camPitch_ = INIT_PITCH;
-        camDist_  = hasAABB_ ? fitDist_ : INIT_DIST;
+        camYaw_        = INIT_YAW;
+        camPitch_      = INIT_PITCH;
+        camDist_       = hasAABB_ ? fitDist_ : INIT_DIST;
+        camDistTarget_ = camDist_;
     }
 
     float yawRad   = XMConvertToRadians(camYaw_);

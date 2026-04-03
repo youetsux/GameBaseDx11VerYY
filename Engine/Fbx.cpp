@@ -39,6 +39,17 @@ HRESULT Fbx::Load(std::string fileName)
 
 	fbxImporter->Import(pFbxScene_);
 	fbxImporter->Destroy();
+
+	// 座標系をDirectX左手系Y-upに変換する（Maya/Blender共通）
+	// DeepConvertScene は handedness 変換を含む正確な変換を行う。
+	// これ以後に Z 反転などの追加補正をしないこと（二重変換になる）。
+	{
+		FbxAxisSystem targetAxis(
+			FbxAxisSystem::eYAxis,
+			FbxAxisSystem::eParityOdd,
+			FbxAxisSystem::eLeftHanded);
+		targetAxis.DeepConvertScene(pFbxScene_);
+	}
 	
 	
 	FbxGeometryConverter geometryConverter(pFbxManager_);

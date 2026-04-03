@@ -27,7 +27,8 @@ class ViewerScene : public GameObject
     // Camera orbit
     float camYaw_;
     float camPitch_;
-    float camDist_;
+    float camDist_;         // current distance (lerp後)
+    float camDistTarget_;   // target distance (wheelで操作)
 
     // Fit distance computed from AABB
     float fitDist_;
