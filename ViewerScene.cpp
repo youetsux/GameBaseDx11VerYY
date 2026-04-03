@@ -65,6 +65,31 @@ void ViewerScene::LoadFbx(const std::string& filePath)
     }
     checked_ = true;
 
+    // エラー・警告があればMessageBoxで詳細を表示
+    if (checker_.HasError() || [&]() {
+        for (const auto& r : checker_.GetResults())
+            if (r.level == FbxChecker::CheckResult::WARNING) return true;
+        return false; }())
+    {
+        std::string msg;
+        const std::vector<FbxChecker::CheckResult>& results = checker_.GetResults();
+        for (size_t i = 0; i < results.size(); i++)
+        {
+            if (results[i].level == FbxChecker::CheckResult::OK) continue;
+            const char* prefix = (results[i].level == FbxChecker::CheckResult::ERR)
+                ? "[ERROR] " : "[WARN]  ";
+            msg += prefix;
+            msg += "[" + results[i].category + "] ";
+            msg += results[i].message;
+            msg += "\n";
+        }
+        const char* title = checker_.HasError()
+            ? "FBX Check Failed - Cannot display"
+            : "FBX Check Warning";
+        MessageBoxA(GetActiveWindow(), msg.c_str(), title, MB_OK |
+            (checker_.HasError() ? MB_ICONERROR : MB_ICONWARNING));
+    }
+
     // Load model only when no errors
     if (!checker_.HasError())
     {
@@ -75,21 +100,23 @@ void ViewerScene::LoadFbx(const std::string& filePath)
             hasAABB_   = true;
             FitCameraToAABB();
 
-            // アニメーションのフレーム数をFBXシーンから取得
+            // アニメーションのフレーム数をFBXのevaluatorから取得
+            // pFbxScene_はLoad後にDestroyされているのでGetAnimEvaluator経由で取得
             animEndFrame_ = 0;
             const Model::ModelData* data = Model::GetData(hModel_);
             if (data && data->pFbx)
             {
-                FbxScene* fbxScene = data->pFbx->GetFbxScene();
-                // GetCurrentAnimationStack() は未設定だと nullptr になるので
-                // GetSrcObject で最初のスタックを確実に取得してからセットする
-                FbxAnimStack* stack = fbxScene->GetSrcObject<FbxAnimStack>(0);
-                if (stack)
+                FbxAnimEvaluator* evaluator = data->pFbx->GetAnimEvaluator();
+                if (evaluator)
                 {
-                    fbxScene->SetCurrentAnimationStack(stack);
-                    FbxTimeSpan span    = stack->GetLocalTimeSpan();
-                    FbxTime::EMode mode = fbxScene->GetGlobalSettings().GetTimeMode();
-                    animEndFrame_ = (int)span.GetDuration().GetFrameCount(mode);
+                    FbxScene* scene = evaluator->GetScene();
+                    FbxAnimStack* stack = scene ? scene->GetSrcObject<FbxAnimStack>(0) : nullptr;
+                    if (stack)
+                    {
+                        FbxTimeSpan span    = stack->GetLocalTimeSpan();
+                        FbxTime::EMode mode = scene->GetGlobalSettings().GetTimeMode();
+                        animEndFrame_ = (int)span.GetDuration().GetFrameCount(mode);
+                    }
                 }
             }
 

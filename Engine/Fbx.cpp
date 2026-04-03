@@ -1,13 +1,14 @@
 #include "Fbx.h"
 #include "Direct3D.h"
 #include "FbxParts.h"
+#include "Debug.h"
 
 
 #pragma comment(lib, "LibFbxSDK-MT.lib")
 #pragma comment(lib, "LibXml2-MT.lib")
 #pragma comment(lib, "zlib-MT.lib")
 
-Fbx::Fbx():_animSpeed(0)
+Fbx::Fbx():_animSpeed(0), pFbxManager_(nullptr), pFbxScene_(nullptr), pAnimEvaluator_(nullptr)
 {
 }
 
@@ -19,8 +20,17 @@ Fbx::~Fbx()
 	}
 	parts_.clear();
 
-	pFbxScene_->Destroy();
-	pFbxManager_->Destroy();
+	// pFbxScene_ は Load 末尾で Destroy 済み（nullptr になっている）
+	if (pFbxScene_)
+	{
+		pFbxScene_->Destroy();
+		pFbxScene_ = nullptr;
+	}
+	if (pFbxManager_)
+	{
+		pFbxManager_->Destroy();
+		pFbxManager_ = nullptr;
+	}
 }
 
 HRESULT Fbx::Load(std::string fileName)
@@ -39,6 +49,31 @@ HRESULT Fbx::Load(std::string fileName)
 
 	fbxImporter->Import(pFbxScene_);
 	fbxImporter->Destroy();
+
+	// 非三角形ポリゴンがあれば自動で三角化する
+	// （座標系変換より前に行う）
+	{
+		bool needTriangulate = false;
+		int meshCount = pFbxScene_->GetSrcObjectCount<FbxMesh>();
+		for (int i = 0; i < meshCount && !needTriangulate; i++)
+		{
+			FbxMesh* mesh = pFbxScene_->GetSrcObject<FbxMesh>(i);
+			for (int j = 0; j < mesh->GetPolygonCount(); j++)
+			{
+				if (mesh->GetPolygonSize(j) != 3)
+				{
+					needTriangulate = true;
+					break;
+				}
+			}
+		}
+		if (needTriangulate)
+		{
+			FbxGeometryConverter converter(pFbxManager_);
+			converter.Triangulate(pFbxScene_, true);
+			Debug::Log("[Fbx] Non-triangle polygons detected. Auto-triangulated.", true);
+		}
+	}
 
 	// 座標系をDirectX左手系Y-upに変換する（Maya/Blender共通）
 	// DeepConvertScene は handedness 変換を含む正確な変換を行う。
@@ -129,6 +164,17 @@ HRESULT Fbx::Load(std::string fileName)
 
 	// 全パーツの頂点からAABBを計算
 	CalcAABB();
+
+	// AnimStackを明示的にセットしてからevaluatorを取り出す
+	{
+		FbxAnimStack* stack = pFbxScene_->GetSrcObject<FbxAnimStack>(0);
+		if (stack)
+			pFbxScene_->SetCurrentAnimationStack(stack);
+	}
+	pAnimEvaluator_ = pFbxScene_->GetAnimationEvaluator();
+
+	// pFbxScene_ は ppCluster_ 等 FBX SDK オブジェクトが生きている限り
+	// Destroy できない。デストラクタで pFbxManager_ と一緒に解放する。
 
 	return S_OK;
 }
@@ -223,7 +269,7 @@ void Fbx::Draw(Transform& transform, int frame)
 		//メッシュアニメーションの場合
 		else
 		{
-			parts_[k]->DrawMeshAnime(transform, time, pFbxScene_);
+			parts_[k]->DrawMeshAnime(transform, time);
 		}
 	}
 }

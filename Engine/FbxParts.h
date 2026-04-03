@@ -72,6 +72,22 @@ class FbxParts
 		float*		pBoneWeight;	// ボーンの重み
 	};
 
+	// 1本のボーンの全フレーム分のグローバル行列
+	struct BoneTrack
+	{
+		std::string            name;      // ボーン名
+		XMMATRIX               bindPose;  // バインドポーズ行列
+		std::vector<XMMATRIX>  frames;    // frames[frameIndex] = グローバル行列
+	};
+
+	// 1アニメーションスタック分のベイク済みデータ
+	struct AnimStackData
+	{
+		std::string             name;        // スタック名（Mayaのテイク名など）
+		int                     frameCount;  // 総フレーム数
+		std::vector<BoneTrack>  tracks;      // tracks[boneIndex]
+	};
+
 
 
 	//各データの個数
@@ -108,11 +124,8 @@ class FbxParts
 	std::unordered_map<string, Bone*> 		bonePair;
 	Weight*			pWeightArray_;	// ウェイト情報（頂点の対する各関節の影響度合い）
 
-	//struct SkinAnimeInfo
-	//{
-	//	Bone*		pBoneArray_;	// 各関節の情報
-	//	Weight*		pWeightArray_;	// ウェイト情報（頂点の対する各関節の影響度合い）
-	//};
+	// ベイク済みアニメーションデータ（スタック数分）
+	std::vector<AnimStackData> animStacks_;
 
 	/////////privateな関数（Init関数から呼ばれる）//////////////////////////
 	void InitVertex(fbxsdk::FbxMesh * pMesh);	//頂点バッファ準備
@@ -121,6 +134,7 @@ class FbxParts
 	void InitTexture(fbxsdk::FbxSurfaceMaterial * pMaterial, const DWORD &i);	//テクスチャ準備
 	void InitIndex(fbxsdk::FbxMesh * pMesh);		//インデックスバッファ準備
 	void InitSkelton(FbxMesh * pMesh);			//骨の情報を準備
+	void BakeAnimations(FbxScene* scene);		//全スタック×全フレームのボーン行列をベイク
 	void IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
 
 public:
@@ -157,8 +171,7 @@ public:
 	//ボーン無しのモデルを描画
 	//引数：transform	行列情報
 	//引数：time		フレーム情報（１アニメーション内の今どこか）
-	//引数：scene		Fbxファイルから読み込んだシーン情報
-	void DrawMeshAnime(Transform& transform, FbxTime time, FbxScene* scene);
+	void DrawMeshAnime(Transform& transform, FbxTime time);
 
 	//任意のボーンの位置を取得
 	//引数：boneName	取得したいボーンの位置

@@ -81,8 +81,11 @@ class Fbx
 	//FBXファイルを扱う機能の本体
 	FbxManager* pFbxManager_;
 
-	//FBXファイルのシーン（Mayaで作ったすべての物体）を扱う
+	//FBXファイルのシーン（Load後にDestroyする）
 	FbxScene*	pFbxScene_;
+
+	// アニメーション評価器（pFbxScene_をDestroyした後も使用する）
+	FbxAnimEvaluator* pAnimEvaluator_;
 
 
 
@@ -112,8 +115,8 @@ public:
 	FbxManager* GetFbxManager() {
 		return pFbxManager_;
 	}
-	FbxScene* GetFbxScene() {
-		return pFbxScene_;
+	FbxAnimEvaluator* GetAnimEvaluator() {
+		return pAnimEvaluator_;
 	}
 
 	//ロード
