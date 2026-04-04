@@ -114,15 +114,27 @@ HRESULT FbxParts::Init(fbxsdk::FbxMesh* pMesh)
 	IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
 
 	// 頂点データからAABBを計算
-	for (DWORD i = 0; i < vertexCount_; i++)
+	// ノードのグローバル行列（Scale含む）を頂点に適用してからAABBを求める
 	{
-		const XMFLOAT3& p = pVertexData_[i].position;
-		if (p.x < aabb_.min_.x) aabb_.min_.x = p.x;
-		if (p.y < aabb_.min_.y) aabb_.min_.y = p.y;
-		if (p.z < aabb_.min_.z) aabb_.min_.z = p.z;
-		if (p.x > aabb_.max_.x) aabb_.max_.x = p.x;
-		if (p.y > aabb_.max_.y) aabb_.max_.y = p.y;
-		if (p.z > aabb_.max_.z) aabb_.max_.z = p.z;
+		FbxAMatrix globalMatrix = pMesh->GetNode()->EvaluateGlobalTransform();
+		XMFLOAT4X4 gm;
+		for (int x = 0; x < 4; x++)
+			for (int y = 0; y < 4; y++)
+				gm(x, y) = (float)globalMatrix.Get(x, y);
+		XMMATRIX world = XMLoadFloat4x4(&gm);
+
+		for (DWORD i = 0; i < vertexCount_; i++)
+		{
+			XMVECTOR v = XMLoadFloat3(&pVertexData_[i].position);
+			XMFLOAT3 p;
+			XMStoreFloat3(&p, XMVector3TransformCoord(v, world));
+			if (p.x < aabb_.min_.x) aabb_.min_.x = p.x;
+			if (p.y < aabb_.min_.y) aabb_.min_.y = p.y;
+			if (p.z < aabb_.min_.z) aabb_.min_.z = p.z;
+			if (p.x > aabb_.max_.x) aabb_.max_.x = p.x;
+			if (p.y > aabb_.max_.y) aabb_.max_.y = p.y;
+			if (p.z > aabb_.max_.z) aabb_.max_.z = p.z;
+		}
 	}
 
 	return E_NOTIMPL;
@@ -522,13 +534,16 @@ void FbxParts::InitSkelton(FbxMesh* pMesh)
 		}
 	}
 
+	// ジオメトリオフセット行列をメンバに保存
+	pSkinInfo_->GetCluster(0)->GetTransformMatrix(bindShapeMatrix_);
+
 	//ボーンを生成
 	pBoneArray_ = new FbxParts::Bone[numBone_];
 	for (int i = 0; i < numBone_; i++)
 	{
-		// ボーンのデフォルト位置を取得する
-		FbxAMatrix  matrix;
-		ppCluster_[i]->GetTransformLinkMatrix(matrix);
+		// ボーンのバインドポーズ（linkMatrixのみ。bindShapeMatrixはDrawSkinAnime側で掛ける）
+		FbxAMatrix  linkMatrix;
+		ppCluster_[i]->GetTransformLinkMatrix(linkMatrix);
 
 		// 行列コピー（Fbx形式からDirectXへの変換）
 		XMFLOAT4X4 pose;
@@ -536,11 +551,10 @@ void FbxParts::InitSkelton(FbxMesh* pMesh)
 		{
 			for (DWORD y = 0; y < 4; y++)
 			{
-				pose(x, y) = (float)matrix.Get(x, y);
+				pose(x, y) = (float)linkMatrix.Get(x, y);
 			}
 		}
 		pBoneArray_[i].bindPose = XMLoadFloat4x4(&pose);
-		//Debug::Log(ppCluster_[i]->GetLink()->GetName(), true);
 		bonePair[ppCluster_[i]->GetLink()->GetName()] = pBoneArray_ + i;
 	}
 
@@ -649,22 +663,16 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 			}
 		}
 
-		XMFLOAT4X4 mmat;
-		XMMATRIX mMirror;
-		mMirror = XMMatrixIdentity();
-		XMStoreFloat4x4(&mmat, mMirror);
-		//mmat.m[2][2] = -1.0f;  // DeepConvertScene で処理済みのため不要
-		mMirror = XMLoadFloat4x4(&mmat);
+		// bindShapeMatrix を FbxAMatrix → XMMATRIX に変換
+		XMFLOAT4X4 bsm;
+		for (DWORD x = 0; x < 4; x++)
+			for (DWORD y = 0; y < 4; y++)
+				bsm(x, y) = (float)bindShapeMatrix_.Get(x, y);
+		XMMATRIX bindShape = XMLoadFloat4x4(&bsm);
 
-		// オフセット時のポーズの差分を計算する
-		pBoneArray_[i].newPose = XMLoadFloat4x4(&pose) * mMirror;
-		pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose*mMirror);
-		pBoneArray_[i].diffPose = pBoneArray_[i].diffPose * pBoneArray_[i].newPose;
-
-		//反転無し
-		//pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
-		//pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
-		//pBoneArray_[i].diffPose = pBoneArray_[i].diffPose * pBoneArray_[i].newPose;
+		// FinalSkinMatrix = bindShape * inv(bindPose) * animatedGlobal
+		pBoneArray_[i].newPose  = XMLoadFloat4x4(&pose);
+		pBoneArray_[i].diffPose = bindShape * XMMatrixInverse(nullptr, pBoneArray_[i].bindPose) * pBoneArray_[i].newPose;
 	}
 
 	// 各ボーンに対応した頂点の変形制御

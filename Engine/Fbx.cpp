@@ -2,6 +2,7 @@
 #include "Direct3D.h"
 #include "FbxParts.h"
 #include "Debug.h"
+#include <Windows.h>
 
 
 #pragma comment(lib, "LibFbxSDK-MT.lib")
@@ -38,10 +39,22 @@ HRESULT Fbx::Load(std::string fileName)
 	// FBXの読み込み
 	pFbxManager_ = FbxManager::Create();
 	pFbxScene_ = FbxScene::Create(pFbxManager_, "fbxscene");
-	FbxString FileName(fileName.c_str());
+
+	// Shift-JIS パスを UTF-8 に変換して FBX SDK へ渡す
+	// （パスに日本語が含まれる場合も正しく開けるようにする）
+	std::string utf8FileName;
+	{
+		int wlen = MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, nullptr, 0);
+		std::wstring wstr(wlen, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, &wstr[0], wlen);
+		int ulen = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+		utf8FileName.resize(ulen);
+		WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &utf8FileName[0], ulen, nullptr, nullptr);
+	}
+
 	FbxImporter *fbxImporter = FbxImporter::Create(pFbxManager_, "imp");
-	
-	if (!fbxImporter->Initialize(FileName.Buffer(), -1, pFbxManager_->GetIOSettings()))
+
+	if (!fbxImporter->Initialize(utf8FileName.c_str(), -1, pFbxManager_->GetIOSettings()))
 	{
 		//失敗
 		return E_FAIL;
@@ -50,8 +63,16 @@ HRESULT Fbx::Load(std::string fileName)
 	fbxImporter->Import(pFbxScene_);
 	fbxImporter->Destroy();
 
-	// 非三角形ポリゴンがあれば自動で三角化する
-	// （座標系変換より前に行う）
+	// 座標系をDirectX左手系Y-upに変換する（Maya/Blender共通）
+	{
+		FbxAxisSystem targetAxis(
+			FbxAxisSystem::eYAxis,
+			FbxAxisSystem::eParityOdd,
+			FbxAxisSystem::eLeftHanded);
+		targetAxis.DeepConvertScene(pFbxScene_);
+	}
+
+	// 座標系変換後に三角化する
 	{
 		bool needTriangulate = false;
 		int meshCount = pFbxScene_->GetSrcObjectCount<FbxMesh>();
@@ -73,17 +94,6 @@ HRESULT Fbx::Load(std::string fileName)
 			converter.Triangulate(pFbxScene_, true);
 			Debug::Log("[Fbx] Non-triangle polygons detected. Auto-triangulated.", true);
 		}
-	}
-
-	// 座標系をDirectX左手系Y-upに変換する（Maya/Blender共通）
-	// DeepConvertScene は handedness 変換を含む正確な変換を行う。
-	// これ以後に Z 反転などの追加補正をしないこと（二重変換になる）。
-	{
-		FbxAxisSystem targetAxis(
-			FbxAxisSystem::eYAxis,
-			FbxAxisSystem::eParityOdd,
-			FbxAxisSystem::eLeftHanded);
-		targetAxis.DeepConvertScene(pFbxScene_);
 	}
 	
 	
@@ -116,14 +126,19 @@ HRESULT Fbx::Load(std::string fileName)
 	// アニメーションのタイムモードの取得
 	_frameRate = pFbxScene_->GetGlobalSettings().GetTimeMode();
 
-	//現在のカレントディレクトリを覚えておく
-	char defaultCurrentDir[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, defaultCurrentDir);
+	//現在のカレントディレクトリを覚えておく（ワイド文字版で日本語パス対応）
+	wchar_t defaultCurrentDir[MAX_PATH];
+	GetCurrentDirectoryW(MAX_PATH, defaultCurrentDir);
 
 	//カレントディレクトリをファイルがあった場所に変更
-	char dir[MAX_PATH];
-	_splitpath_s(fileName.c_str(), nullptr, 0, dir, MAX_PATH, nullptr, 0, nullptr, 0);
-	SetCurrentDirectory(dir);
+	{
+		int wlen = MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, nullptr, 0);
+		std::wstring wFileName(wlen, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, &wFileName[0], wlen);
+		wchar_t wdir[MAX_PATH];
+		_wsplitpath_s(wFileName.c_str(), nullptr, 0, wdir, MAX_PATH, nullptr, 0, nullptr, 0);
+		SetCurrentDirectoryW(wdir);
+	}
 
 	//ルートノードを取得して
 	//FbxNode* rootNode = pFbxScene_->GetRootNode();
@@ -160,7 +175,7 @@ HRESULT Fbx::Load(std::string fileName)
 	//}
 
 	//カレントディレクトリを元の位置に戻す
-	SetCurrentDirectory(defaultCurrentDir);
+	SetCurrentDirectoryW(defaultCurrentDir);
 
 	// 全パーツの頂点からAABBを計算
 	CalcAABB();

@@ -121,6 +121,7 @@ class FbxParts
 	FbxCluster**	ppCluster_;		// クラスタ情報（関節ごとに関連付けられた頂点情報）
 	int				numBone_;		// FBXに含まれている関節の数
 	Bone*			pBoneArray_;	// 各関節の情報
+	FbxAMatrix		bindShapeMatrix_;// ジオメトリオフセット行列
 	std::unordered_map<string, Bone*> 		bonePair;
 	Weight*			pWeightArray_;	// ウェイト情報（頂点の対する各関節の影響度合い）
 
