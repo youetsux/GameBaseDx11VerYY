@@ -63,6 +63,37 @@ HRESULT Fbx::Load(std::string fileName)
 	fbxImporter->Import(pFbxScene_);
 	fbxImporter->Destroy();
 
+	// ① DeepConvertScene 前の軸系をログ
+	{
+		FbxAxisSystem axis = pFbxScene_->GetGlobalSettings().GetAxisSystem();
+		int upSign, frontSign;
+		FbxAxisSystem::EUpVector up = axis.GetUpVector(upSign);
+		FbxAxisSystem::EFrontVector front = axis.GetFrontVector(frontSign);
+		char buf[256];
+		sprintf_s(buf, "[AxisSystem BEFORE] UpVector=%d(sign=%d) FrontVector=%d(sign=%d)", (int)up, upSign, (int)front, frontSign);
+		Debug::Log(buf, true);
+	}
+
+	// ② DeepConvertScene 前の EvaluateGlobalTransform をログ
+	{
+		FbxNode* root = pFbxScene_->GetRootNode();
+		if (root && root->GetChildCount() > 0)
+		{
+			FbxNode* node = root->GetChild(0);
+			FbxAMatrix m = node->EvaluateGlobalTransform();
+			FbxVector4 t = m.GetT();
+			FbxVector4 s = m.GetS();
+			FbxVector4 r = m.GetR();
+			char buf[256];
+			sprintf_s(buf, "[EvaluateGlobal BEFORE] node=%s T=(%.2f,%.2f,%.2f) R=(%.2f,%.2f,%.2f) S=(%.2f,%.2f,%.2f)",
+				node->GetName(),
+				(float)t[0], (float)t[1], (float)t[2],
+				(float)r[0], (float)r[1], (float)r[2],
+				(float)s[0], (float)s[1], (float)s[2]);
+			Debug::Log(buf, true);
+		}
+	}
+
 	// 座標系をDirectX左手系Y-upに変換する（Maya/Blender共通）
 	{
 		FbxAxisSystem targetAxis(
@@ -70,6 +101,37 @@ HRESULT Fbx::Load(std::string fileName)
 			FbxAxisSystem::eParityOdd,
 			FbxAxisSystem::eLeftHanded);
 		targetAxis.DeepConvertScene(pFbxScene_);
+	}
+
+	// ① DeepConvertScene 後の軸系をログ
+	{
+		FbxAxisSystem axis = pFbxScene_->GetGlobalSettings().GetAxisSystem();
+		int upSign, frontSign;
+		FbxAxisSystem::EUpVector up = axis.GetUpVector(upSign);
+		FbxAxisSystem::EFrontVector front = axis.GetFrontVector(frontSign);
+		char buf[256];
+		sprintf_s(buf, "[AxisSystem AFTER] UpVector=%d(sign=%d) FrontVector=%d(sign=%d)", (int)up, upSign, (int)front, frontSign);
+		Debug::Log(buf, true);
+	}
+
+	// ② DeepConvertScene 後の EvaluateGlobalTransform をログ
+	{
+		FbxNode* root = pFbxScene_->GetRootNode();
+		if (root && root->GetChildCount() > 0)
+		{
+			FbxNode* node = root->GetChild(0);
+			FbxAMatrix m = node->EvaluateGlobalTransform();
+			FbxVector4 t = m.GetT();
+			FbxVector4 s = m.GetS();
+			FbxVector4 r = m.GetR();
+			char buf[256];
+			sprintf_s(buf, "[EvaluateGlobal AFTER] node=%s T=(%.2f,%.2f,%.2f) R=(%.2f,%.2f,%.2f) S=(%.2f,%.2f,%.2f)",
+				node->GetName(),
+				(float)t[0], (float)t[1], (float)t[2],
+				(float)r[0], (float)r[1], (float)r[2],
+				(float)s[0], (float)s[1], (float)s[2]);
+			Debug::Log(buf, true);
+		}
 	}
 
 	// 座標系変換後に三角化する

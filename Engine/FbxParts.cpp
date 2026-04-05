@@ -10,7 +10,9 @@
 FbxParts::FbxParts() :
 	ppIndexBuffer_(nullptr), pMaterial_(nullptr),
 	pVertexBuffer_(nullptr), pConstantBuffer_(nullptr),
-	pVertexData_(nullptr), ppIndexData_(nullptr)
+	pVertexData_(nullptr), ppIndexData_(nullptr),
+	pSkinInfo_(nullptr), ppCluster_(nullptr), numBone_(0),
+	pBoneArray_(nullptr), pWeightArray_(nullptr)
 {
 }
 
@@ -18,7 +20,9 @@ FbxParts::FbxParts() :
 FbxParts::FbxParts(Fbx *parent) :
 	ppIndexBuffer_(nullptr), pMaterial_(nullptr),
 	pVertexBuffer_(nullptr), pConstantBuffer_(nullptr),
-	pVertexData_(nullptr), ppIndexData_(nullptr)
+	pVertexData_(nullptr), ppIndexData_(nullptr),
+	pSkinInfo_(nullptr), ppCluster_(nullptr), numBone_(0),
+	pBoneArray_(nullptr), pWeightArray_(nullptr)
 {
 	parent_ = parent;
 }
@@ -114,26 +118,70 @@ HRESULT FbxParts::Init(fbxsdk::FbxMesh* pMesh)
 	IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
 
 	// 頂点データからAABBを計算
-	// ノードのグローバル行列（Scale含む）を頂点に適用してからAABBを求める
+	// スキンメッシュ（アニメあり）は初期ポーズの頂点座標から計算
+	// 静止メッシュはノードのグローバル行列（Scale含む）を適用
 	{
-		FbxAMatrix globalMatrix = pMesh->GetNode()->EvaluateGlobalTransform();
-		XMFLOAT4X4 gm;
-		for (int x = 0; x < 4; x++)
-			for (int y = 0; y < 4; y++)
-				gm(x, y) = (float)globalMatrix.Get(x, y);
-		XMMATRIX world = XMLoadFloat4x4(&gm);
-
-		for (DWORD i = 0; i < vertexCount_; i++)
+		XMMATRIX world = XMMatrixIdentity();
+		if (numBone_ == 0)
 		{
-			XMVECTOR v = XMLoadFloat3(&pVertexData_[i].position);
-			XMFLOAT3 p;
-			XMStoreFloat3(&p, XMVector3TransformCoord(v, world));
-			if (p.x < aabb_.min_.x) aabb_.min_.x = p.x;
-			if (p.y < aabb_.min_.y) aabb_.min_.y = p.y;
-			if (p.z < aabb_.min_.z) aabb_.min_.z = p.z;
-			if (p.x > aabb_.max_.x) aabb_.max_.x = p.x;
-			if (p.y > aabb_.max_.y) aabb_.max_.y = p.y;
-			if (p.z > aabb_.max_.z) aabb_.max_.z = p.z;
+			FbxAMatrix globalMatrix = pMesh->GetNode()->EvaluateGlobalTransform();
+
+			// ② 頂点[0]のローカル座標とワールド座標を比較
+			{
+				XMFLOAT3 localPos = pVertexData_[0].position;
+				XMFLOAT4X4 gm;
+				for (int x = 0; x < 4; x++)
+					for (int y = 0; y < 4; y++)
+						gm(x, y) = (float)globalMatrix.Get(x, y);
+				XMMATRIX world = XMLoadFloat4x4(&gm);
+				XMFLOAT3 worldPos;
+				XMStoreFloat3(&worldPos, XMVector3TransformCoord(XMLoadFloat3(&localPos), world));
+				FbxVector4 s = globalMatrix.GetS();
+				FbxVector4 r = globalMatrix.GetR();
+				char buf[256];
+				sprintf_s(buf, "[AABB CHECK] vertex[0] local=(%.3f,%.3f,%.3f) world=(%.3f,%.3f,%.3f) S=(%.2f,%.2f,%.2f) R=(%.2f,%.2f,%.2f)",
+					localPos.x, localPos.y, localPos.z,
+					worldPos.x, worldPos.y, worldPos.z,
+					(float)s[0], (float)s[1], (float)s[2],
+					(float)r[0], (float)r[1], (float)r[2]);
+				Debug::Log(buf, true);
+			}
+
+			// ④ 手動Z反転が別途入っていないか確認
+			Debug::Log("[AABB CHECK] No manual Z-flip. Vertices converted by DeepConvertScene only.", true);
+
+			XMFLOAT4X4 gm;
+			for (int x = 0; x < 4; x++)
+				for (int y = 0; y < 4; y++)
+					gm(x, y) = (float)globalMatrix.Get(x, y);
+			XMMATRIX world = XMLoadFloat4x4(&gm);
+
+			for (DWORD i = 0; i < vertexCount_; i++)
+			{
+				XMVECTOR v = XMLoadFloat3(&pVertexData_[i].position);
+				XMFLOAT3 p;
+				XMStoreFloat3(&p, XMVector3TransformCoord(v, world));
+				if (p.x < aabb_.min_.x) aabb_.min_.x = p.x;
+				if (p.y < aabb_.min_.y) aabb_.min_.y = p.y;
+				if (p.z < aabb_.min_.z) aabb_.min_.z = p.z;
+				if (p.x > aabb_.max_.x) aabb_.max_.x = p.x;
+				if (p.y > aabb_.max_.y) aabb_.max_.y = p.y;
+				if (p.z > aabb_.max_.z) aabb_.max_.z = p.z;
+			}
+		}
+		else
+		{
+			// スキンメッシュ：初期ポーズ（posOrigin）からAABBを計算
+			for (DWORD i = 0; i < vertexCount_; i++)
+			{
+				const XMFLOAT3& p = pWeightArray_[i].posOrigin;
+				if (p.x < aabb_.min_.x) aabb_.min_.x = p.x;
+				if (p.y < aabb_.min_.y) aabb_.min_.y = p.y;
+				if (p.z < aabb_.min_.z) aabb_.min_.z = p.z;
+				if (p.x > aabb_.max_.x) aabb_.max_.x = p.x;
+				if (p.y > aabb_.max_.y) aabb_.max_.y = p.y;
+				if (p.z > aabb_.max_.z) aabb_.max_.z = p.z;
+			}
 		}
 	}
 

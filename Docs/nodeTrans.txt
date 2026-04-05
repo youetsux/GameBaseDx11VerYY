@@ -1,0 +1,54 @@
+「DeepConvert が効かない」のが本命ではなく、今の実装だと bindShape 周りと初期化漏れのほうがかなり怪しいです。
+特に AABB が変になる原因候補としては、EvaluateGlobalTransform よりも numBone_ 未初期化とスキニング式のほうが強いです。
+
+まず、座標系変換については、Load() で import 後に DeepConvertScene() を scene 全体へ掛け、その後で各 FbxMesh を拾って Init(mesh) しているので、流れ自体は筋が通っています。
+つまり EvaluateGlobalTransform() だけ右手系に取り残される設計には見えません。 そこは前回の疑いよりかなり薄いです。
+
+ただし、今のコードには別の強い問題があります。
+
+1つ目。numBone_ が未初期化のまま使われる可能性があります。
+FbxParts のコンストラクタで numBone_, pSkinInfo_, pWeightArray_, pBoneArray_, ppCluster_ を初期化していません。
+そのうえ InitSkelton() はデフォーマが無いと即 return するので、静的メッシュでは numBone_ が未定義のままです。
+それなのに直後の AABB 計算で if (numBone_ == 0) を見ています。これは完全に未定義動作です。
+AABB がたまにおかしいなら、まずここを疑うべきです。
+
+2つ目。bindShapeMatrix_ の意味づけがかなり危ないです。
+bindShapeMatrix_ には GetTransformMatrix() の結果を入れていますが、これは「メッシュ側の bind 時グローバル変換」に近い扱いで、名前のとおりの単純な “geometry offset だけ” とみなして毎ボーンに前掛けするのは危険です。
+その後の式が
+
+diffPose = bindShape * inverse(bindPose) * newPose
+
+になっていますが、これは mesh 側の current/reference 空間を揃える項が足りていない可能性が高いです。
+少なくとも、「常にこれで正しい」式ではありません。
+
+さらに言うと、今の bindPose は GetTransformLinkMatrix() から取っていて、newPose は GetNodeGlobalTransform(link, time) です。
+つまり どちらも骨のグローバル空間です。そこへ mesh 側の GetTransformMatrix() を単純に前掛けしているので、
+mesh 空間の頂点 posOrigin に対して使う式としては不自然です。
+
+かなり率直に言うと、
+
+この式は「100倍が掛かる」より「空間が1段ずれてる」ほうの壊れ方をしやすいです。
+特にメッシュノードに平行移動・回転・スケールがあるとズレやすいです。
+
+3つ目。SplitPoints と頂点の持ち方も危ないです。
+SplitPoints(FbxLayerElement::eTextureDiffuse) の後、頂点配列を GetControlPointsCount() 基準で持ち、
+GetPolygonVertexNormal() や UV を pVertexData_[index] に上書きしています。
+これは 同じ control point を複数 polygon vertex が共有した場合、最後に読んだ法線やUVで潰れる構造です。
+今回の角柱みたいな単純形状では大きく出ないこともありますが、一般の FBX ではかなり危険です。
+本来は polygon vertex 展開済み頂点バッファに寄せたほうが安全です。
+
+4つ目。Init() が成功でも E_NOTIMPL を返しています。
+FbxParts::Init(FbxNode*) も Init(FbxMesh*) も最後が return E_NOTIMPL; です。
+今は呼び出し側で戻り値を見ていないので表面化していませんが、これは素直に S_OK であるべきです。
+直接の座標系バグではないですが、後で必ず事故ります。
+
+なので、あなたの質問に対する私の判断はこうです。
+
+「ノードに100倍が掛かっているせいで壊れている」感じは、この6ファイルだけを見る限り薄いです。
+むしろ本命は次の順です。
+
+最優先
+
+FbxParts メンバ未初期化
+InitSkelton() でスキン無し時に numBone_ = 0 などを保証していない
+その結果の AABB 分岐壊れ
