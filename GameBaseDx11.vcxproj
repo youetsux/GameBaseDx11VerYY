@@ -211,6 +211,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Docs\Maya_vs_Blender_FBX.md" />
+    <None Include="Docs\TaskList.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
