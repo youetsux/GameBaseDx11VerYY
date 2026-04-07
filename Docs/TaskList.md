@@ -83,7 +83,7 @@
 | `Engine/FbxParts.cpp` | `Init(FbxMesh*)` | 末尾 return |
 
 #### ステータス
-⬜ 未着手
+✅ 完了
 
 ---
 
@@ -109,7 +109,7 @@ Blenderの FBX は Lambert マテリアルで出力されるため、このキ�
 | `Engine/FbxParts.cpp` | `InitMaterial(FbxMesh*)` | 同上 |
 
 #### ステータス
-⬜ 未着手
+✅ 完了
 
 ---
 
@@ -131,11 +131,11 @@ Blenderはテクスチャに絶対パスを埋め込むため、相対パスが�
 | `Engine/FbxParts.cpp` | `InitTexture` | `GetRelativeFileName` → フォールバック追加 |
 
 #### ステータス
-⬜ 未着手
+✅ 完了
 
 ---
 
-### TASK-04 　`InitVertex` を polygon vertex 展開方式に変更
+### TASK-04
 **優先度 : ★★☆ / リスク : 中（法線・UVが潰れる） / 副作用 : TASK-05（スキン）に影響するので先に完了すること**
 
 #### 背景
@@ -243,3 +243,6 @@ TASK-06  (ログ整理)      → TASK-04,05 完了後が望ましい（調査中
 | 日付 | タスク | 変更内容 | 変更ファイル |
 |------|--------|----------|-------------|
 | 2025-xx-xx | -      | タスク表新規作成・セッションメモ追記 | `Docs/TaskList.md` |
+| 2025-xx-xx | TASK-01 | `Init(FbxNode*)` / `Init(FbxMesh*)` の末尾 `return E_NOTIMPL` → `return S_OK` | `Engine/FbxParts.cpp` |
+| 2025-xx-xx | TASK-02 | `InitMaterial(FbxNode*)` 279行目 / `InitMaterial(FbxMesh*)` 345行目 : Phong 強制Cキャスト削除 → ClassId 分岐 + `static_cast` に変更。Lambert 時は Specular/Shininess を 0 固定 | `Engine/FbxParts.cpp` |
+| 2025-xx-xx | TASK-03 | `InitTexture` 367行目 : `_splitpath_s` + `wsprintf` 削除 → `std::filesystem::path::filename()` に置き換え。`GetRelativeFileName()` が空の場合 `GetFileName()` にフォールバック | `Engine/FbxParts.cpp` |

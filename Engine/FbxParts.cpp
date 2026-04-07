@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Debug.h"
 #include <cassert>
+#include <filesystem>
 
 //コンストラクタ
 FbxParts::FbxParts() :
@@ -83,7 +84,7 @@ HRESULT FbxParts::Init(FbxNode* pNode)
 	InitSkelton(mesh);		//骨の情報を準備
 	IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
 
-	return E_NOTIMPL;
+	return S_OK;
 }
 
 HRESULT FbxParts::Init(fbxsdk::FbxMesh* pMesh)
@@ -185,7 +186,7 @@ HRESULT FbxParts::Init(fbxsdk::FbxMesh* pMesh)
 		}
 	}
 
-	return E_NOTIMPL;
+	return S_OK;
 }
 
 
@@ -274,58 +275,33 @@ void FbxParts::InitMaterial(fbxsdk::FbxNode* pNode)
 	{
 		ZeroMemory(&pMaterial_[i], sizeof(pMaterial_[i]));
 
-		// フォンシェーディングを想定したマテリアルバッファの抽出
+		// マテリアルの種類（Phong / Lambert）に応じて安全に取得する
 		FbxSurfaceMaterial* pMaterial = pNode->GetMaterial(i);
 
-		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pMaterial;
-
-		// 環境光＆拡散反射光＆鏡面反射光の反射成分値を取得
-		FbxDouble3  ambient = FbxDouble3(0, 0, 0);
-		FbxDouble3  diffuse = FbxDouble3(0, 0, 0);
-		FbxDouble3  specular = FbxDouble3(0, 0, 0);
-		// Ambientのプロパティを見つける
-		FbxProperty prop;
-		prop = pPhong->FindProperty(FbxSurfaceMaterial::sAmbient);
-		if (prop.IsValid())
-		{
-			//Debug::Log("Ambient OK", true);
-			ambient = pPhong->Ambient;
-		}
-		prop = pPhong->FindProperty(FbxSurfaceMaterial::sDiffuse);
-		if (prop.IsValid())
-		{
-			//Debug::Log("Diffuse OK", true);
-			diffuse = pPhong->Diffuse;
-		}
-
-
-		// 環境光＆拡散反射光＆鏡面反射光の反射成分値をマテリアルバッファにコピー
-		pMaterial_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
-		pMaterial_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
-		pMaterial_[i].specular = XMFLOAT4(0, 0, 0, 0);
-		pMaterial_[i].shininess = 0;
-
+		FbxDouble3 ambient  = FbxDouble3(0, 0, 0);
+		FbxDouble3 diffuse  = FbxDouble3(0, 0, 0);
+		FbxDouble3 specular = FbxDouble3(0, 0, 0);
 
 		if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
 		{
-			prop = pPhong->FindProperty(FbxSurfaceMaterial::sSpecular);
-			if (prop.IsValid())
-			{
-				//Debug::Log("Specular OK", true);
-				specular = pPhong->Specular;
-			}
-
-			pMaterial_[i].specular = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
-			prop = pPhong->FindProperty(FbxSurfaceMaterial::sShininess);
-			if (prop.IsValid())
-			{
-				//Debug::Log("Shininess OK", true);
-				pMaterial_[i].shininess = (float)pPhong->Shininess;
-			}
-			else
-				pMaterial_[i].shininess = (float)(1.0);
-
+			FbxSurfacePhong* pPhong = static_cast<FbxSurfacePhong*>(pMaterial);
+			ambient  = pPhong->Ambient;
+			diffuse  = pPhong->Diffuse;
+			specular = pPhong->Specular;
+			pMaterial_[i].shininess = (float)pPhong->Shininess;
 		}
+		else if (pMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+		{
+			FbxSurfaceLambert* pLambert = static_cast<FbxSurfaceLambert*>(pMaterial);
+			ambient = pLambert->Ambient;
+			diffuse = pLambert->Diffuse;
+			// Lambert には Specular / Shininess がないので 0 固定
+		}
+
+		pMaterial_[i].ambient   = XMFLOAT4((float)ambient[0],  (float)ambient[1],  (float)ambient[2],  1.0f);
+		pMaterial_[i].diffuse   = XMFLOAT4((float)diffuse[0],  (float)diffuse[1],  (float)diffuse[2],  1.0f);
+		pMaterial_[i].specular  = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
+
 		InitTexture(pMaterial, i);
 	}
 
@@ -341,54 +317,33 @@ void FbxParts::InitMaterial(fbxsdk::FbxMesh* pMesh)
 	{
 		ZeroMemory(&pMaterial_[i], sizeof(pMaterial_[i]));
 
-		// フォンシェーディングを想定したマテリアルバッファの抽出
+		// マテリアルの種類（Phong / Lambert）に応じて安全に取得する
 		FbxSurfaceMaterial* pMaterial = pMesh->GetNode()->GetMaterial(i);
-		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pMaterial;
 
-		// 環境光＆拡散反射光＆鏡面反射光の反射成分値を取得
-		FbxDouble3  ambient = FbxDouble3(0, 0, 0);
-		FbxDouble3  diffuse = FbxDouble3(0, 0, 0);
-		FbxDouble3  specular = FbxDouble3(0, 0, 0);
-		// Ambientのプロパティを見つける
-		FbxProperty prop;
-		prop = pPhong->FindProperty(FbxSurfaceMaterial::sAmbient);
-		if (prop.IsValid())
-		{
-			//Debug::Log("Ambient OK", true);
-			ambient = pPhong->Ambient;
-		}
-		prop = pPhong->FindProperty(FbxSurfaceMaterial::sDiffuse);
-		if (prop.IsValid())
-		{
-			//Debug::Log("Diffuse OK", true);
-			diffuse = pPhong->Diffuse;
-		}
-
-		// 環境光＆拡散反射光＆鏡面反射光の反射成分値をマテリアルバッファにコピー
-		pMaterial_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
-		pMaterial_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
-		pMaterial_[i].specular = XMFLOAT4(0, 0, 0, 0);
-		pMaterial_[i].shininess = 0;
+		FbxDouble3 ambient  = FbxDouble3(0, 0, 0);
+		FbxDouble3 diffuse  = FbxDouble3(0, 0, 0);
+		FbxDouble3 specular = FbxDouble3(0, 0, 0);
 
 		if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
 		{
-			prop = pPhong->FindProperty(FbxSurfaceMaterial::sSpecular);
-			if (prop.IsValid())
-			{
-				//Debug::Log("Specular OK", true);
-				specular = pPhong->Specular;
-			}
-
-			pMaterial_[i].specular = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
-			prop = pPhong->FindProperty(FbxSurfaceMaterial::sShininess);
-			if (prop.IsValid())
-			{
-				//Debug::Log("Shininess OK", true);
-				pMaterial_[i].shininess = (float)pPhong->Shininess;
-			}
-			else
-				pMaterial_[i].shininess = (float)(1.0);
+			FbxSurfacePhong* pPhong = static_cast<FbxSurfacePhong*>(pMaterial);
+			ambient  = pPhong->Ambient;
+			diffuse  = pPhong->Diffuse;
+			specular = pPhong->Specular;
+			pMaterial_[i].shininess = (float)pPhong->Shininess;
 		}
+		else if (pMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+		{
+			FbxSurfaceLambert* pLambert = static_cast<FbxSurfaceLambert*>(pMaterial);
+			ambient = pLambert->Ambient;
+			diffuse = pLambert->Diffuse;
+			// Lambert には Specular / Shininess がないので 0 固定
+		}
+
+		pMaterial_[i].ambient   = XMFLOAT4((float)ambient[0],  (float)ambient[1],  (float)ambient[2],  1.0f);
+		pMaterial_[i].diffuse   = XMFLOAT4((float)diffuse[0],  (float)diffuse[1],  (float)diffuse[2],  1.0f);
+		pMaterial_[i].specular  = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
+
 		InitTexture(pMaterial, i);
 	}
 }
@@ -408,14 +363,18 @@ void FbxParts::InitTexture(fbxsdk::FbxSurfaceMaterial* pMaterial, const DWORD& i
 	{
 		FbxFileTexture* texture = lProperty.GetSrcObject<FbxFileTexture>(0);
 
-		//ファイル名+拡張だけにする
-		char name[_MAX_FNAME];	//ファイル名
-		char ext[_MAX_EXT];		//拡張子
-		_splitpath_s(texture->GetRelativeFileName(), nullptr, 0, nullptr, 0, name, _MAX_FNAME, ext, _MAX_EXT);
-		wsprintf(name, "%s%s", name, ext);
+		// 相対パスが空の場合（Blender等）は絶対パスにフォールバック
+		const char* relPath = texture->GetRelativeFileName();
+		const char* absPath = texture->GetFileName();
+		const char* texPath = (relPath && relPath[0] != '\0') ? relPath : absPath;
 
-		pMaterial_[i].pTexture = new Texture;
-		pMaterial_[i].pTexture->Load(name);
+		if (texPath && texPath[0] != '\0')
+		{
+			// ファイル名+拡張子だけを取り出す
+			std::string filename = std::filesystem::path(texPath).filename().string();
+			pMaterial_[i].pTexture = new Texture;
+			pMaterial_[i].pTexture->Load(filename);
+		}
 	}
 }
 
