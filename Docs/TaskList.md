@@ -138,6 +138,17 @@ Blenderはテクスチャに絶対パスを埋め込むため、相対パスが�
 ### TASK-04
 **優先度 : ★★☆ / リスク : 中（法線・UVが潰れる） / 副作用 : TASK-05（スキン）に影響するので先に完了すること**
 
+> 📄 詳細手順 : `Docs/TASK04_手順書.md`
+
+#### 分割方針（決定済み）
+一気にやらず 3 Step に分割する。
+
+| Step | 内容 | 確認方法 |
+|------|------|----------|
+| Step 1 | `InitVertex` + `InitIndex` | 静的メッシュ目視 |
+| Step 2 | `InitSkelton` ウェイトマッピング | スキンメッシュ目視 |
+| Step 3 | `DrawSkinAnime` 整合確認 | アニメーション目視 |
+
 #### 背景
 現状は `pVertexData_[controlPointIndex]` に法線・UV を上書きしている。
 同一 control point を複数 polygon vertex が共有している場合（ハードエッジ・UV シーム）、
@@ -246,3 +257,4 @@ TASK-06  (ログ整理)      → TASK-04,05 完了後が望ましい（調査中
 | 2025-xx-xx | TASK-01 | `Init(FbxNode*)` / `Init(FbxMesh*)` の末尾 `return E_NOTIMPL` → `return S_OK` | `Engine/FbxParts.cpp` |
 | 2025-xx-xx | TASK-02 | `InitMaterial(FbxNode*)` 279行目 / `InitMaterial(FbxMesh*)` 345行目 : Phong 強制Cキャスト削除 → ClassId 分岐 + `static_cast` に変更。Lambert 時は Specular/Shininess を 0 固定 | `Engine/FbxParts.cpp` |
 | 2025-xx-xx | TASK-03 | `InitTexture` 367行目 : `_splitpath_s` + `wsprintf` 削除 → `std::filesystem::path::filename()` に置き換え。`GetRelativeFileName()` が空の場合 `GetFileName()` にフォールバック | `Engine/FbxParts.cpp` |
+| 2025-xx-xx | TASK-04 | 手順書作成・3 Step 分割方針決定。次回 Step 1 から着手 | `Docs/TASK04_手順書.md` |
