@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -217,7 +217,8 @@
     <None Include=".editorconfig" />
     <None Include="Docs\changelog.md" />
     <None Include="Docs\Maya_vs_Blender_FBX.md" />
-    <None Include="Docs\progress.md" />
+    <None Include="Docs\TASK04_手順書.md" />
+    <None Include="Docs\TaskList.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
