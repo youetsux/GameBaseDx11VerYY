@@ -1,6 +1,7 @@
-#include "Texture.h"
+﻿#include "Texture.h"
 #include "Direct3D.h"
 #include "Global.h"
+#include <filesystem>
 
 Texture::Texture():
 	pSampleLinear_(nullptr), pTextureSRV_(nullptr), size_(XMFLOAT3(0,0,0))
@@ -16,10 +17,17 @@ Texture::~Texture()
 
 HRESULT Texture::Load(std::string fileName)
 {
-	wchar_t wtext[FILENAME_MAX];
-	size_t ret;
-	mbstowcs_s(&ret, wtext, fileName.c_str(), fileName.length());
+	namespace fs = std::filesystem;
 
+	// ファイルの存在確認
+	if (!fs::exists(fileName))
+	{
+		std::string message = "[" + fileName + "]が見つかりません";
+		MessageBox(0, message.c_str(), "画像ファイルの読み込みに失敗", MB_OK);
+		return E_FAIL;
+	}
+
+	fs::path p(fileName);
 
 	// テクスチャを読み込む
 	CoInitialize(NULL);
@@ -28,12 +36,9 @@ HRESULT Texture::Load(std::string fileName)
 	IWICBitmapFrameDecode* pFrame = NULL;
 	IWICFormatConverter* pFormatConverter = NULL;
 	CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, reinterpret_cast<void **>(&pFactory));
-	HRESULT hr = pFactory->CreateDecoderFromFilename(wtext, NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pDecoder);
+	HRESULT hr = pFactory->CreateDecoderFromFilename(p.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pDecoder);
 	if(FAILED(hr))
 	{
-		char message[256];
-		wsprintf(message, "「%s」が見つかりまん", fileName.c_str());
-		MessageBox(0, message, "画像ファイルの読み込みに失敗", MB_OK);
 		return hr;
 	}
 	pDecoder->GetFrame(0, &pFrame);

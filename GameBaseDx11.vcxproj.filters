@@ -56,9 +56,6 @@
     <ClCompile Include="Engine\RootObject.cpp">
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\CsvReader.cpp">
-      <Filter>01Engine\ResourceManager</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Image.cpp">
       <Filter>01Engine\ResourceManager</Filter>
     </ClCompile>
@@ -97,6 +94,7 @@
     <ClCompile Include="Engine\FbxChecker.cpp" />
     <ClCompile Include="ViewerScene.cpp" />
     <ClCompile Include="Engine\FbxParts.cpp" />
+    <ClCompile Include="Engine\CsvReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -191,5 +189,7 @@
     <None Include="Docs\Maya_vs_Blender_FBX.md" />
     <None Include="Docs\TaskList.md" />
     <None Include="Docs\TASK04_手順書.md" />
+    <None Include=".editorconfig" />
+    <None Include="Docs\changelog.md" />
   </ItemGroup>
 </Project>

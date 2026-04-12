@@ -1,4 +1,6 @@
-#include <Windows.h>
+﻿#include <Windows.h>
+#include <filesystem>
+#include <fstream>
 #include "CsvReader.h"
 
 
@@ -24,32 +26,25 @@ CsvReader::~CsvReader()
 //CSVファイルのロード
 bool CsvReader::Load(std::string fileName)
 {
-	//ファイルを開く
-	HANDLE hFile;
-	hFile = CreateFile(fileName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	namespace fs = std::filesystem;
 
-	//開けなかった
-	if (hFile == INVALID_HANDLE_VALUE)
+	//ファイルの存在確認
+	if (!fs::exists(fileName))
 	{
-		std::string message = "「" + fileName + "」が開けません。\n開いている場合は閉じてください。";
+		std::string message = "[" + fileName + "]が開けません。\n開いている場合は閉じてください。";
 		MessageBox(NULL, message.c_str(), "BaseProjDx9エラー", MB_OK);
-
 		return false;
 	}
 
 	//ファイルのサイズ（文字数）を調べる
-	DWORD fileSize = GetFileSize(hFile, NULL);
+	DWORD fileSize = (DWORD)fs::file_size(fileName);
 
 	//すべての文字を入れられる配列を用意
-	char* temp;
-	temp = new char[fileSize];
+	char* temp = new char[fileSize];
 
 	//ファイルの中身を配列に読み込む
-	DWORD dwBytes = 0;
-	ReadFile(hFile, temp, fileSize, &dwBytes, NULL);
-
-	//開いたファイルを閉じる
-	CloseHandle(hFile);
+	std::ifstream ifs(fileName, std::ios::binary);
+	ifs.read(temp, fileSize);
 
 	//1行のデータを入れる配列
 	std::vector<std::string>	line;

@@ -3,6 +3,7 @@
 #include "FbxParts.h"
 #include "Debug.h"
 #include <Windows.h>
+#include <filesystem>
 
 
 #pragma comment(lib, "LibFbxSDK-MT.lib")
@@ -37,21 +38,15 @@ Fbx::~Fbx()
 HRESULT Fbx::Load(std::string fileName)
 {
 	fileName_ = fileName;
+	namespace fs = std::filesystem;
+
 	// FBXの読み込み
 	pFbxManager_ = FbxManager::Create();
 	pFbxScene_ = FbxScene::Create(pFbxManager_, "fbxscene");
 
 	// Shift-JIS パスを UTF-8 に変換して FBX SDK へ渡す
-	// （パスに日本語が含まれる場合も正しく開けるようにする）
-	std::string utf8FileName;
-	{
-		int wlen = MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, nullptr, 0);
-		std::wstring wstr(wlen, L'\0');
-		MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, &wstr[0], wlen);
-		int ulen = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-		utf8FileName.resize(ulen);
-		WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &utf8FileName[0], ulen, nullptr, nullptr);
-	}
+	auto u8tmp = fs::path(fileName).u8string();
+	std::string utf8FileName(reinterpret_cast<const char*>(u8tmp.data()), u8tmp.size());
 
 	FbxImporter *fbxImporter = FbxImporter::Create(pFbxManager_, "imp");
 
@@ -189,19 +184,11 @@ HRESULT Fbx::Load(std::string fileName)
 	// アニメーションのタイムモードの取得
 	_frameRate = pFbxScene_->GetGlobalSettings().GetTimeMode();
 
-	//現在のカレントディレクトリを覚えておく（ワイド文字版で日本語パス対応）
-	wchar_t defaultCurrentDir[MAX_PATH];
-	GetCurrentDirectoryW(MAX_PATH, defaultCurrentDir);
+	//現在のカレントディレクトリを覚えておく
+	fs::path defaultCurrentDir = fs::current_path();
 
 	//カレントディレクトリをファイルがあった場所に変更
-	{
-		int wlen = MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, nullptr, 0);
-		std::wstring wFileName(wlen, L'\0');
-		MultiByteToWideChar(CP_ACP, 0, fileName.c_str(), -1, &wFileName[0], wlen);
-		wchar_t wdir[MAX_PATH];
-		_wsplitpath_s(wFileName.c_str(), nullptr, 0, wdir, MAX_PATH, nullptr, 0, nullptr, 0);
-		SetCurrentDirectoryW(wdir);
-	}
+	fs::current_path(fs::path(fileName).parent_path());
 
 	//ルートノードを取得して
 	//FbxNode* rootNode = pFbxScene_->GetRootNode();
@@ -238,7 +225,7 @@ HRESULT Fbx::Load(std::string fileName)
 	//}
 
 	//カレントディレクトリを元の位置に戻す
-	SetCurrentDirectoryW(defaultCurrentDir);
+	fs::current_path(defaultCurrentDir);
 
 	// 全パーツの頂点からAABBを計算
 	CalcAABB();
