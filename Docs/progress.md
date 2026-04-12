@@ -77,3 +77,26 @@ WITH / WITHOUT を比較しても数学的に差が出ない。Blender 未所持
 | `Fbx::_startFrame/_endFrame` コンストラクタ初期化・`SetAnimFrame` セッター追加 |
 | `Model::SetAnimFrame` → `Fbx` へのフレーム伝達修正 |
 | `ViewerScene::ANIM_SPEED` を `0.5f` → `1.0f` に修正（アニメ速度が半分だった） |
+| `CsvReader.cpp` : `CreateFile`系 → `std::filesystem` + `std::ifstream` に移行。UTF-8 BOM 付与 |
+| `Texture.cpp` : `mbstowcs_s` → `fs::path`、冒頭に `fs::exists()` 存在チェック追加。UTF-8 BOM 付与 |
+| `Fbx.cpp` : ACP→UTF-8 変換ブロック（`MultiByteToWideChar` 9行）→ `fs::path().u8string()` 2行に置換。カレントディレクトリ操作（`wchar_t`配列 + `_wsplitpath_s` + Win32 API）→ `fs::current_path()` に置換 |
+| `FbxParts.cpp` : `#include <filesystem>` を明示追加（`InitTexture` での `std::filesystem::path` 使用に対応） |
+
+---
+
+## 注意事項
+
+### BOM の再付与が必要なケース
+
+`replace_string_in_file` ツールでファイルを編集すると UTF-8 BOM が失われる。  
+日本語の文字列リテラルを含む以下のファイルを編集した後は必ず BOM を再付与すること。
+
+```powershell
+# BOM 再付与コマンド（ファイルパスを変えて使い回す）
+$raw = Get-Content "パス\ファイル名.cpp" -Raw -Encoding UTF8
+$bom = [byte[]](0xEF,0xBB,0xBF)
+$body = [System.Text.Encoding]::UTF8.GetBytes($raw)
+[System.IO.File]::WriteAllBytes("パス\ファイル名.cpp", $bom + $body)
+```
+
+対象ファイル：`Engine/CsvReader.cpp`、`Engine/Texture.cpp`
