@@ -7,48 +7,48 @@ XMMATRIX _view;
 XMMATRIX _proj;
 XMMATRIX _billBoard;
 
-//‰Šú‰»iƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñì¬j
+//åˆæœŸåŒ–ï¼ˆãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ä½œæˆï¼‰
 void Camera::Initialize()
 {
-	_position = XMFLOAT3(0, 3, -5);	//ƒJƒƒ‰‚ÌˆÊ’u
-	_target = XMFLOAT3( 0, 1, 0);	//ƒJƒƒ‰‚ÌÅ“_
+	_position = XMFLOAT3(0, 3, -5);	//ã‚«ãƒ¡ãƒ©ã®ä½ç½®
+	_target = XMFLOAT3( 0, 1, 0);	//ã‚«ãƒ¡ãƒ©ã®ç„¦ç‚¹
 
-	//ƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ
+	//ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—
 	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, (FLOAT)Direct3D::screenWidth_ / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 }
 
-//XViƒrƒ…[s—ñì¬j
+//æ›´æ–°ï¼ˆãƒ“ãƒ¥ãƒ¼è¡Œåˆ—ä½œæˆï¼‰
 void Camera::Update()
 {
-	//ƒrƒ…[s—ñ
+	//ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—
 	_view = XMMatrixLookAtLH(XMVectorSet(_position.x, _position.y, _position.z, 0),
 		XMVectorSet(_target.x, _target.y, _target.z, 0), XMVectorSet(0, 1, 0, 0));
 
 
-	//ƒrƒ‹ƒ{[ƒhs—ñ
-	//ií‚ÉƒJƒƒ‰‚Ì•û‚ğŒü‚­‚æ‚¤‚É‰ñ“]‚³‚¹‚és—ñBƒp[ƒeƒBƒNƒ‹‚Å‚µ‚©g‚í‚È‚¢j
+	//ãƒ“ãƒ«ãƒœãƒ¼ãƒ‰è¡Œåˆ—
+	//ï¼ˆå¸¸ã«ã‚«ãƒ¡ãƒ©ã®æ–¹ã‚’å‘ãã‚ˆã†ã«å›è»¢ã•ã›ã‚‹è¡Œåˆ—ã€‚ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã§ã—ã‹ä½¿ã‚ãªã„ï¼‰
 	//http://marupeke296.com/DXG_No11_ComeOnBillboard.html
 	_billBoard = XMMatrixLookAtLH(XMVectorSet(0, 0, 0, 0), XMLoadFloat3(&_target)- XMLoadFloat3(&_position), XMVectorSet(0, 1, 0, 0));
 	_billBoard = XMMatrixInverse(nullptr, _billBoard);
 }
 
-//Å“_‚ğİ’è
+//ç„¦ç‚¹ã‚’è¨­å®š
 void Camera::SetTarget(XMFLOAT3 target) { _target = target; }
 
-//ˆÊ’u‚ğİ’è
+//ä½ç½®ã‚’è¨­å®š
 void Camera::SetPosition(XMFLOAT3 position) { _position = position; }
 
-//Å“_‚ğæ“¾
+//ç„¦ç‚¹ã‚’å–å¾—
 XMFLOAT3 Camera::GetTarget() { return _target; }
 
-//ˆÊ’u‚ğæ“¾
+//ä½ç½®ã‚’å–å¾—
 XMFLOAT3 Camera::GetPosition() { return _position; }
 
-//ƒrƒ…[s—ñ‚ğæ“¾
+//ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—ã‚’å–å¾—
 XMMATRIX Camera::GetViewMatrix() { return _view; }
 
-//ƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ‚ğæ“¾
+//ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã‚’å–å¾—
 XMMATRIX Camera::GetProjectionMatrix() { return _proj; }
 
-//ƒrƒ‹ƒ{[ƒh—p‰ñ“]s—ñ‚ğæ“¾
+//ãƒ“ãƒ«ãƒœãƒ¼ãƒ‰ç”¨å›è»¢è¡Œåˆ—ã‚’å–å¾—
 XMMATRIX Camera::GetBillboardMatrix(){	return _billBoard; }

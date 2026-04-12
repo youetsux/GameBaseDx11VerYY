@@ -6,31 +6,31 @@
 
 namespace Audio
 {
-	//XAudio–{‘Ì
+	//XAudioæœ¬ä½“
 	IXAudio2* pXAudio = nullptr;
 
-	//ƒ}ƒXƒ^[ƒ{ƒCƒX
+	//ãƒã‚¹ã‚¿ãƒ¼ãƒœã‚¤ã‚¹
 	IXAudio2MasteringVoice* pMasteringVoice = nullptr;
 
-	//ƒtƒ@ƒCƒ‹–ˆ‚É•K—v‚Èî•ñ
+	//ãƒ•ã‚¡ã‚¤ãƒ«æ¯ã«å¿…è¦ãªæƒ…å ±
 	struct AudioData
 	{
-		//ƒTƒEƒ“ƒhî•ñ
+		//ã‚µã‚¦ãƒ³ãƒ‰æƒ…å ±
 		XAUDIO2_BUFFER buf = {};
 
-		//ƒ\[ƒXƒ{ƒCƒX
+		//ã‚½ãƒ¼ã‚¹ãƒœã‚¤ã‚¹
 		IXAudio2SourceVoice** pSourceVoice = nullptr;
 
-		//“¯Ä¶Å‘å”
+		//åŒæ™‚å†ç”Ÿæœ€å¤§æ•°
 		int svNum;
 
-		//ƒtƒ@ƒCƒ‹–¼
+		//ãƒ•ã‚¡ã‚¤ãƒ«å
 		std::string fileName;
 	};
 	std::vector<AudioData>	audioDatas;
 }
 
-//‰Šú‰»
+//åˆæœŸåŒ–
 void Audio::Initialize()
 {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
@@ -40,10 +40,10 @@ void Audio::Initialize()
 
 }
 
-//ƒTƒEƒ“ƒhƒtƒ@ƒCƒ‹(.wavj‚ğƒ[ƒh
+//ã‚µã‚¦ãƒ³ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«(.wavï¼‰ã‚’ãƒ­ãƒ¼ãƒ‰
 int Audio::Load(std::string fileName, bool isLoop, int svNum)
 {
-	//‚·‚Å‚É“¯‚¶ƒtƒ@ƒCƒ‹‚ğg‚Á‚Ä‚È‚¢‚©ƒ`ƒFƒbƒN
+	//ã™ã§ã«åŒã˜ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½¿ã£ã¦ãªã„ã‹ãƒã‚§ãƒƒã‚¯
 	for (int i = 0; i < audioDatas.size(); i++)
 	{
 		if (audioDatas[i].fileName == fileName)
@@ -52,14 +52,14 @@ int Audio::Load(std::string fileName, bool isLoop, int svNum)
 		}
 	}
 
-	//ƒ`ƒƒƒ“ƒN\‘¢‘Ì
+	//ãƒãƒ£ãƒ³ã‚¯æ§‹é€ ä½“
 	struct Chunk
 	{
 		char	id[5] =""; 			// ID
-		unsigned int	size = 0;	// ƒTƒCƒY
+		unsigned int	size = 0;	// ã‚µã‚¤ã‚º
 	};
 
-	//ƒtƒ@ƒCƒ‹‚ğŠJ‚­
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
 	HANDLE hFile;
 	hFile = CreateFile(fileName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -79,45 +79,45 @@ int Audio::Load(std::string fileName, bool isLoop, int svNum)
 	ReadFile(hFile, &formatChunk.size, 4, &dwBytes, NULL);
 
 
-	//ƒtƒH[ƒ}ƒbƒg‚ğ“Ç‚İæ‚é
+	//ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’èª­ã¿å–ã‚‹
 	//https://learn.microsoft.com/ja-jp/windows/win32/api/mmeapi/ns-mmeapi-waveformatex
 	WAVEFORMATEX fmt;
-	ReadFile(hFile, &fmt.wFormatTag, 2, &dwBytes, NULL);		//Œ`®
-	ReadFile(hFile, &fmt.nChannels, 2, &dwBytes, NULL);			//ƒ`ƒƒƒ“ƒlƒ‹iƒ‚ƒmƒ‰ƒ‹/ƒXƒeƒŒƒIj
-	ReadFile(hFile, &fmt.nSamplesPerSec, 4, &dwBytes, NULL);	//ƒTƒ“ƒvƒŠƒ“ƒO”
-	ReadFile(hFile, &fmt.nAvgBytesPerSec, 4, &dwBytes, NULL);	//1•b‚ ‚½‚è‚ÌƒoƒCƒg”
-	ReadFile(hFile, &fmt.nBlockAlign, 2, &dwBytes, NULL);		//ƒuƒƒbƒN”z’u
-	ReadFile(hFile, &fmt.wBitsPerSample, 2, &dwBytes, NULL);	//ƒTƒ“ƒvƒ‹“–‚½‚è‚Ìƒrƒbƒg”
+	ReadFile(hFile, &fmt.wFormatTag, 2, &dwBytes, NULL);		//å½¢å¼
+	ReadFile(hFile, &fmt.nChannels, 2, &dwBytes, NULL);			//ãƒãƒ£ãƒ³ãƒãƒ«ï¼ˆãƒ¢ãƒãƒ©ãƒ«/ã‚¹ãƒ†ãƒ¬ã‚ªï¼‰
+	ReadFile(hFile, &fmt.nSamplesPerSec, 4, &dwBytes, NULL);	//ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°æ•°
+	ReadFile(hFile, &fmt.nAvgBytesPerSec, 4, &dwBytes, NULL);	//1ç§’ã‚ãŸã‚Šã®ãƒã‚¤ãƒˆæ•°
+	ReadFile(hFile, &fmt.nBlockAlign, 2, &dwBytes, NULL);		//ãƒ–ãƒ­ãƒƒã‚¯é…ç½®
+	ReadFile(hFile, &fmt.wBitsPerSample, 2, &dwBytes, NULL);	//ã‚µãƒ³ãƒ—ãƒ«å½“ãŸã‚Šã®ãƒ“ãƒƒãƒˆæ•°
 
 
 
-	//”gŒ`ƒf[ƒ^‚Ì“Ç‚İ‚İ
+	//æ³¢å½¢ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
 	Chunk data = { 0 };
 	while (true)
 	{
-		//Ÿ‚Ìƒf[ƒ^‚ÌID‚ğ’²‚×‚é
+		//æ¬¡ã®ãƒ‡ãƒ¼ã‚¿ã®IDã‚’èª¿ã¹ã‚‹
 		ReadFile(hFile, &data.id, 4, &dwBytes, NULL);
 
-		//udatav‚¾‚Á‚½‚çƒ‹[ƒv‚ğ”²‚¯‚ÄŸ‚Éi‚Ş
+		//ã€Œdataã€ã ã£ãŸã‚‰ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã¦æ¬¡ã«é€²ã‚€
 		if (strcmp(data.id, "data") == 0)
 			break;
 
-		//‚»‚êˆÈŠO‚Ìî•ñ‚È‚çƒTƒCƒY’²‚×‚Ä“Ç‚İ‚Ş¨g‚í‚È‚¢
+		//ãã‚Œä»¥å¤–ã®æƒ…å ±ãªã‚‰ã‚µã‚¤ã‚ºèª¿ã¹ã¦èª­ã¿è¾¼ã‚€â†’ä½¿ã‚ãªã„
 		else
 		{
-			//ƒTƒCƒY’²‚×‚Ä
+			//ã‚µã‚¤ã‚ºèª¿ã¹ã¦
 			ReadFile(hFile, &data.size, 4, &dwBytes, NULL);
 			char* pBuffer = new char[data.size];
 
-			//–³‘Ê‚É“Ç‚İ‚Ş
+			//ç„¡é§„ã«èª­ã¿è¾¼ã‚€
 			ReadFile(hFile, pBuffer, data.size, &dwBytes, NULL);
 		}
 	}
 
-	//ƒf[ƒ^ƒ`ƒƒƒ“ƒN‚ÌƒTƒCƒY‚ğæ“¾
+	//ãƒ‡ãƒ¼ã‚¿ãƒãƒ£ãƒ³ã‚¯ã®ã‚µã‚¤ã‚ºã‚’å–å¾—
 	ReadFile(hFile, &data.size, 4, &dwBytes, NULL);
 
-	//”gŒ`ƒf[ƒ^‚ğ“Ç‚İ‚Ş
+	//æ³¢å½¢ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
 	char* pBuffer = new char[data.size];
 	ReadFile(hFile, pBuffer, data.size, &dwBytes, NULL);
 	CloseHandle(hFile);
@@ -149,7 +149,7 @@ int Audio::Load(std::string fileName, bool isLoop, int svNum)
 	return (int)audioDatas.size() - 1;
 }
 
-//Ä¶
+//å†ç”Ÿ
 void Audio::Play(int ID)
 {
 	for (int i = 0; i < audioDatas[ID].svNum; i++)
@@ -176,7 +176,7 @@ void Audio::Stop(int ID)
 	}
 }
 
-//ƒV[ƒ“‚²‚Æ‚Ì‰ğ•ú
+//ã‚·ãƒ¼ãƒ³ã”ã¨ã®è§£æ”¾
 void Audio::Release()
 {
 	for (int i = 0; i < audioDatas.size(); i++)
@@ -190,7 +190,7 @@ void Audio::Release()
 	audioDatas.clear();
 }
 
-//–{‘Ì‚Ì‰ğ•ú
+//æœ¬ä½“ã®è§£æ”¾
 void Audio::AllRelease()
 {
 	CoUninitialize();

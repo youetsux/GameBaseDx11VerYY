@@ -39,10 +39,14 @@ namespace Model
 		//引数：animSpeed	アニメーション速度
 		void SetAnimFrame(int start, int end, float speed)
 		{
-			nowFrame = (float)start;
-			startFrame = start;
-			endFrame = end;
-			animSpeed = speed;
+			nowFrame    = (float)start;
+			startFrame  = start;
+			endFrame    = end;
+			animSpeed   = speed;
+			if (pFbx)
+				{
+					pFbx->SetAnimFrame(start, end, speed);
+				}
 		}
 	};
 

@@ -9,7 +9,7 @@
 #pragma comment(lib, "LibXml2-MT.lib")
 #pragma comment(lib, "zlib-MT.lib")
 
-Fbx::Fbx():_animSpeed(0), pFbxManager_(nullptr), pFbxScene_(nullptr), pAnimEvaluator_(nullptr)
+Fbx::Fbx():_animSpeed(0), _startFrame(0), _endFrame(0), pFbxManager_(nullptr), pFbxScene_(nullptr), pAnimEvaluator_(nullptr)
 {
 }
 
@@ -36,6 +36,7 @@ Fbx::~Fbx()
 
 HRESULT Fbx::Load(std::string fileName)
 {
+	fileName_ = fileName;
 	// FBXの読み込み
 	pFbxManager_ = FbxManager::Create();
 	pFbxScene_ = FbxScene::Create(pFbxManager_, "fbxscene");
@@ -297,6 +298,12 @@ void Fbx::CheckNode(FbxNode * pNode, std::vector<FbxParts*>* pPartsList)
 			CheckNode(pNode->GetChild(i), pPartsList);
 		}
 	}
+}
+
+void Fbx::NotifyLooped()
+{
+	for (int i = 0; i < (int)parts_.size(); i++)
+		parts_[i]->OnLooped();
 }
 
 void Fbx::Release()

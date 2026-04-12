@@ -1,0 +1,90 @@
+原則
+
+展開後頂点ごとに、元の control point index を必ず保持する。
+
+これを落とさなければ、アニメは壊しにくいです。
+
+たとえば展開後の頂点 dst = poly * 3 + v に対して、
+
+expandedVertex[dst] … 描画用 position/normal/uv
+expandedToControlPoint[dst] … 元の CP index
+
+を持ちます。
+
+そして InitSkelton() では、今みたいに
+pWeightArray_[cp] を作るのではなく、
+
+まず control point ごとの重み表 を作る
+そのあと 展開頂点 dst ごとに cp を見て重みをコピーする
+
+この2段階にします。
+
+これならアニメは崩れません。
+
+いちばん安全なやり方
+
+いきなり全部を展開頂点基準に変えないほうがいいです。
+まずは重みだけ control point 基準のまま残すのが安全です。
+
+つまり内部的に2つ持ちます。
+
+描画頂点: polygon vertex 展開済み
+重み元データ: control point 基準
+
+スキニング時は
+
+展開頂点 i に対応する cp = expandedToControlPoint[i] を取る
+重みは cp のものを使う
+元位置も cp 基準ではなく 展開頂点 i 自身の posOrigin を使う
+
+これで、
+
+UV/法線は展開頂点ごとに正しい
+重みは元の CP に追従
+アニメも崩れにくい
+
+になります。
+
+逆に危ないやり方
+
+これをやると壊れやすいです。
+
+vertexCount_ = polygonCount_ * 3 にする
+でも cluster の piIndex[k] をそのまま pWeightArray_[piIndex[k]] に入れる
+
+これはもう index 空間が違うので壊れます。
+今まで失敗した原因はたぶんこれ系です。
+
+今のあなたのケースなら
+
+私は いきなり全面移行はまだ勧めません。
+理由は、今のコードにはそれ以前の不安定要素があるからです。
+
+numBone_ 未初期化の可能性
+bindShape の扱いが怪しい
+スキニング式の空間整理がまだ確定していない
+
+この状態で頂点展開まで同時に入れると、
+何が原因で壊れたのか分からなくなる可能性が高いです。
+
+
+FBX読み込み修正は一気に全面改修せず、3段階で進めてください。
+
+第1段階：
+control point ベースの現在構造は維持したまま、未初期化メンバを修正し、スキニング式を安定化してください。
+特に numBone_, pSkinInfo_, ppCluster_, pBoneArray_, pWeightArray_ の初期化を必須にしてください。
+また bindShape を掛ける版と掛けない版を比較できるようにし、bind pose で崩れない式を優先してください。
+この段階では頂点展開はまだ行わないでください。
+
+第2段階：
+第1段階でスキニングが安定したことを確認できたら、描画用頂点を polygon vertex 単位に展開してください。
+vertexCount_ は polygonCount_ * 3 にし、pVertexData_ は展開済み頂点配列にしてください。
+ただしスキン重みは control point 基準のまま維持し、各展開頂点から元の control point を参照できる対応表 expandedToControlPoint を必ず保持してください。
+
+第3段階：
+最後に UV, 法線, AABB, レイキャストなどを展開頂点基準へ統一してください。
+目的は、描画頂点の単位を揃え、control point と polygon vertex の混在による不整合をなくすことです。
+
+重要：
+今はまず「展開はまだしないで、numBone_ 初期化と bindShape 切り分けだけ入れる最小修正」を優先してください。
+既存コードに存在しない関数・型・変数を勝手に増やしすぎず、段階ごとに差分が追える形で修正してください。

@@ -2,24 +2,24 @@
 #include "Engine/GameObject.h"
 #include "Engine/Model.h"
 
-//ƒeƒXƒgƒV[ƒ“‚ğŠÇ—‚·‚éƒNƒ‰ƒX
+//ãƒ†ã‚¹ãƒˆã‚·ãƒ¼ãƒ³ã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹
 class TestScene : public GameObject
 {
 public:
-	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-	//ˆø”Fparent  eƒIƒuƒWƒFƒNƒgiSceneManagerj
+	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	//å¼•æ•°ï¼šparent  è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆSceneManagerï¼‰
 	TestScene(GameObject* parent);
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void Initialize() override;
 
-	//XV
+	//æ›´æ–°
 	void Update() override;
 
-	//•`‰æ
+	//æç”»
 	void Draw() override;
 
-	//ŠJ•ú
+	//é–‹æ”¾
 	void Release() override;
 	
 };

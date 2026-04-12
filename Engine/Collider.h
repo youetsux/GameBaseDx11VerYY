@@ -3,70 +3,70 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-//�N���X�̑O���錾
+//クラスの前方宣言
 class GameObject;
 class BoxCollider;
 class SphereCollider;
 
 
-//�����蔻��̃^�C�v
+//あたり判定のタイプ
 enum ColliderType
 {
-	COLLIDER_BOX,		//���^
-	COLLIDER_CIRCLE		//����
+	COLLIDER_BOX,		//箱型
+	COLLIDER_CIRCLE		//球体
 };
 
 //-----------------------------------------------------------
-//�����蔻����Ǘ�����N���X
+//あたり判定を管理するクラス
 //-----------------------------------------------------------
 class Collider
 {
-	//���ꂼ��̃N���X��private�����o�ɃA�N�Z�X�ł���悤�ɂ���
+	//それぞれのクラスのprivateメンバにアクセスできるようにする
 	friend class BoxCollider;
 	friend class SphereCollider;
 
 protected:
-	GameObject*		pGameObject_;	//���̔���������Q�[���I�u�W�F�N�g
-	ColliderType	type_;			//���
-	XMFLOAT3		center_;		//���S�ʒu�i�Q�[���I�u�W�F�N�g�̌��_���猩���ʒu�j
-	XMFLOAT3		size_;			//����T�C�Y�i���A�����A���s���j
-	int				hDebugModel_;	//�f�o�b�O�\���p�̃��f����ID
+	GameObject*		pGameObject_;	//この判定をつけたゲームオブジェクト
+	ColliderType	type_;			//種類
+	XMFLOAT3		center_;		//中心位置（ゲームオブジェクトの原点から見た位置）
+	XMFLOAT3		size_;			//判定サイズ（幅、高さ、奥行き）
+	int				hDebugModel_;	//デバッグ表示用のモデルのID
 
 public:
-	//�R���X�g���N�^
+	//コンストラクタ
 	Collider();
 
-	//�f�X�g���N�^
+	//デストラクタ
 	virtual ~Collider();
 
-	//�ڐG����i�p�����SphereCollider��BoxCollider�ŃI�[�o�[���C�h�j
-	//�����Ftarget	����̓����蔻��
-	//�ߒl�F�ڐG���Ă��true
+	//接触判定（継承先のSphereColliderかBoxColliderでオーバーライド）
+	//引数：target	相手の当たり判定
+	//戻値：接触してればtrue
 	virtual bool IsHit(Collider* target) = 0;
 
-	//���^���m�̏Փ˔���
-	//�����FboxA	�P�ڂ̔��^����
-	//�����FboxB	�Q�ڂ̔��^����
-	//�ߒl�F�ڐG���Ă����true
+	//箱型同士の衝突判定
+	//引数：boxA	１つ目の箱型判定
+	//引数：boxB	２つ目の箱型判定
+	//戻値：接触していればtrue
 	bool IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB);
 
-	//���^�Ƌ��̂̏Փ˔���
-	//�����Fbox	���^����
-	//�����Fsphere	�Q�ڂ̔��^����
-	//�ߒl�F�ڐG���Ă����true
+	//箱型と球体の衝突判定
+	//引数：box	箱型判定
+	//引数：sphere	２つ目の箱型判定
+	//戻値：接触していればtrue
 	bool IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere);
 
-	//���̓��m�̏Փ˔���
-	//�����FcircleA	�P�ڂ̋��̔���
-	//�����FcircleB	�Q�ڂ̋��̔���
-	//�ߒl�F�ڐG���Ă����true
+	//球体同士の衝突判定
+	//引数：circleA	１つ目の球体判定
+	//引数：circleB	２つ目の球体判定
+	//戻値：接触していればtrue
 	bool IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circleB);
 
-	//�e�X�g�\���p�̘g��`��
-	//�����Fposition	�I�u�W�F�N�g�̈ʒu
+	//テスト表示用の枠を描画
+	//引数：position	オブジェクトの位置
 	void Draw(XMFLOAT3 position);
 
-	//�Z�b�^�[
+	//セッター
 	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }
 
 };

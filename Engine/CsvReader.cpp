@@ -2,16 +2,16 @@
 #include "CsvReader.h"
 
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 CsvReader::CsvReader()
 {
 	data_.clear();
 }
 
-//ƒfƒXƒgƒ‰ƒNƒ^
+//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 CsvReader::~CsvReader()
 {
-	//‘Sƒf[ƒ^‚ğŠJ•ú
+	//å…¨ãƒ‡ãƒ¼ã‚¿ã‚’é–‹æ”¾
 	for (int y = 0; y < data_.size(); y++)
 	{
 		for (int x = 0; x < data_[y].size(); x++)
@@ -21,89 +21,89 @@ CsvReader::~CsvReader()
 	}
 }
 
-//CSVƒtƒ@ƒCƒ‹‚Ìƒ[ƒh
+//CSVãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ­ãƒ¼ãƒ‰
 bool CsvReader::Load(std::string fileName)
 {
-	//ƒtƒ@ƒCƒ‹‚ğŠJ‚­
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
 	HANDLE hFile;
 	hFile = CreateFile(fileName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-	//ŠJ‚¯‚È‚©‚Á‚½
+	//é–‹ã‘ãªã‹ã£ãŸ
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		std::string message = "u" + fileName + "v‚ªŠJ‚¯‚Ü‚¹‚ñB\nŠJ‚¢‚Ä‚¢‚éê‡‚Í•Â‚¶‚Ä‚­‚¾‚³‚¢B";
-		MessageBox(NULL, message.c_str(), "BaseProjDx9ƒGƒ‰[", MB_OK);
+		std::string message = "ã€Œ" + fileName + "ã€ãŒé–‹ã‘ã¾ã›ã‚“ã€‚\né–‹ã„ã¦ã„ã‚‹å ´åˆã¯é–‰ã˜ã¦ãã ã•ã„ã€‚";
+		MessageBox(NULL, message.c_str(), "BaseProjDx9ã‚¨ãƒ©ãƒ¼", MB_OK);
 
 		return false;
 	}
 
-	//ƒtƒ@ƒCƒ‹‚ÌƒTƒCƒYi•¶š”j‚ğ’²‚×‚é
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚µã‚¤ã‚ºï¼ˆæ–‡å­—æ•°ï¼‰ã‚’èª¿ã¹ã‚‹
 	DWORD fileSize = GetFileSize(hFile, NULL);
 
-	//‚·‚×‚Ä‚Ì•¶š‚ğ“ü‚ê‚ç‚ê‚é”z—ñ‚ğ—pˆÓ
+	//ã™ã¹ã¦ã®æ–‡å­—ã‚’å…¥ã‚Œã‚‰ã‚Œã‚‹é…åˆ—ã‚’ç”¨æ„
 	char* temp;
 	temp = new char[fileSize];
 
-	//ƒtƒ@ƒCƒ‹‚Ì’†g‚ğ”z—ñ‚É“Ç‚İ‚Ş
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã®ä¸­èº«ã‚’é…åˆ—ã«èª­ã¿è¾¼ã‚€
 	DWORD dwBytes = 0;
 	ReadFile(hFile, temp, fileSize, &dwBytes, NULL);
 
-	//ŠJ‚¢‚½ƒtƒ@ƒCƒ‹‚ğ•Â‚¶‚é
+	//é–‹ã„ãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‰ã˜ã‚‹
 	CloseHandle(hFile);
 
-	//1s‚Ìƒf[ƒ^‚ğ“ü‚ê‚é”z—ñ
+	//1è¡Œã®ãƒ‡ãƒ¼ã‚¿ã‚’å…¥ã‚Œã‚‹é…åˆ—
 	std::vector<std::string>	line;
 
-	//’²‚×‚é•¶š‚ÌˆÊ’u
+	//èª¿ã¹ã‚‹æ–‡å­—ã®ä½ç½®
 	DWORD index = 0;
 
-	//ÅŒã‚Ì•¶š‚Ü‚ÅŒJ‚è•Ô‚·
+	//æœ€å¾Œã®æ–‡å­—ã¾ã§ç¹°ã‚Šè¿”ã™
 	while (index < fileSize)
 	{
-		//index•¶š–Ú‚©‚çu,v‚©u‰üsv‚Ü‚Å‚Ì•¶š—ñ‚ğæ“¾
+		//indexæ–‡å­—ç›®ã‹ã‚‰ã€Œ,ã€ã‹ã€Œæ”¹è¡Œã€ã¾ã§ã®æ–‡å­—åˆ—ã‚’å–å¾—
 		std::string val;
 		GetToComma(&val, temp, &index);
 
-		//•¶š”‚ª0‚¾‚Á‚½‚Æ‚¢‚¤‚±‚Æ‚Ís––
+		//æ–‡å­—æ•°ãŒ0ã ã£ãŸã¨ã„ã†ã“ã¨ã¯è¡Œæœ«
 		if (val.length() - 1 == 0)
 		{
-			//_data‚É1s•ª’Ç‰Á
+			//_dataã«1è¡Œåˆ†è¿½åŠ 
 			data_.push_back(line);
 
-			//1sƒf[ƒ^‚ğƒNƒŠƒA
+			//1è¡Œãƒ‡ãƒ¼ã‚¿ã‚’ã‚¯ãƒªã‚¢
 			line.clear();
 
 			//index++;
 			continue;
 		}
 
-		//1s•ª‚Ìƒf[ƒ^‚É’Ç‰Á
+		//1è¡Œåˆ†ã®ãƒ‡ãƒ¼ã‚¿ã«è¿½åŠ 
 		line.push_back(val);
 	}
 
-	//“Ç‚İ‚ñ‚¾ƒf[ƒ^‚ÍŠJ•ú‚·‚é
+	//èª­ã¿è¾¼ã‚“ã ãƒ‡ãƒ¼ã‚¿ã¯é–‹æ”¾ã™ã‚‹
 	delete[] temp;
 
-	//¬Œ÷
+	//æˆåŠŸ
 	return true;
 }
 
-//u,v‚©u‰üsv‚Ü‚Å‚Ì•¶š—ñ‚ğæ“¾
+//ã€Œ,ã€ã‹ã€Œæ”¹è¡Œã€ã¾ã§ã®æ–‡å­—åˆ—ã‚’å–å¾—
 void CsvReader::GetToComma(std::string *result, std::string data, DWORD* index)
 {
-	//u,v‚Ü‚Åˆê•¶š‚¸‚Âresult‚É“ü‚ê‚é
+	//ã€Œ,ã€ã¾ã§ä¸€æ–‡å­—ãšã¤resultã«å…¥ã‚Œã‚‹
 	while (data[*index] != ',' && data[*index] != '\n'&& data[*index] != '\r')
 	{
 		*result += data[*index];
 		(*index)++;
 	}
 
-	//ÅŒã‚Éu\0v‚ğ•t‚¯‚é
+	//æœ€å¾Œã«ã€Œ\0ã€ã‚’ä»˜ã‘ã‚‹
 	*result += '\0';
 	(*index)++;
 }
 
-//w’è‚µ‚½ˆÊ’u‚Ìƒf[ƒ^‚ğ•¶š—ñ‚Åæ“¾
+//æŒ‡å®šã—ãŸä½ç½®ã®ãƒ‡ãƒ¼ã‚¿ã‚’æ–‡å­—åˆ—ã§å–å¾—
 std::string CsvReader::GetString(DWORD x, DWORD y)
 {
 	if (x < 0 || x >= GetWidth() || y < 0 || y >= GetHeight())
@@ -112,19 +112,19 @@ std::string CsvReader::GetString(DWORD x, DWORD y)
 	return data_[y][x];
 }
 
-//w’è‚µ‚½ˆÊ’u‚Ìƒf[ƒ^‚ğ®”‚Åæ“¾
+//æŒ‡å®šã—ãŸä½ç½®ã®ãƒ‡ãƒ¼ã‚¿ã‚’æ•´æ•°ã§å–å¾—
 int CsvReader::GetValue(DWORD x, DWORD y)
 {
 	return atoi(GetString(x, y).c_str());
 }
 
-//ƒtƒ@ƒCƒ‹‚Ì—ñ”‚ğæ“¾
+//ãƒ•ã‚¡ã‚¤ãƒ«ã®åˆ—æ•°ã‚’å–å¾—
 size_t CsvReader::GetWidth()
 {
 	return data_[0].size();
 }
 
-//ƒtƒ@ƒCƒ‹‚Ìs”‚ğæ“¾
+//ãƒ•ã‚¡ã‚¤ãƒ«ã®è¡Œæ•°ã‚’å–å¾—
 size_t CsvReader::GetHeight()
 {
 	return data_.size();

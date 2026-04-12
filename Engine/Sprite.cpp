@@ -2,13 +2,13 @@
 #include "Direct3D.h"
 #include "Global.h"
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 Sprite::Sprite():
 	pTexture_(nullptr)
 {
 }
 
-//ƒfƒXƒgƒ‰ƒNƒ^
+//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 Sprite::~Sprite()
 {
 
@@ -16,32 +16,32 @@ Sprite::~Sprite()
 	SAFE_RELEASE(pIndexBuffer_);
 }
 
-//€”õ
+//æº–å‚™
 HRESULT Sprite::Load(std::string fileName)
 {
-	//ƒeƒNƒXƒ`ƒƒ€”õ
+	//ãƒ†ã‚¯ã‚¹ãƒãƒ£æº–å‚™
 	pTexture_ = new Texture();
 	if(FAILED(pTexture_->Load(fileName)))
 	{
 		return E_FAIL;
 	}
 
-	//’¸“_î•ñ€”õ
+	//é ‚ç‚¹æƒ…å ±æº–å‚™
 	InitVertex();
 
-	//ƒCƒ“ƒfƒbƒNƒXî•ñ€”õ
+	//ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æƒ…å ±æº–å‚™
 	InitIndex();
 	
-	//ƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@€”õ
+	//ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡æº–å‚™
 	InitConstantBuffer();
 
 	return S_OK;
 }
 
-//ƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@€”õ
+//ã‚³ãƒ³ã‚¹ã‚¿ãƒ³ãƒˆãƒãƒƒãƒ•ã‚¡æº–å‚™
 void Sprite::InitConstantBuffer()
 {
-	//•K—v‚ÈÝ’è€–Ú
+	//å¿…è¦ãªè¨­å®šé …ç›®
 	D3D11_BUFFER_DESC cb;
 	cb.ByteWidth =		sizeof(CONSTANT_BUFFER);
 	cb.Usage =			D3D11_USAGE_DYNAMIC;
@@ -50,24 +50,24 @@ void Sprite::InitConstantBuffer()
 	cb.MiscFlags =		0;
 	cb.StructureByteStride = 0;
 
-	// ’è”ƒoƒbƒtƒ@‚Ìì¬
+	// å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®ä½œæˆ
 	Direct3D::pDevice_->CreateBuffer(&cb, NULL, &pConstantBuffer_);
 }
 
 
 void Sprite::InitVertex()
 {
-	// ’¸“_ƒf[ƒ^éŒ¾
+	// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿å®£è¨€
 	VERTEX vertices[] =
 	{
-		{ XMFLOAT3(-1.0f,  1.0f, 0.0f),	XMFLOAT3(0.0f, 0.0f, 0.0f) },   // ŽlŠpŒ`‚Ì’¸“_i¶ãj
-		{ XMFLOAT3( 1.0f,  1.0f, 0.0f),	XMFLOAT3(1.0f, 0.0f, 0.0f) },   // ŽlŠpŒ`‚Ì’¸“_i‰Eãj
-		{ XMFLOAT3(-1.0f, -1.0f, 0.0f),	XMFLOAT3(0.0f, 1.0f, 0.0f) },   // ŽlŠpŒ`‚Ì’¸“_i¶‰ºj
-		{ XMFLOAT3( 1.0f, -1.0f, 0.0f),	XMFLOAT3(1.0f, 1.0f, 0.0f) },   // ŽlŠpŒ`‚Ì’¸“_i‰E‰ºj
+		{ XMFLOAT3(-1.0f,  1.0f, 0.0f),	XMFLOAT3(0.0f, 0.0f, 0.0f) },   // å››è§’å½¢ã®é ‚ç‚¹ï¼ˆå·¦ä¸Šï¼‰
+		{ XMFLOAT3( 1.0f,  1.0f, 0.0f),	XMFLOAT3(1.0f, 0.0f, 0.0f) },   // å››è§’å½¢ã®é ‚ç‚¹ï¼ˆå³ä¸Šï¼‰
+		{ XMFLOAT3(-1.0f, -1.0f, 0.0f),	XMFLOAT3(0.0f, 1.0f, 0.0f) },   // å››è§’å½¢ã®é ‚ç‚¹ï¼ˆå·¦ä¸‹ï¼‰
+		{ XMFLOAT3( 1.0f, -1.0f, 0.0f),	XMFLOAT3(1.0f, 1.0f, 0.0f) },   // å››è§’å½¢ã®é ‚ç‚¹ï¼ˆå³ä¸‹ï¼‰
 	};
 
 
-	// ’¸“_ƒf[ƒ^—pƒoƒbƒtƒ@‚ÌÝ’è
+	// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ç”¨ãƒãƒƒãƒ•ã‚¡ã®è¨­å®š
 	D3D11_BUFFER_DESC bd_vertex;
 	bd_vertex.ByteWidth = sizeof(vertices);
 	bd_vertex.Usage = D3D11_USAGE_DEFAULT;
@@ -84,7 +84,7 @@ void Sprite::InitIndex()
 {
 	int index[] = {2,1,0, 2,3,1 };
 
-	// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ð¶¬‚·‚é
+	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã‚’ç”Ÿæˆã™ã‚‹
 	D3D11_BUFFER_DESC   bd;
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(index);
@@ -103,7 +103,7 @@ void Sprite::InitIndex()
 
 void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 {
-	//‚¢‚ë‚¢‚ëÝ’è
+	//ã„ã‚ã„ã‚è¨­å®š
 	Direct3D::SetShader(Direct3D::SHADER_2D);
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
@@ -113,27 +113,27 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	Direct3D::SetDepthBafferWriteEnable(false);
 
 
-	// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@[‚ðƒZƒbƒg
+	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ¼ã‚’ã‚»ãƒƒãƒˆ
 	stride = sizeof(int);
 	offset = 0;
 	Direct3D::pContext_->IASetIndexBuffer(pIndexBuffer_, DXGI_FORMAT_R32_UINT, 0);
 
-	// ƒpƒ‰ƒ[ƒ^‚ÌŽó‚¯“n‚µ
+	// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®å—ã‘æ¸¡ã—
 	D3D11_MAPPED_SUBRESOURCE pdata;
 	CONSTANT_BUFFER cb;
 
 
-	//•\Ž¦‚·‚éƒTƒCƒY‚É‡‚í‚¹‚é
+	//è¡¨ç¤ºã™ã‚‹ã‚µã‚¤ã‚ºã«åˆã‚ã›ã‚‹
 	XMMATRIX cut = XMMatrixScaling((float)rect.right, (float)rect.bottom ,1);
 
-	//‰æ–Ê‚É‡‚í‚¹‚é
+	//ç”»é¢ã«åˆã‚ã›ã‚‹
 	XMMATRIX view = XMMatrixScaling(1.0f / Direct3D::screenWidth_, 1.0f / Direct3D::screenHeight_, 1.0f);
 
-	//ÅI“I‚Ès—ñ
+	//æœ€çµ‚çš„ãªè¡Œåˆ—
 	XMMATRIX world = cut * transform.matScale_ * transform.matRotate_ * view * transform.matTranslate_;
 	cb.world = XMMatrixTranspose(world);
 
-	// ƒeƒNƒXƒ`ƒƒÀ•W•ÏŠ·s—ñ‚ð“n‚·
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™å¤‰æ›è¡Œåˆ—ã‚’æ¸¡ã™
 	XMMATRIX mTexTrans = XMMatrixTranslation((float)rect.left / (float)pTexture_->GetSize().x,
 		(float)rect.top / (float)pTexture_->GetSize().y, 0.0f);
 	XMMATRIX mTexScale = XMMatrixScaling((float)rect.right / (float)pTexture_->GetSize().x,
@@ -142,11 +142,11 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	cb.uvTrans = XMMatrixTranspose(mTexel);
 	
 
-	// ƒeƒNƒXƒ`ƒƒ‡¬Fî•ñ‚ð“n‚·
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£åˆæˆè‰²æƒ…å ±ã‚’æ¸¡ã™
 	cb.color = XMFLOAT4(1, 1, 1, alpha);
 
-	Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPU‚©‚ç‚ÌƒŠƒ\[ƒXƒAƒNƒZƒX‚ðˆêŽžŽ~‚ß‚é
-	memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));		// ƒŠƒ\[ƒX‚Ö’l‚ð‘—‚é
+	Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUã‹ã‚‰ã®ãƒªã‚½ãƒ¼ã‚¹ã‚¢ã‚¯ã‚»ã‚¹ã‚’ä¸€æ™‚æ­¢ã‚ã‚‹
+	memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));		// ãƒªã‚½ãƒ¼ã‚¹ã¸å€¤ã‚’é€ã‚‹
 
 
 	ID3D11SamplerState*			pSampler = pTexture_->GetSampler();
@@ -155,9 +155,9 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	ID3D11ShaderResourceView*	pSRV = pTexture_->GetSRV();
 	Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 
-	Direct3D::pContext_->Unmap(pConstantBuffer_, 0);									// GPU‚©‚ç‚ÌƒŠƒ\[ƒXƒAƒNƒZƒX‚ðÄŠJ
+	Direct3D::pContext_->Unmap(pConstantBuffer_, 0);									// GPUã‹ã‚‰ã®ãƒªã‚½ãƒ¼ã‚¹ã‚¢ã‚¯ã‚»ã‚¹ã‚’å†é–‹
 
-	//ƒ|ƒŠƒSƒ“ƒƒbƒVƒ…‚ð•`‰æ‚·‚é
+	//ãƒãƒªã‚´ãƒ³ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æç”»ã™ã‚‹
 	Direct3D::pContext_->DrawIndexed(6, 0, 0);
 
 	Direct3D::SetShader(Direct3D::SHADER_3D);

@@ -1,11 +1,11 @@
 #pragma once
 
-//�C���N���[�h
+//インクルード
 #include <Windows.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-//�����J
+//リンカ
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -13,43 +13,43 @@ using namespace DirectX;
 
 
 //-----------------------------------------------------------
-//��ʂ̕`��Ɋւ��鏈��
+//画面の描画に関する処理
 //-----------------------------------------------------------
 namespace Direct3D
 {
-	////////////////////////�O��������A�N�Z�X����ϐ��Q///////////////////////////////
-	//�y�f�o�C�X�z
-	//�`����s�����߂̊��⃊�\�[�X�̍쐬�Ɏg��
+	////////////////////////外部からもアクセスする変数群///////////////////////////////
+	//【デバイス】
+	//描画を行うための環境やリソースの作成に使う
 	extern ID3D11Device*           pDevice_;
 
-	//�y�R���e�L�X�g�z
-	//GPU�ɖ��߂��o�����߂̂��
+	//【コンテキスト】
+	//GPUに命令を出すためのやつ
 	extern ID3D11DeviceContext*    pContext_;
 
 
-	//���V�F�[�_�[�֘A�ŕK�v�ȃZ�b�g
-	enum SHADER_TYPE{SHADER_3D, SHADER_2D, SHADER_UNLIT, SHADER_BILLBOARD, SHADER_MAX};	//3�^�C�v�i3D�p�A2D�p�A�����蔻��g�\���p�j
+	//■シェーダー関連で必要なセット
+	enum SHADER_TYPE{SHADER_3D, SHADER_2D, SHADER_UNLIT, SHADER_BILLBOARD, SHADER_MAX};	//3タイプ（3D用、2D用、当たり判定枠表示用）
 	struct SHADER_BUNDLE
 	{
-		//�y���_���̓��C�A�E�g���z
-		//1�̒��_�f�[�^���ǂ�ȏ����ǂ�ȏ��ԂŊi�[���Ă邩�i�ʒu�ƐF�Ɩ@���Ɓc�Ƃ��j
+		//【頂点入力レイアウト情報】
+		//1つの頂点データがどんな情報をどんな順番で格納してるか（位置と色と法線と…とか）
 		ID3D11InputLayout *pVertexLayout;
 
-		//�y���_�V�F�[�_�z
-		//�V�F�[�_�[�i�Z�Z.hlsl�j�̒��̒��_�V�F�[�_�[�iVS�j�������R���p�C���������̂�����
-		//�V�F�[�_�[�̓n�[�h�ɂ���ē��삪�قȂ�̂ŁA���s���ɃR���p�C������B
+		//【頂点シェーダ】
+		//シェーダー（〇〇.hlsl）の中の頂点シェーダー（VS）部分をコンパイルしたものが入る
+		//シェーダーはハードによって動作が異なるので、実行時にコンパイルする。
 		ID3D11VertexShader *pVertexShader;
 
-		//�y�s�N�Z���V�F�[�_�z
-		//�V�F�[�_�[�i�Z�Z.hlsl�j�̒��̃s�N�Z���V�F�[�_�[�iPS�j�������R���p�C���������̂�����
+		//【ピクセルシェーダ】
+		//シェーダー（〇〇.hlsl）の中のピクセルシェーダー（PS）部分をコンパイルしたものが入る
 		ID3D11PixelShader *pPixelShader;
 
-		//�y���X�^���C�U�z
-		//���_�̕\���ʒu�m���A��ʂ̂ǂ̃s�N�Z�������点��΂��������߂����
+		//【ラスタライザ】
+		//頂点の表示位置確定後、画面のどのピクセルを光らせればいいか求めるもの
 		ID3D11RasterizerState*	pRasterizerState;
 	};
 
-	//���u�����h���[�h
+	//■ブレンドモード
 	enum BLEND_MODE
 	{
 		BLEND_DEFAULT, BLEND_ADD, BLEND_MAX
@@ -57,56 +57,56 @@ namespace Direct3D
 
 
 
-	//���̑�
-	extern int		screenWidth_;		//�X�N���[���̕�
-	extern int		screenHeight_;		//�X�N���[���̍���
-	extern bool		isDrawCollision_;	//�R���W������\�����邩�t���O
+	//その他
+	extern int		screenWidth_;		//スクリーンの幅
+	extern int		screenHeight_;		//スクリーンの高さ
+	extern bool		isDrawCollision_;	//コリジョンを表示するかフラグ
 
 
 
 
 
 
-	////////////////////////��������͊֐�///////////////////////////////
+	////////////////////////ここからは関数///////////////////////////////
 
-	//����������
-	//�����FhWnd			�E�B���h�E�n���h��
-	//�����FscreenWidth		�X�N���[���̕�
-	//�����FscreenHeight	�X�N���[���̍���
+	//初期化処理
+	//引数：hWnd			ウィンドウハンドル
+	//引数：screenWidth		スクリーンの幅
+	//引数：screenHeight	スクリーンの高さ
 	HRESULT Initialize(HWND hWnd, int screenWidth, int screenHeight);
 
-	//�V�F�[�_�[�֘A�ŕK�v�ȃZ�b�g����
+	//シェーダー関連で必要なセット準備
 	void InitShaderBundle();
 
-	//������`�悷��ShaderBundle��ݒ�
-	//�����Ftype	SHADER_3D, SHADER_2D, SHADER_UNLIT�̂ǂꂩ
+	//今から描画するShaderBundleを設定
+	//引数：type	SHADER_3D, SHADER_2D, SHADER_UNLITのどれか
 	void SetShader(SHADER_TYPE type);
 
-	//�u�����h���[�h�̕ύX
-	//�����FblendMode	BLEND_DEFAULT	�ʏ�
-	//					BLEND_ADD		���Z�����i�p�[�e�B�N���p�j
+	//ブレンドモードの変更
+	//引数：blendMode	BLEND_DEFAULT	通常
+	//					BLEND_ADD		加算合成（パーティクル用）
 	void SetBlendMode(BLEND_MODE blendMode);
 
-	//�`��J�n
+	//描画開始
 	void BeginDraw();
 
-	//�`��I��
+	//描画終了
 	void EndDraw();
 
-	//�J������
+	//開放処理
 	void Release();
 
 
-	//�O�p�`�Ɛ����i���C�j�̏Փ˔���i�Փ˔���Ɏg�p�j
-	//�����Fstart�@		���C�̃X�^�[�g�ʒu
-	//�����Fdirection	���C�̕���
-	//�����Fv0,v1,v2	�O�p�`�̊e���_�ʒu
-	//�����Fdistance	�Փ˓_�܂ł̋�����Ԃ�
-	//�ߒl�F�Փ˂������ǂ���
+	//三角形と線分（レイ）の衝突判定（衝突判定に使用）
+	//引数：start　		レイのスタート位置
+	//引数：direction	レイの方向
+	//引数：v0,v1,v2	三角形の各頂点位置
+	//引数：distance	衝突点までの距離を返す
+	//戻値：衝突したかどうか
 	bool Intersect(XMFLOAT3& start, XMFLOAT3& direction, XMFLOAT3 &v0, XMFLOAT3& v1, XMFLOAT3& v2, float* distance);
 
-	//Z�o�b�t�@�ւ̏�������ON/OFF
-	//�����FisWrite	  true=��������ON�^false=��������OFF
+	//Zバッファへの書き込みON/OFF
+	//引数：isWrite	  true=書き込みON／false=書き込みOFF
 	void SetDepthBafferWriteEnable(bool isWrite);
 };
 

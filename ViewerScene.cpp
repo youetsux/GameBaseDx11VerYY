@@ -7,7 +7,7 @@
 #include "Engine/Fbx.h"
 
 std::string ViewerScene::pendingDropFile_;
-const float ViewerScene::ANIM_SPEED = 0.5f;
+const float ViewerScene::ANIM_SPEED = 1.0f;
 
 static const float INIT_DIST  = 10.0f;
 static const float INIT_PITCH = 15.0f;

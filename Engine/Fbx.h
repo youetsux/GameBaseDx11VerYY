@@ -101,6 +101,8 @@ class Fbx
 	// AABB（ロード後に計算。初期ポーズの頂点座標をベースにする）
 	AABB aabb_;
 
+	std::string fileName_;	// ロード時のファイル名
+
 	void CalcAABB();	// Load内部から呼ぶ
 
 	//ノードの中身を調べる
@@ -111,6 +113,13 @@ class Fbx
 public:
 	Fbx();
 	~Fbx();
+
+	void SetAnimFrame(int start, int end, float speed = -1.0f)
+	{
+		_startFrame = start;
+		_endFrame   = end;
+		if (speed >= 0.0f) _animSpeed = speed;
+	}
 
 	FbxManager* GetFbxManager() {
 		return pFbxManager_;
@@ -147,4 +156,7 @@ public:
 
 	// AABBを取得（Load後に有効）
 	const AABB& GetAABB() const { return aabb_; }
+
+	// アニメーションが1周したことを通知する（Model::Draw から呼ぶ）
+	void NotifyLooped();
 };

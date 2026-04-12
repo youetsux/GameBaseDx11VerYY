@@ -15,26 +15,26 @@
 using namespace DirectX;
 
 //-----------------------------------------------------------
-//ƒeƒNƒXƒ`ƒƒŠÖ˜A‚ğˆµ‚¤ƒNƒ‰ƒX
+//ãƒ†ã‚¯ã‚¹ãƒãƒ£é–¢é€£ã‚’æ‰±ã†ã‚¯ãƒ©ã‚¹
 //-----------------------------------------------------------
 class Texture
 {
-	ID3D11SamplerState*			pSampleLinear_;		//ƒeƒNƒXƒ`ƒƒƒTƒ“ƒvƒ‰[iƒeƒNƒXƒ`ƒƒ‚Ì“\‚è•ûj
-	ID3D11ShaderResourceView*	pTextureSRV_;		//ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[iƒeƒNƒXƒ`ƒƒ‚ğƒVƒF[ƒ_[‚É‘—‚é‚½‚ß‚Ì‚à‚Ìj
-	XMFLOAT3					size_;				//‰æ‘œƒtƒ@ƒCƒ‹‚ÌƒTƒCƒY
+	ID3D11SamplerState*			pSampleLinear_;		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ã®è²¼ã‚Šæ–¹ï¼‰
+	ID3D11ShaderResourceView*	pTextureSRV_;		//ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã«é€ã‚‹ãŸã‚ã®ã‚‚ã®ï¼‰
+	XMFLOAT3					size_;				//ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚µã‚¤ã‚º
 
 public:
 	Texture();
 	~Texture();
 
-	//ƒ[ƒh
-	//ˆø”FfileName	‰æ‘œƒtƒ@ƒCƒ‹–¼
-	//–ß’lF¬Œ÷/¸”s
+	//ãƒ­ãƒ¼ãƒ‰
+	//å¼•æ•°ï¼šfileName	ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«å
+	//æˆ»å€¤ï¼šæˆåŠŸ/å¤±æ•—
 	HRESULT Load(std::string fileName);
 
-	//ŠeƒAƒNƒZƒXŠÖ”
-	ID3D11SamplerState* GetSampler() { return pSampleLinear_; }	//ƒTƒ“ƒvƒ‰[‚Ìæ“¾
-	ID3D11ShaderResourceView* GetSRV() { return pTextureSRV_; }	//ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[‚Ìæ“¾
-	XMFLOAT3 GetSize() { return size_; }	//‰æ‘œƒTƒCƒY‚Ìæ“¾
+	//å„ã‚¢ã‚¯ã‚»ã‚¹é–¢æ•°
+	ID3D11SamplerState* GetSampler() { return pSampleLinear_; }	//ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã®å–å¾—
+	ID3D11ShaderResourceView* GetSRV() { return pTextureSRV_; }	//ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ã®å–å¾—
+	XMFLOAT3 GetSize() { return size_; }	//ç”»åƒã‚µã‚¤ã‚ºã®å–å¾—
 };
 

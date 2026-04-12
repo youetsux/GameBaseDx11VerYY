@@ -4,33 +4,33 @@
 #include <list>
 
 
-//ƒGƒ~ƒbƒ^[iƒp[ƒeƒBƒNƒ‹‚Ì”­¶Œ¹j‚ğì‚é‚Ìƒf[ƒ^ˆê——
-//StartŠÖ”‚Ìˆø”‚Æ‚µ‚Äg‚¤
+//ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ï¼ˆãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®ç™ºç”Ÿæºï¼‰ã‚’ä½œã‚‹æ™‚ã®ãƒ‡ãƒ¼ã‚¿ä¸€è¦§
+//Starté–¢æ•°ã®å¼•æ•°ã¨ã—ã¦ä½¿ã†
 struct EmitterData
 {
-	std::string textureFileName;	//‰æ‘œƒtƒ@ƒCƒ‹–¼
-	XMFLOAT3 position;		//ˆÊ’u
-	XMFLOAT3 positionRnd;	//ˆÊ’u‚ÌŒë·
-	XMFLOAT3 direction;		//ƒp[ƒeƒBƒNƒ‹‚ÌˆÚ“®•ûŒü
-	XMFLOAT3 directionRnd;	//ˆÚ“®•ûŒü‚ÌŒë·iŠe²‚ÌŠp“xj
-	float	 speed;			//1ƒtƒŒ[ƒ€‚Ì‘¬“x
-	float	 speedRnd;		//‘¬“xŒë·i0`1j
-	float	 accel;			//‰Á‘¬“x
-	float	 gravity;		//d—Í
-	XMFLOAT4 color;			//FiRGBA 0`1j
-	XMFLOAT4 deltaColor;	//F‚Ì•Ï‰»—Ê
-	XMFLOAT3 rotate;		//Še²‚Å‚ÌŠp“x
-	XMFLOAT3 rotateRnd;		//Šp“xŒë·
-	XMFLOAT3 spin;			//‰ñ“]‘¬“x
-	XMFLOAT2 size;			//ƒTƒCƒY
-	XMFLOAT2 sizeRnd;		//ƒTƒCƒYŒë·i0`1j
-	XMFLOAT2 scale;			//1ƒtƒŒ[ƒ€‚ÌŠg‘å—¦
-	DWORD	 lifeTime;		//ƒp[ƒeƒBƒNƒ‹‚Ìõ–½iƒtƒŒ[ƒ€”j
-	DWORD	 delay;			//‰½ƒtƒŒ[ƒ€‚¨‚«‚Éƒp[ƒeƒBƒNƒ‹‚ğ”­¶‚³‚¹‚é‚©
-	DWORD	 number;		//1“x‚Éo‚·ƒp[ƒeƒBƒNƒ‹—Ê
-	bool	 isBillBoard;	//ƒrƒ‹ƒ{[ƒh‚©‚Ç‚¤‚©
+	std::string textureFileName;	//ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«å
+	XMFLOAT3 position;		//ä½ç½®
+	XMFLOAT3 positionRnd;	//ä½ç½®ã®èª¤å·®
+	XMFLOAT3 direction;		//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®ç§»å‹•æ–¹å‘
+	XMFLOAT3 directionRnd;	//ç§»å‹•æ–¹å‘ã®èª¤å·®ï¼ˆå„è»¸ã®è§’åº¦ï¼‰
+	float	 speed;			//1ãƒ•ãƒ¬ãƒ¼ãƒ ã®é€Ÿåº¦
+	float	 speedRnd;		//é€Ÿåº¦èª¤å·®ï¼ˆ0ï½1ï¼‰
+	float	 accel;			//åŠ é€Ÿåº¦
+	float	 gravity;		//é‡åŠ›
+	XMFLOAT4 color;			//è‰²ï¼ˆRGBA 0ï½1ï¼‰
+	XMFLOAT4 deltaColor;	//è‰²ã®å¤‰åŒ–é‡
+	XMFLOAT3 rotate;		//å„è»¸ã§ã®è§’åº¦
+	XMFLOAT3 rotateRnd;		//è§’åº¦èª¤å·®
+	XMFLOAT3 spin;			//å›è»¢é€Ÿåº¦
+	XMFLOAT2 size;			//ã‚µã‚¤ã‚º
+	XMFLOAT2 sizeRnd;		//ã‚µã‚¤ã‚ºèª¤å·®ï¼ˆ0ï½1ï¼‰
+	XMFLOAT2 scale;			//1ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ‹¡å¤§ç‡
+	DWORD	 lifeTime;		//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®å¯¿å‘½ï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ æ•°ï¼‰
+	DWORD	 delay;			//ä½•ãƒ•ãƒ¬ãƒ¼ãƒ ãŠãã«ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã‚’ç™ºç”Ÿã•ã›ã‚‹ã‹
+	DWORD	 number;		//1åº¦ã«å‡ºã™ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«é‡
+	bool	 isBillBoard;	//ãƒ“ãƒ«ãƒœãƒ¼ãƒ‰ã‹ã©ã†ã‹
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	EmitterData()
 	{
 		textureFileName = "defaultParticle.png";
@@ -53,73 +53,73 @@ struct EmitterData
 
 
 
-//ƒGƒtƒFƒNƒg‚ğŠÇ—‚·‚éƒNƒ‰ƒX
+//ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹
 namespace VFX
 {
-	//ƒGƒ~ƒbƒ^[iƒp[ƒeƒBƒNƒ‹‚Ì•¬ËŒûj
+	//ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ï¼ˆãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®å™´å°„å£ï¼‰
 	struct Emitter
 	{
-		EmitterData data ;		//ì¬‚Éw’è‚³‚ê‚½ƒf[ƒ^
-		int handle = -1;		//ƒnƒ“ƒhƒ‹i”Ô†j
-		DWORD frameCount = 0;	//ŠJn‚µ‚Ä‚©‚ç‚ÌƒtƒŒ[ƒ€”
-		BillBoard* pBillBoard = nullptr;	//ƒp[ƒeƒBƒNƒ‹‚Ég‚¤ƒ|ƒŠƒSƒ“
-		bool isDead = false;	//íœ‘ÎÛ‚©‚Ç‚¤‚©iÀÛ‚Íƒp[ƒeƒBƒNƒ‹‚ª‘S•”Á‚¦‚é‚Ü‚ÅƒGƒ~ƒbƒ^[‚ÍÁ‚¦‚È‚¢j
-		int particleNum = 0;	//‚±‚ÌƒGƒ~ƒbƒ^[‚©‚ço‚½Œ»‘¶ƒp[ƒeƒBƒNƒ‹‚Ì”
+		EmitterData data ;		//ä½œæˆæ™‚ã«æŒ‡å®šã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿
+		int handle = -1;		//ãƒãƒ³ãƒ‰ãƒ«ï¼ˆç•ªå·ï¼‰
+		DWORD frameCount = 0;	//é–‹å§‹ã—ã¦ã‹ã‚‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ æ•°
+		BillBoard* pBillBoard = nullptr;	//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã«ä½¿ã†ãƒãƒªã‚´ãƒ³
+		bool isDead = false;	//å‰Šé™¤å¯¾è±¡ã‹ã©ã†ã‹ï¼ˆå®Ÿéš›ã¯ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ãŒå…¨éƒ¨æ¶ˆãˆã‚‹ã¾ã§ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ã¯æ¶ˆãˆãªã„ï¼‰
+		int particleNum = 0;	//ã“ã®ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ã‹ã‚‰å‡ºãŸç¾å­˜ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®æ•°
 	};
 
 
-	//ƒp[ƒeƒBƒNƒ‹‚Ì•Ï‰»‚·‚éƒf[ƒ^
+	//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®å¤‰åŒ–ã™ã‚‹ãƒ‡ãƒ¼ã‚¿
 	struct DynamicData
 	{
-		XMFLOAT3 position;	//ˆÊ’u
-		XMFLOAT3 rotation;	//‰ñ“]
-		XMFLOAT2 scale;		//ƒTƒCƒY
-		XMFLOAT4 color;		//F
+		XMFLOAT3 position;	//ä½ç½®
+		XMFLOAT3 rotation;	//å›è»¢
+		XMFLOAT2 scale;		//ã‚µã‚¤ã‚º
+		XMFLOAT4 color;		//è‰²
 	};
 
-	//ƒp[ƒeƒBƒNƒ‹1—±‚Ìƒf[ƒ^
+	//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«1ç²’ã®ãƒ‡ãƒ¼ã‚¿
 	struct Particle
 	{
-		DynamicData now;	//Œ»İ‚Ìî•ñ
-		DynamicData delta;	//1ƒtƒŒ[ƒ€‚Ì•Ï‰»—Ê
-		DWORD life;			//c‚èõ–½
-		float accel;		//‰Á‘¬“x
-		float gravity;		//d—Í
-		Emitter* pEmitter;	//”­¶Œ³ƒGƒ~ƒbƒ^
+		DynamicData now;	//ç¾åœ¨ã®æƒ…å ±
+		DynamicData delta;	//1ãƒ•ãƒ¬ãƒ¼ãƒ ã®å¤‰åŒ–é‡
+		DWORD life;			//æ®‹ã‚Šå¯¿å‘½
+		float accel;		//åŠ é€Ÿåº¦
+		float gravity;		//é‡åŠ›
+		Emitter* pEmitter;	//ç™ºç”Ÿå…ƒã‚¨ãƒŸãƒƒã‚¿
 	};
 
 	
 
 
 
-	//”­¶’†‚Ìƒp[ƒeƒBƒNƒ‹‚ğXV
+	//ç™ºç”Ÿä¸­ã®ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã‚’æ›´æ–°
 	void ParticleUpdate();
 
-	//ƒGƒ~ƒbƒ^‚ÌXViƒ^ƒCƒ~ƒ“ƒOŸ‘æ‚Åƒp[ƒeƒBƒNƒ‹‚ğ”­¶‚³‚¹‚éj
+	//ã‚¨ãƒŸãƒƒã‚¿ã®æ›´æ–°ï¼ˆã‚¿ã‚¤ãƒŸãƒ³ã‚°æ¬¡ç¬¬ã§ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã‚’ç™ºç”Ÿã•ã›ã‚‹ï¼‰
 	void EmitterUpdate();
 
-	//ƒp[ƒeƒBƒNƒ‹¶¬
-	//ˆø”Femitter	ƒGƒ~ƒbƒ^[î•ñ
+	//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ç”Ÿæˆ
+	//å¼•æ•°ï¼šemitter	ã‚¨ãƒŸãƒƒã‚¿ãƒ¼æƒ…å ±
 	void CreateParticle(std::list<VFX::Emitter*>::iterator& emitter);
 
 
-	//XV
+	//æ›´æ–°
 	void Update();
 
-	//•`‰æ
+	//æç”»
 	void Draw();
 
-	//ŠJ•ú
+	//é–‹æ”¾
 	void Release();
 
 
-	//ƒGƒ~ƒbƒ^‚ğì¬iƒGƒtƒFƒNƒgŠJnj
-	//ˆø”FemitterData	Šeíî•ñ
-	//–ß’lFƒGƒtƒFƒNƒgiƒGƒ~ƒbƒ^j‚Ì”Ô†
+	//ã‚¨ãƒŸãƒƒã‚¿ã‚’ä½œæˆï¼ˆã‚¨ãƒ•ã‚§ã‚¯ãƒˆé–‹å§‹ï¼‰
+	//å¼•æ•°ï¼šemitterData	å„ç¨®æƒ…å ±
+	//æˆ»å€¤ï¼šã‚¨ãƒ•ã‚§ã‚¯ãƒˆï¼ˆã‚¨ãƒŸãƒƒã‚¿ï¼‰ã®ç•ªå·
 	int Start(EmitterData emitterData);
 
-	//ƒGƒ~ƒbƒ^‚ğíœiƒGƒtƒFƒNƒgI—¹j
-	//ˆø”Fhandle	ƒGƒtƒFƒNƒg‚Ì”Ô†
+	//ã‚¨ãƒŸãƒƒã‚¿ã‚’å‰Šé™¤ï¼ˆã‚¨ãƒ•ã‚§ã‚¯ãƒˆçµ‚äº†ï¼‰
+	//å¼•æ•°ï¼šhandle	ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã®ç•ªå·
 	void End(int handle);
 };
 

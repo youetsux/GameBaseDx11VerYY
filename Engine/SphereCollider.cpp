@@ -2,25 +2,25 @@
 #include "BoxCollider.h"
 #include "Model.h"
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^i“–‚½‚è”»’è‚Ìì¬j
-//ˆø”FbasePos	“–‚½‚è”»’è‚Ì’†SˆÊ’uiƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ÌŒ´“_‚©‚çŒ©‚½ˆÊ’uj
-//ˆø”Fsize	“–‚½‚è”»’è‚ÌƒTƒCƒY
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ï¼ˆå½“ãŸã‚Šåˆ¤å®šã®ä½œæˆï¼‰
+//å¼•æ•°ï¼šbasePos	å½“ãŸã‚Šåˆ¤å®šã®ä¸­å¿ƒä½ç½®ï¼ˆã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åŽŸç‚¹ã‹ã‚‰è¦‹ãŸä½ç½®ï¼‰
+//å¼•æ•°ï¼šsize	å½“ãŸã‚Šåˆ¤å®šã®ã‚µã‚¤ã‚º
 SphereCollider::SphereCollider(XMFLOAT3 center, float radius)
 {
 	center_ = center;
 	size_ = XMFLOAT3(radius, radius, radius);
 	type_ = COLLIDER_CIRCLE;
 
-	//ƒŠƒŠ[ƒXŽž‚Í”»’è˜g‚Í•\Ž¦‚µ‚È‚¢
+	//ãƒªãƒªãƒ¼ã‚¹æ™‚ã¯åˆ¤å®šæž ã¯è¡¨ç¤ºã—ãªã„
 #ifdef _DEBUG
-	//ƒeƒXƒg•\Ž¦—p”»’è˜g
+	//ãƒ†ã‚¹ãƒˆè¡¨ç¤ºç”¨åˆ¤å®šæž 
 	hDebugModel_ = Model::Load("DebugCollision/sphereCollider.fbx");
 #endif
 }
 
-//ÚG”»’è
-//ˆø”Ftarget	‘ŠŽè‚Ì“–‚½‚è”»’è
-//–ß’lFÚG‚µ‚Ä‚ê‚Îtrue
+//æŽ¥è§¦åˆ¤å®š
+//å¼•æ•°ï¼štarget	ç›¸æ‰‹ã®å½“ãŸã‚Šåˆ¤å®š
+//æˆ»å€¤ï¼šæŽ¥è§¦ã—ã¦ã‚Œã°true
 bool SphereCollider::IsHit(Collider* target)
 {
 	if (target->type_ == COLLIDER_BOX)

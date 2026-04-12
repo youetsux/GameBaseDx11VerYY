@@ -3,27 +3,27 @@
 
 namespace VFX
 {
-    std::list<Emitter*>		emitterList_;	//ƒGƒ~ƒbƒ^[’B
-    std::list<Particle*>	particleList_;	//ƒp[ƒeƒBƒNƒ‹’B
+    std::list<Emitter*>		emitterList_;	//ã‚¨ãƒŸãƒƒã‚¿ãƒ¼é”
+    std::list<Particle*>	particleList_;	//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«é”
 };
 
-//XV
+//æ›´æ–°
 void VFX::Update()
 {
-    //ŠeƒGƒ~ƒbƒ^[‚Ìˆ—
+    //å„ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ã®å‡¦ç†
     EmitterUpdate();
 
-    //Šeƒp[ƒeƒBƒNƒ‹‚Ìˆ—
+    //å„ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®å‡¦ç†
     ParticleUpdate();
 }
 
 
-//”­¶’†‚Ìƒp[ƒeƒBƒNƒ‹‚ÌXV
+//ç™ºç”Ÿä¸­ã®ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®æ›´æ–°
 void VFX::ParticleUpdate()
 {
     for (auto particle = particleList_.begin(); particle != particleList_.end();)
     {
-        //õ–½‚ªs‚«‚½‚Ì‚ÅÁ‚·
+        //å¯¿å‘½ãŒå°½ããŸã®ã§æ¶ˆã™
         if ((*particle)->life == 0)
         {
             (*particle)->pEmitter->particleNum--;
@@ -31,7 +31,7 @@ void VFX::ParticleUpdate()
             particle = particleList_.erase(particle);
         }
 
-        //‚Ü‚¾¶‚«‚Ä‚é
+        //ã¾ã ç”Ÿãã¦ã‚‹
         else
         {
             (*particle)->life--;
@@ -60,15 +60,15 @@ void VFX::ParticleUpdate()
 }
 
 
-//ŠeƒGƒ~ƒbƒ^‚ÌXV
+//å„ã‚¨ãƒŸãƒƒã‚¿ã®æ›´æ–°
 void VFX::EmitterUpdate()
 {
     for (auto emitter = emitterList_.begin(); emitter != emitterList_.end();)
     {
-        //‚à‚¤€‚ñ‚Å‚éƒGƒ~ƒbƒ^[
+        //ã‚‚ã†æ­»ã‚“ã§ã‚‹ã‚¨ãƒŸãƒƒã‚¿ãƒ¼
         if ((*emitter)->isDead)
         {
-            //‚»‚ÌƒGƒ~ƒbƒ^[‚©‚ço‚½ƒp[ƒeƒBƒNƒ‹‚ª‘S•”Á‚¦‚Ä‚½‚çƒGƒ~ƒbƒ^[‚àíœ
+            //ãã®ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ã‹ã‚‰å‡ºãŸãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ãŒå…¨éƒ¨æ¶ˆãˆã¦ãŸã‚‰ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ã‚‚å‰Šé™¤
             if ((*emitter)->particleNum <= 0)
             {
                 (*emitter)->pBillBoard->Release();
@@ -82,20 +82,20 @@ void VFX::EmitterUpdate()
             }
         }
 
-        //‚Ü‚¾¶‚«‚Ä‚é
+        //ã¾ã ç”Ÿãã¦ã‚‹
         else
         {
-            //ƒp[ƒeƒBƒNƒ‹‚ğ”­¶‚³‚¹‚éƒ^ƒCƒ~ƒ“ƒO‚È‚ç
+            //ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã‚’ç™ºç”Ÿã•ã›ã‚‹ã‚¿ã‚¤ãƒŸãƒ³ã‚°ãªã‚‰
             if ((*emitter)->data.delay == 0 || (*emitter)->frameCount % (*emitter)->data.delay == 0)
             {
-                //ƒp[ƒeƒBƒNƒ‹”­¶
+                //ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ç™ºç”Ÿ
                 CreateParticle(emitter);
             }
 
             (*emitter)->frameCount++;
 
 
-            //delay‚ª0‚ÌƒGƒ~ƒbƒ^[‚Í‚P”­o‚µ‚½‚çíœ
+            //delayãŒ0ã®ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ã¯ï¼‘ç™ºå‡ºã—ãŸã‚‰å‰Šé™¤
             if ((*emitter)->data.delay == 0)
             {
                 (*emitter)->isDead = true;
@@ -107,18 +107,18 @@ void VFX::EmitterUpdate()
     }
 }
 
-//ƒp[ƒeƒBƒNƒ‹”­¶
+//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ç™ºç”Ÿ
 void VFX::CreateParticle(std::list<VFX::Emitter*>::iterator& emitter)
 {
-    //w’èŒÂ”•ª
+    //æŒ‡å®šå€‹æ•°åˆ†
     for (DWORD i = 0; i < (*emitter)->data.number; i++)
     {
-        //ƒp[ƒeƒBƒNƒ‹”­¶
+        //ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ç™ºç”Ÿ
         Particle* pParticle = new Particle;
 
-        //‰Šú
+        //åˆæœŸ
         {
-            //ˆÊ’u
+            //ä½ç½®
             pParticle->now.position = (*emitter)->data.position;
             float dx = (float)((*emitter)->data.positionRnd.x == 0 ? 0 : rand() % (int)((*emitter)->data.positionRnd.x * 201) - ((*emitter)->data.positionRnd.x * 100)) / 100.0f;
             float dy = (float)((*emitter)->data.positionRnd.y == 0 ? 0 : rand() % (int)((*emitter)->data.positionRnd.y * 201) - ((*emitter)->data.positionRnd.y * 100)) / 100.0f;
@@ -127,16 +127,16 @@ void VFX::CreateParticle(std::list<VFX::Emitter*>::iterator& emitter)
             pParticle->now.position.y += dy;
             pParticle->now.position.z += dz;
 
-            //F
+            //è‰²
             pParticle->now.color = (*emitter)->data.color;
 
-            //Šg‘å—¦
+            //æ‹¡å¤§ç‡
             dx = (float)((*emitter)->data.sizeRnd.x == 0 ? 0 : rand() % (int)((*emitter)->data.sizeRnd.x * 201) - ((*emitter)->data.sizeRnd.x * 100)) / 100.0f + 1.0f;
             dy = (float)((*emitter)->data.sizeRnd.y == 0 ? 0 : rand() % (int)((*emitter)->data.sizeRnd.y * 201) - ((*emitter)->data.sizeRnd.y * 100)) / 100.0f + 1.0f;
             pParticle->now.scale.x = (*emitter)->data.size.x * dx;
             pParticle->now.scale.y = (*emitter)->data.size.y * dy;
 
-            //‰ñ“]
+            //å›è»¢
             pParticle->now.rotation = (*emitter)->data.rotate;
             dx = (float)((*emitter)->data.rotateRnd.x == 0 ? 0 : rand() % (int)((*emitter)->data.rotateRnd.x * 201) - ((*emitter)->data.rotateRnd.x * 100)) / 100.0f;
             dy = (float)((*emitter)->data.rotateRnd.y == 0 ? 0 : rand() % (int)((*emitter)->data.rotateRnd.y * 201) - ((*emitter)->data.rotateRnd.y * 100)) / 100.0f;
@@ -146,9 +146,9 @@ void VFX::CreateParticle(std::list<VFX::Emitter*>::iterator& emitter)
             pParticle->now.rotation.z += dz;
         }
 
-        //•Ï‰»—Ê
+        //å¤‰åŒ–é‡
         {
-            //ˆÚ“®•ûŒü
+            //ç§»å‹•æ–¹å‘
             XMVECTOR vecDir = XMLoadFloat3(&(*emitter)->data.direction);
             float dx = (float)((*emitter)->data.directionRnd.x == 0 ? 0 : rand() % (int)((*emitter)->data.directionRnd.x * 201) - ((*emitter)->data.directionRnd.x * 100)) / 100.0f;
             float dy = (float)((*emitter)->data.directionRnd.y == 0 ? 0 : rand() % (int)((*emitter)->data.directionRnd.y * 201) - ((*emitter)->data.directionRnd.y * 100)) / 100.0f;
@@ -162,32 +162,32 @@ void VFX::CreateParticle(std::list<VFX::Emitter*>::iterator& emitter)
             vecDir = XMVector3Normalize(vecDir) * ((*emitter)->data.speed * s);
             XMStoreFloat3(&pParticle->delta.position, vecDir);
 
-            //Šg‘å—¦
+            //æ‹¡å¤§ç‡
             pParticle->delta.scale = (*emitter)->data.scale;
 
             pParticle->delta.rotation = (*emitter)->data.spin;
 
-            //F
+            //è‰²
             pParticle->delta.color = (*emitter)->data.deltaColor;
 
 
         }
 
-        pParticle->life = (*emitter)->data.lifeTime;    //c‚èõ–½
-        pParticle->gravity = (*emitter)->data.gravity;  //d—Í
-        pParticle->accel = (*emitter)->data.accel;      //‰Á‘¬
+        pParticle->life = (*emitter)->data.lifeTime;    //æ®‹ã‚Šå¯¿å‘½
+        pParticle->gravity = (*emitter)->data.gravity;  //é‡åŠ›
+        pParticle->accel = (*emitter)->data.accel;      //åŠ é€Ÿ
 
-        pParticle->pEmitter = *emitter; //”­¶Œ³
+        pParticle->pEmitter = *emitter; //ç™ºç”Ÿå…ƒ
 
                                     
-        particleList_.push_back(pParticle);    //”­¶
+        particleList_.push_back(pParticle);    //ç™ºç”Ÿ
 
-        pParticle->pEmitter->particleNum++; //”­¶Œ³‚Ìƒp[ƒeƒBƒNƒ‹”‚ğƒJƒEƒ“ƒgƒAƒbƒv
+        pParticle->pEmitter->particleNum++; //ç™ºç”Ÿå…ƒã®ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«æ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆã‚¢ãƒƒãƒ—
 
     }
 }
 
-//ƒp[ƒeƒBƒNƒ‹•`‰æ
+//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«æç”»
 void VFX::Draw()
 {
     Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
@@ -221,10 +221,10 @@ void VFX::Draw()
     Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 }
 
-//‰ğ•ú
+//è§£æ”¾
 void VFX::Release()
 {
-    //‘Sƒp[ƒeƒBƒNƒ‹íœ
+    //å…¨ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«å‰Šé™¤
     for (auto particle = particleList_.begin(); particle != particleList_.end();)
     {
         delete (*particle);
@@ -232,7 +232,7 @@ void VFX::Release()
     }
     particleList_.clear();
 
-    //‘SƒGƒ~ƒbƒ^[íœ
+    //å…¨ã‚¨ãƒŸãƒƒã‚¿ãƒ¼å‰Šé™¤
     for (auto emitter = emitterList_.begin(); emitter != emitterList_.end();)
     {
 		(*emitter)->pBillBoard->Release();
@@ -244,7 +244,7 @@ void VFX::Release()
 }
 
 
-//ƒGƒ~ƒbƒ^‚Ìì¬
+//ã‚¨ãƒŸãƒƒã‚¿ã®ä½œæˆ
 int VFX::Start(EmitterData emitterData)
 {
     int handle = 0;
@@ -268,7 +268,7 @@ int VFX::Start(EmitterData emitterData)
     return handle;
 }
 
-//ƒGƒ~ƒbƒ^‚Ìíœ
+//ã‚¨ãƒŸãƒƒã‚¿ã®å‰Šé™¤
 void VFX::End(int handle)
 {
     for (auto i = emitterList_.begin(); i != emitterList_.end(); i++)

@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Debug.h"
 #include <cassert>
+#include <cstdio>
 
 //コンストラクタ
 FbxParts::FbxParts() :
@@ -12,7 +13,9 @@ FbxParts::FbxParts() :
 	pVertexBuffer_(nullptr), pConstantBuffer_(nullptr),
 	pVertexData_(nullptr), ppIndexData_(nullptr),
 	pSkinInfo_(nullptr), ppCluster_(nullptr), numBone_(0),
-	pBoneArray_(nullptr), pWeightArray_(nullptr)
+	pBoneArray_(nullptr), pWeightArray_(nullptr),
+	log_header_written_(false), log_with_written_(false), log_without_written_(false),
+	log_loopCount_(0)
 {
 }
 
@@ -22,7 +25,9 @@ FbxParts::FbxParts(Fbx *parent) :
 	pVertexBuffer_(nullptr), pConstantBuffer_(nullptr),
 	pVertexData_(nullptr), ppIndexData_(nullptr),
 	pSkinInfo_(nullptr), ppCluster_(nullptr), numBone_(0),
-	pBoneArray_(nullptr), pWeightArray_(nullptr)
+	pBoneArray_(nullptr), pWeightArray_(nullptr),
+	log_header_written_(false), log_with_written_(false), log_without_written_(false),
+	log_loopCount_(0)
 {
 	parent_ = parent;
 }
@@ -695,6 +700,50 @@ void FbxParts::Draw(Transform& transform)
 //ボーン有りのモデルを描画
 void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 {
+	FILE* logFile  = nullptr;
+	int endFrame   = parent_->_endFrame > 0 ? parent_->_endFrame : 1;
+	int startFrame = parent_->_startFrame;
+	long long totalFrame = time.GetFrameCount();
+	bool useBindShape = (log_loopCount_ % 2 == 0);
+
+	// ヘッダーログ（初回のみ）
+	if (!log_header_written_)
+	{
+		CreateDirectoryA("D:/Projects_Log", nullptr);
+		fopen_s(&logFile, "D:/Projects_Log/bindshape_log.txt", "w");
+		if (logFile)
+		{
+			FbxVector4 t = bindShapeMatrix_.GetT();
+			FbxVector4 r = bindShapeMatrix_.GetR();
+			FbxVector4 s = bindShapeMatrix_.GetS();
+			fprintf(logFile, "=== file: %s ===\n", parent_->fileName_.c_str());
+			fprintf(logFile, "startFrame=%d  endFrame=%d\n", startFrame, endFrame);
+			fprintf(logFile, "bindShapeMatrix T=(%.4f,%.4f,%.4f) R=(%.4f,%.4f,%.4f) S=(%.4f,%.4f,%.4f)\n",
+				(float)t[0],(float)t[1],(float)t[2],
+				(float)r[0],(float)r[1],(float)r[2],
+				(float)s[0],(float)s[1],(float)s[2]);
+			fclose(logFile);
+			logFile = nullptr;
+		}
+		log_header_written_ = true;
+	}
+
+	// loop:0 の中間フレームで WITH bindShape のログを開く
+	int midFrame = startFrame + (endFrame - startFrame) / 2;
+	if (!log_with_written_ && log_loopCount_ == 0 && totalFrame == (long long)midFrame)
+	{
+		fopen_s(&logFile, "D:/Projects_Log/bindshape_log.txt", "a");
+		if (logFile)
+			fprintf(logFile, "\n=== loop:0 mid (WITH bindShape)  frame:%lld/%d ===\n", totalFrame, endFrame);
+	}
+	// loop:1 の中間フレームで WITHOUT bindShape のログを開く
+	else if (!log_without_written_ && log_loopCount_ == 1 && totalFrame == (long long)midFrame)
+	{
+		fopen_s(&logFile, "D:/Projects_Log/bindshape_log.txt", "a");
+		if (logFile)
+			fprintf(logFile, "\n=== loop:1 mid (WITHOUT bindShape)  frame:%lld/%d ===\n", totalFrame, endFrame);
+	}
+
 	// ボーンごとの現在の行列を取得する
 	for (int i = 0; i < numBone_; i++)
 	{
@@ -718,9 +767,43 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 				bsm(x, y) = (float)bindShapeMatrix_.Get(x, y);
 		XMMATRIX bindShape = XMLoadFloat4x4(&bsm);
 
-		// FinalSkinMatrix = bindShape * inv(bindPose) * animatedGlobal
-		pBoneArray_[i].newPose  = XMLoadFloat4x4(&pose);
-		pBoneArray_[i].diffPose = bindShape * XMMatrixInverse(nullptr, pBoneArray_[i].bindPose) * pBoneArray_[i].newPose;
+		pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
+		XMMATRIX invBind = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
+
+		// bindShape あり版
+		XMMATRIX diffWith    = bindShape * invBind * pBoneArray_[i].newPose;
+		// bindShape なし版
+		XMMATRIX diffWithout = invBind * pBoneArray_[i].newPose;
+
+		// ログ出力（bone[0] のみ）
+		if (logFile && i == 0)
+		{
+			XMFLOAT4X4 mWith, mWithout;
+			XMStoreFloat4x4(&mWith,    diffWith);
+			XMStoreFloat4x4(&mWithout, diffWithout);
+			fprintf(logFile, "\n=== bone[0]: %s ===\n", ppCluster_[0]->GetLink()->GetName());
+			fprintf(logFile, "-- diffPose WITH bindShape --\n");
+			for (int r = 0; r < 4; r++)
+				fprintf(logFile, "  %.4f %.4f %.4f %.4f\n", mWith(r,0), mWith(r,1), mWith(r,2), mWith(r,3));
+			fprintf(logFile, "-- diffPose WITHOUT bindShape --\n");
+			for (int r = 0; r < 4; r++)
+				fprintf(logFile, "  %.4f %.4f %.4f %.4f\n", mWithout(r,0), mWithout(r,1), mWithout(r,2), mWithout(r,3));
+			fclose(logFile);
+			logFile = nullptr;
+			if (log_loopCount_ == 0)
+			{
+				log_with_written_ = true;
+				OutputDebugStringA("[LOG] 1/2 OK - WITH bindShape logged\n");
+			}
+			if (log_loopCount_ == 1)
+			{
+				log_without_written_ = true;
+				OutputDebugStringA("[LOG] 2/2 OK - WITH+WITHOUT both logged\n");
+			}
+		}
+
+		// 1周目: bindShape あり、2周目: なし
+		pBoneArray_[i].diffPose = useBindShape ? diffWith : diffWithout;
 	}
 
 	// 各ボーンに対応した頂点の変形制御

@@ -2,34 +2,34 @@
 #include "GameObject.h"
 
 //-----------------------------------------------------------
-//�J����
+//カメラ
 //-----------------------------------------------------------
 namespace Camera
 {
-	//�������i�v���W�F�N�V�����s��쐬�j
+	//初期化（プロジェクション行列作成）
 	void Initialize();
 
-	//�X�V�i�r���[�s��쐬�j
+	//更新（ビュー行列作成）
 	void Update();
 
-	//���_�i�J�����̈ʒu�j��ݒ�
+	//視点（カメラの位置）を設定
 	void SetPosition(XMFLOAT3 position);
 
-	//�œ_�i����ʒu�j��ݒ�
+	//焦点（見る位置）を設定
 	void SetTarget(XMFLOAT3 target);
 
-	//�ʒu���擾
+	//位置を取得
 	XMFLOAT3 GetPosition();
 
-	//�œ_���擾
+	//焦点を取得
 	XMFLOAT3 GetTarget();
 
-	//�r���[�s����擾
+	//ビュー行列を取得
 	XMMATRIX GetViewMatrix();
 
-	//�v���W�F�N�V�����s����擾
+	//プロジェクション行列を取得
 	XMMATRIX GetProjectionMatrix();
 
-	//�r���{�[�h�p��]�s����擾
+	//ビルボード用回転行列を取得
 	XMMATRIX GetBillboardMatrix();
 };

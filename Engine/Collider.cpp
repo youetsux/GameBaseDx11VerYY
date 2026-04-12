@@ -4,21 +4,21 @@
 #include "Model.h"
 #include "Transform.h"
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 Collider::Collider():
 	pGameObject_(nullptr)
 {
 }
 
-//ƒfƒXƒgƒ‰ƒNƒ^
+//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 Collider::~Collider()
 {
 }
 
-//” Œ^“¯m‚ÌÕ“Ë”»’è
-//ˆø”FboxA	‚P‚Â–Ú‚Ì” Œ^”»’è
-//ˆø”FboxB	‚Q‚Â–Ú‚Ì” Œ^”»’è
-//–ß’lFÚG‚µ‚Ä‚¢‚ê‚Îtrue
+//ç®±å‹åŒå£«ã®è¡çªåˆ¤å®š
+//å¼•æ•°ï¼šboxA	ï¼‘ã¤ç›®ã®ç®±å‹åˆ¤å®š
+//å¼•æ•°ï¼šboxB	ï¼’ã¤ç›®ã®ç®±å‹åˆ¤å®š
+//æˆ»å€¤ï¼šæ¥è§¦ã—ã¦ã„ã‚Œã°true
 bool Collider::IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB)
 {
 
@@ -38,10 +38,10 @@ bool Collider::IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB)
 	return false;
 }
 
-//” Œ^‚Æ‹…‘Ì‚ÌÕ“Ë”»’è
-//ˆø”Fbox	” Œ^”»’è
-//ˆø”Fsphere	‚Q‚Â–Ú‚Ì” Œ^”»’è
-//–ß’lFÚG‚µ‚Ä‚¢‚ê‚Îtrue
+//ç®±å‹ã¨çƒä½“ã®è¡çªåˆ¤å®š
+//å¼•æ•°ï¼šbox	ç®±å‹åˆ¤å®š
+//å¼•æ•°ï¼šsphere	ï¼’ã¤ç›®ã®ç®±å‹åˆ¤å®š
+//æˆ»å€¤ï¼šæ¥è§¦ã—ã¦ã„ã‚Œã°true
 bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 {
 	XMFLOAT3 circlePos = Transform::Float3Add(sphere->pGameObject_->GetWorldPosition(), sphere->center_);
@@ -62,10 +62,10 @@ bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 	return false;
 }
 
-//‹…‘Ì“¯m‚ÌÕ“Ë”»’è
-//ˆø”FcircleA	‚P‚Â–Ú‚Ì‹…‘Ì”»’è
-//ˆø”FcircleB	‚Q‚Â–Ú‚Ì‹…‘Ì”»’è
-//–ß’lFÚG‚µ‚Ä‚¢‚ê‚Îtrue
+//çƒä½“åŒå£«ã®è¡çªåˆ¤å®š
+//å¼•æ•°ï¼šcircleA	ï¼‘ã¤ç›®ã®çƒä½“åˆ¤å®š
+//å¼•æ•°ï¼šcircleB	ï¼’ã¤ç›®ã®çƒä½“åˆ¤å®š
+//æˆ»å€¤ï¼šæ¥è§¦ã—ã¦ã„ã‚Œã°true
 bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circleB)
 {
 	XMFLOAT3 centerA = circleA->center_;
@@ -84,8 +84,8 @@ bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circ
 	return false;
 }
 
-//ƒeƒXƒg•\¦—p‚Ì˜g‚ğ•`‰æ
-//ˆø”Fposition	ƒIƒuƒWƒFƒNƒg‚ÌˆÊ’u
+//ãƒ†ã‚¹ãƒˆè¡¨ç¤ºç”¨ã®æ ã‚’æç”»
+//å¼•æ•°ï¼šposition	ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä½ç½®
 void Collider::Draw(XMFLOAT3 position)
 {
 	Transform transform;

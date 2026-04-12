@@ -102,10 +102,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//1秒（1000ミリ秒）経ったら
 				if (nowTime - lastFpsResetTime > 1000)
 				{
-					//FPSの値を表示
-					char string[16];
-					wsprintf(string, "FPS:%d", FPS);
-					SetWindowText(GetActiveWindow(), string);
+					// ログメッセージ表示中は上書きしない
+					char currentTitle[256] = {};
+					GetWindowTextA(GetActiveWindow(), currentTitle, sizeof(currentTitle));
+					if (strstr(currentTitle, "LOG:") == nullptr)
+					{
+						char string[16];
+						wsprintf(string, "FPS:%d", FPS);
+						SetWindowText(GetActiveWindow(), string);
+					}
 					FPS = 0;
 					lastFpsResetTime = nowTime;
 				}

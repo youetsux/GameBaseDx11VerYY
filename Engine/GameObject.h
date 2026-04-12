@@ -14,124 +14,124 @@ using namespace DirectX;
 
 
 //-----------------------------------------------------------
-//‘S‚Ä‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒgiƒV[ƒ“‚àŠÜ‚ß‚Äj‚ªŒp³‚·‚éƒCƒ“ƒ^[ƒtƒF[ƒX
-// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ÍAeq\‘¢‚É‚È‚Á‚Ä‚¢‚ÄA
-// ƒ}ƒgƒŠƒNƒX‚Ì‰e‹¿‚ğó‚¯‚é‚±‚Æ‚É‚È‚é
+//å…¨ã¦ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆã‚·ãƒ¼ãƒ³ã‚‚å«ã‚ã¦ï¼‰ãŒç¶™æ‰¿ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹
+// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ã€è¦ªå­æ§‹é€ ã«ãªã£ã¦ã„ã¦ã€
+// ãƒãƒˆãƒªã‚¯ã‚¹ã®å½±éŸ¿ã‚’å—ã‘ã‚‹ã“ã¨ã«ãªã‚‹
 //-----------------------------------------------------------
 class GameObject
 {
 protected:
 	
-	//ˆÊ’u‚âŒü‚«‚È‚Ç‚ğŠÇ—‚·‚éƒIƒuƒWƒFƒNƒg
+	//ä½ç½®ã‚„å‘ããªã©ã‚’ç®¡ç†ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	Transform				transform_;
 
-	//ƒIƒuƒWƒFƒNƒg‚Ì–¼‘O
+	//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åå‰
 	std::string				objectName_;
 
-	//Õ“Ë”»’èƒŠƒXƒg
+	//è¡çªåˆ¤å®šãƒªã‚¹ãƒˆ
 	std::list<Collider*>	colliderList_;	
 
 public:
-	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	GameObject();
 	GameObject(GameObject* parent);
 	GameObject(GameObject* parent, const std::string& name);
 
-	//ƒfƒXƒgƒ‰ƒNƒ^
+	//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	virtual ~GameObject();
 
-	//ŠeƒIƒuƒWƒFƒNƒg‚Å•K‚¸ì‚éŠÖ”
+	//å„ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§å¿…ãšä½œã‚‹é–¢æ•°
 	virtual void Initialize(void) = 0;
 	virtual void Update(void) = 0;
 	virtual void Draw() = 0;
 	virtual void Release(void) = 0;
 
-	//©•ª‚ÌŠY“–ŠÖ”‚ğ“Ç‚ñ‚¾ŒãAq‹Ÿ‚ÌŠÖ”‚àŒÄ‚Ô
+	//è‡ªåˆ†ã®è©²å½“é–¢æ•°ã‚’èª­ã‚“ã å¾Œã€å­ä¾›ã®é–¢æ•°ã‚‚å‘¼ã¶
 	void UpdateSub();
 	void DrawSub();
 	void ReleaseSub();
 
 
-	////ƒ[ƒJƒ‹s—ñ‚Ìæ“¾i‚±‚ÌƒIƒuƒWƒFƒNƒg‚Ìs—ñj
-	////–ß’lFƒ[ƒJƒ‹s—ñ
+	////ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã®å–å¾—ï¼ˆã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¡Œåˆ—ï¼‰
+	////æˆ»å€¤ï¼šãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—
 	//XMMATRIX GetLocalMatrix();
 
-	//ƒ[ƒ‹ƒhs—ñ‚Ìæ“¾ie‚Ì‰e‹¿‚ğó‚¯‚½ÅI“I‚Ès—ñj
-	//–ß’lFƒ[ƒ‹ƒhs—ñ
+	//ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã®å–å¾—ï¼ˆè¦ªã®å½±éŸ¿ã‚’å—ã‘ãŸæœ€çµ‚çš„ãªè¡Œåˆ—ï¼‰
+	//æˆ»å€¤ï¼šãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—
 	XMMATRIX GetWorldMatrix();
 
 
 
-	//Šeƒtƒ‰ƒO‚Ì§Œä
-	bool IsDead();			// íœ‚·‚é‚©‚Ç‚¤‚©
-	void KillMe();			// ©•ª‚ğíœ‚·‚é
-	void Enter();			// Update‚ğ‹–‰Â
-	void Leave();			// Update‚ğ‹‘”Û
-	void Visible();			// Draw‚ğ‹–‰Â
-	void Invisible();		// Draw‚ğ‹‘”Û
-	bool IsInitialized();	// ‰Šú‰»Ï‚İ‚©‚Ç‚¤‚©
-	void SetInitialized();	// ‰Šú‰»Ï‚İ‚É‚·‚é
-	bool IsEntered();		// UpdateÀs‚µ‚Ä‚¢‚¢‚©
-	bool IsVisibled();		// DrawÀs‚µ‚Ä‚¢‚¢‚©
+	//å„ãƒ•ãƒ©ã‚°ã®åˆ¶å¾¡
+	bool IsDead();			// å‰Šé™¤ã™ã‚‹ã‹ã©ã†ã‹
+	void KillMe();			// è‡ªåˆ†ã‚’å‰Šé™¤ã™ã‚‹
+	void Enter();			// Updateã‚’è¨±å¯
+	void Leave();			// Updateã‚’æ‹’å¦
+	void Visible();			// Drawã‚’è¨±å¯
+	void Invisible();		// Drawã‚’æ‹’å¦
+	bool IsInitialized();	// åˆæœŸåŒ–æ¸ˆã¿ã‹ã©ã†ã‹
+	void SetInitialized();	// åˆæœŸåŒ–æ¸ˆã¿ã«ã™ã‚‹
+	bool IsEntered();		// Updateå®Ÿè¡Œã—ã¦ã„ã„ã‹
+	bool IsVisibled();		// Drawå®Ÿè¡Œã—ã¦ã„ã„ã‹
 
 
-	//qƒIƒuƒWƒFƒNƒgƒŠƒXƒg‚ğæ“¾
-	//–ß’lFqƒIƒuƒWƒFƒNƒgƒŠƒXƒg
+	//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªã‚¹ãƒˆã‚’å–å¾—
+	//æˆ»å€¤ï¼šå­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªã‚¹ãƒˆ
 	std::list<GameObject*>* GetChildList();
 
-	//eƒIƒuƒWƒFƒNƒg‚ğæ“¾
-	//–ß’lFeƒIƒuƒWƒFƒNƒg‚ÌƒAƒhƒŒƒX
+	//è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
+	//æˆ»å€¤ï¼šè¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
 	GameObject* GetParent();
 
-	//–¼‘O‚ÅƒIƒuƒWƒFƒNƒg‚ğŒŸõi‘ÎÛ‚Í©•ª‚Ìq‹ŸˆÈ‰ºj
-	//ˆø”Fname	ŒŸõ‚·‚é–¼‘O
-	//–ß’lFŒ©‚Â‚¯‚½ƒIƒuƒWƒFƒNƒg‚ÌƒAƒhƒŒƒXiŒ©‚Â‚©‚ç‚È‚¯‚ê‚Înullptrj
+	//åå‰ã§ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¤œç´¢ï¼ˆå¯¾è±¡ã¯è‡ªåˆ†ã®å­ä¾›ä»¥ä¸‹ï¼‰
+	//å¼•æ•°ï¼šname	æ¤œç´¢ã™ã‚‹åå‰
+	//æˆ»å€¤ï¼šè¦‹ã¤ã‘ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ï¼ˆè¦‹ã¤ã‹ã‚‰ãªã‘ã‚Œã°nullptrï¼‰
 	GameObject* FindChildObject(const std::string& name);
 
-	//–¼‘O‚ÅƒIƒuƒWƒFƒNƒg‚ğŒŸõi‘ÎÛ‚Í‘S‘Ìj
-	//ˆø”FŒŸõ‚·‚é–¼‘O
-	//–ß’lFŒ©‚Â‚¯‚½ƒIƒuƒWƒFƒNƒg‚ÌƒAƒhƒŒƒX
+	//åå‰ã§ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¤œç´¢ï¼ˆå¯¾è±¡ã¯å…¨ä½“ï¼‰
+	//å¼•æ•°ï¼šæ¤œç´¢ã™ã‚‹åå‰
+	//æˆ»å€¤ï¼šè¦‹ã¤ã‘ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
 	GameObject* FindObject(const std::string& name) { return GetRootJob()->FindChildObject(name); }
 
-	//ƒIƒuƒWƒFƒNƒg‚Ì–¼‘O‚ğæ“¾
-	//–ß’lF–¼‘O
+	//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åå‰ã‚’å–å¾—
+	//æˆ»å€¤ï¼šåå‰
 	const std::string& GetObjectName(void) const;
 
-	//qƒIƒuƒWƒFƒNƒg‚ğ’Ç‰ÁiƒŠƒXƒg‚ÌÅŒã‚Öj
-	//ˆø”F’Ç‰Á‚·‚éƒIƒuƒWƒFƒNƒg
+	//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿½åŠ ï¼ˆãƒªã‚¹ãƒˆã®æœ€å¾Œã¸ï¼‰
+	//å¼•æ•°ï¼šè¿½åŠ ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	void PushBackChild(GameObject* obj);
 
-	//qƒIƒuƒWƒFƒNƒg‚ğ’Ç‰ÁiƒŠƒXƒg‚Ìæ“ª‚Öj
-	//ˆø”Fobj ’Ç‰Á‚·‚éƒIƒuƒWƒFƒNƒg
+	//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿½åŠ ï¼ˆãƒªã‚¹ãƒˆã®å…ˆé ­ã¸ï¼‰
+	//å¼•æ•°ï¼šobj è¿½åŠ ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	void PushFrontChild(GameObject* obj);
 
-	//qƒIƒuƒWƒFƒNƒg‚ğ‘S‚Äíœ
+	//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å…¨ã¦å‰Šé™¤
 	void KillAllChildren();
 
 
 
-	//ƒRƒ‰ƒCƒ_[iÕ“Ë”»’èj‚ğ’Ç‰Á‚·‚é
+	//ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ï¼ˆè¡çªåˆ¤å®šï¼‰ã‚’è¿½åŠ ã™ã‚‹
 	void AddCollider(Collider * collider);
 
-	//‰½‚©‚ÆÕ“Ë‚µ‚½ê‡‚ÉŒÄ‚Î‚ê‚éiƒI[ƒo[ƒ‰ƒCƒh—pj
-	//ˆø”FpTarget	Õ“Ë‚µ‚½‘Šè
+	//ä½•ã‹ã¨è¡çªã—ãŸå ´åˆã«å‘¼ã°ã‚Œã‚‹ï¼ˆã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ç”¨ï¼‰
+	//å¼•æ•°ï¼špTarget	è¡çªã—ãŸç›¸æ‰‹
 	virtual void OnCollision(GameObject* pTarget) {};
 
-	//ƒRƒ‰ƒCƒ_[iÕ“Ë”»’èj‚ğíœ
+	//ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ï¼ˆè¡çªåˆ¤å®šï¼‰ã‚’å‰Šé™¤
 	void ClearCollider();
 
-	//Õ“Ë”»’è
-	//ˆø”FpTarget	Õ“Ë‚µ‚Ä‚é‚©’²‚×‚é‘Šè
+	//è¡çªåˆ¤å®š
+	//å¼•æ•°ï¼špTarget	è¡çªã—ã¦ã‚‹ã‹èª¿ã¹ã‚‹ç›¸æ‰‹
 	void Collision(GameObject* pTarget);
 
-	//ƒeƒXƒg—p‚ÌÕ“Ë”»’è˜g‚ğ•\¦
+	//ãƒ†ã‚¹ãƒˆç”¨ã®è¡çªåˆ¤å®šæ ã‚’è¡¨ç¤º
 	void CollisionDraw();
 
-	//RootJob‚ğæ“¾
+	//RootJobã‚’å–å¾—
 	GameObject* GetRootJob();
 
 
-	//ŠeƒAƒNƒZƒXŠÖ”
+	//å„ã‚¢ã‚¯ã‚»ã‚¹é–¢æ•°
 	XMFLOAT3 GetPosition() { return transform_.position_; }
 	XMFLOAT3 GetRotate() { return transform_.rotate_; }
 	XMFLOAT3 GetScale() { return transform_.scale_; }
@@ -154,31 +154,31 @@ public:
 
 private:
 
-	//ƒIƒuƒWƒFƒNƒgíœiÄ‹Aj
-	//ˆø”Fobj@íœ‚·‚éƒIƒuƒWƒFƒNƒg
+	//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå‰Šé™¤ï¼ˆå†å¸°ï¼‰
+	//å¼•æ•°ï¼šobjã€€å‰Šé™¤ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	void KillObjectSub(GameObject* obj);
 
 
 private:
-	//ƒtƒ‰ƒO
+	//ãƒ•ãƒ©ã‚°
 	struct OBJECT_STATE
 	{
-		unsigned initialized : 1;	//‰Šú‰»Ï‚İ‚©
-		unsigned entered : 1;		//XV‚·‚é‚©
-		unsigned visible : 1;		//•`‰æ‚·‚é‚©
-		unsigned dead : 1;			//íœ‚·‚é‚©
+		unsigned initialized : 1;	//åˆæœŸåŒ–æ¸ˆã¿ã‹
+		unsigned entered : 1;		//æ›´æ–°ã™ã‚‹ã‹
+		unsigned visible : 1;		//æç”»ã™ã‚‹ã‹
+		unsigned dead : 1;			//å‰Šé™¤ã™ã‚‹ã‹
 	};
 	OBJECT_STATE state_;
 
-	//eƒIƒuƒWƒFƒNƒg
+	//è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	GameObject* pParent_;
 
-	//qƒIƒuƒWƒFƒNƒgƒŠƒXƒg
+	//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªã‚¹ãƒˆ
 	std::list<GameObject*> childList_;
 };
 
 
-//ƒIƒuƒWƒFƒNƒg‚ğì¬‚·‚éƒeƒ“ƒvƒŒ[ƒg
+//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ
 template <class T>
 T* Instantiate(GameObject* pParent)
 {

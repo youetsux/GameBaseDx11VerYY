@@ -10,7 +10,7 @@ Text::~Text()
 {
 }
 
-//‰Šú‰»iƒfƒtƒHƒ‹ƒgj
+//åˆæœŸåŒ–ï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼‰
 HRESULT Text::Initialize()
 {
 	hPict_ = Image::Load(fileName_);
@@ -22,7 +22,7 @@ HRESULT Text::Initialize()
 	return S_OK;
 }
 
-//‰Šú‰»iƒIƒŠƒWƒiƒ‹‚Ì‰æ‘œj
+//åˆæœŸåŒ–ï¼ˆã‚ªãƒªã‚¸ãƒŠãƒ«ã®ç”»åƒï¼‰
 HRESULT Text::Initialize(const char* fileName, const unsigned int charWidth, const unsigned int charHeight, const unsigned int rowLength)
 {
 	strcpy_s(fileName_, fileName);
@@ -33,60 +33,60 @@ HRESULT Text::Initialize(const char* fileName, const unsigned int charWidth, con
 }
 
 
-//•`‰æi•¶š—ñj
+//æç”»ï¼ˆæ–‡å­—åˆ—ï¼‰
 void Text::Draw(int x, int y, const char* str)
 {
-	//•\¦ˆÊ’ui¶ãj‚ğŒvZ
-	//SpriteƒNƒ‰ƒX‚Í’†S‚ª(0,0)A‰Eã‚ª(1,1)‚Æ‚¢‚¤À•W‚¾‚ªA‚±‚±‚Ìˆø”‚Í¶ã‚ğ(0,0)Aƒhƒbƒg’PˆÊ‚Åw’è‚µ‚Ä‚¢‚é
+	//è¡¨ç¤ºä½ç½®ï¼ˆå·¦ä¸Šï¼‰ã‚’è¨ˆç®—
+	//Spriteã‚¯ãƒ©ã‚¹ã¯ä¸­å¿ƒãŒ(0,0)ã€å³ä¸ŠãŒ(1,1)ã¨ã„ã†åº§æ¨™ã ãŒã€ã“ã“ã®å¼•æ•°ã¯å·¦ä¸Šã‚’(0,0)ã€ãƒ‰ãƒƒãƒˆå˜ä½ã§æŒ‡å®šã—ã¦ã„ã‚‹
 	float px, py;
 
-	//ˆø”‚Í¶ãŒ´“_‚¾‚ªAƒXƒvƒ‰ƒCƒg‚Í‰æ–Ê’†‰›‚ªŒ´“_‚È‚Ì‚ÅA‰æ–ÊƒTƒCƒY‚Ì”¼•ª‚¸‚ç‚·
+	//å¼•æ•°ã¯å·¦ä¸ŠåŸç‚¹ã ãŒã€ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã¯ç”»é¢ä¸­å¤®ãŒåŸç‚¹ãªã®ã§ã€ç”»é¢ã‚µã‚¤ã‚ºã®åŠåˆ†ãšã‚‰ã™
 	px = (float)(x - Direct3D::screenWidth_ / 2);
-	py = (float)(-y + Direct3D::screenHeight_ / 2);	//Y²‚Í+-”½“]
+	py = (float)(-y + Direct3D::screenHeight_ / 2);	//Yè»¸ã¯+-åè»¢
 
-	//ƒXƒvƒ‰ƒCƒg‚ÍPosition‚ğ1‚¸‚ç‚·‚Æ‰æ–ÊƒTƒCƒY‚Ì”¼•ª‚¸‚ê‚é‚Ì‚ÅAƒsƒNƒZƒ‹’PˆÊ‚É•ÏŠ·
+	//ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã¯Positionã‚’1ãšã‚‰ã™ã¨ç”»é¢ã‚µã‚¤ã‚ºã®åŠåˆ†ãšã‚Œã‚‹ã®ã§ã€ãƒ”ã‚¯ã‚»ãƒ«å˜ä½ã«å¤‰æ›
 	px /= (float)(Direct3D::screenWidth_ / 2.0f);
 	py /= (float)(Direct3D::screenHeight_ / 2.0f);
 
 
-	//‚P•¶š‚¸‚Â•\¦‚·‚é
-	for (int i = 0; str[i] != '\0'; i++)	//•¶š—ñ‚Ì––”ö‚Ü‚Å—ˆ‚½‚çI‚í‚è
+	//ï¼‘æ–‡å­—ãšã¤è¡¨ç¤ºã™ã‚‹
+	for (int i = 0; str[i] != '\0'; i++)	//æ–‡å­—åˆ—ã®æœ«å°¾ã¾ã§æ¥ãŸã‚‰çµ‚ã‚ã‚Š
 	{
-		//•\¦‚µ‚½‚¢•¶š‚ªA‰æ‘œ‚Ì‰½”Ô–Ú‚É‘‚¢‚Ä‚ ‚é‚©‚ğ‹‚ß‚é
-		int id = str[i] - '!';		//•\¦‚µ‚½‚¢•¶š‚ÌƒR[ƒh‚©‚çu!v‚ÌƒR[ƒh‚ğˆø‚­‚±‚Æ‚ÅA!0A"=1A#2¥¥¥‚Æ‚¢‚¤”Ô†‚É‚·‚é
+		//è¡¨ç¤ºã—ãŸã„æ–‡å­—ãŒã€ç”»åƒã®ä½•ç•ªç›®ã«æ›¸ã„ã¦ã‚ã‚‹ã‹ã‚’æ±‚ã‚ã‚‹
+		int id = str[i] - '!';		//è¡¨ç¤ºã—ãŸã„æ–‡å­—ã®ã‚³ãƒ¼ãƒ‰ã‹ã‚‰ã€Œ!ã€ã®ã‚³ãƒ¼ãƒ‰ã‚’å¼•ãã“ã¨ã§ã€!ï¼0ã€"=1ã€#ï¼2ï½¥ï½¥ï½¥ã¨ã„ã†ç•ªå·ã«ã™ã‚‹
 
-		//•\¦‚µ‚½‚¢•¶š‚ªA‰æ‘œ‚Ì‚Ç‚±‚É‚ ‚é‚©‚ğ‹‚ß‚é
-		int x = id % rowLength_;	//¶‚©‚ç‰½”Ô–Ú
-		int y = id / rowLength_;	//ã‚©‚ç‰½”Ô–Ú
+		//è¡¨ç¤ºã—ãŸã„æ–‡å­—ãŒã€ç”»åƒã®ã©ã“ã«ã‚ã‚‹ã‹ã‚’æ±‚ã‚ã‚‹
+		int x = id % rowLength_;	//å·¦ã‹ã‚‰ä½•ç•ªç›®
+		int y = id / rowLength_;	//ä¸Šã‹ã‚‰ä½•ç•ªç›®
 
-		//•\¦‚·‚éˆÊ’u
+		//è¡¨ç¤ºã™ã‚‹ä½ç½®
 		Transform transform;
 		transform.position_.x = px;
 		transform.position_.y = py;
 		Image::SetTransform(hPict_, transform);
 
-		//•\¦‚·‚é”ÍˆÍ
+		//è¡¨ç¤ºã™ã‚‹ç¯„å›²
 		Image::SetRect(hPict_, width_ * x, height_ * y, width_, height_);
 		
-		//•\¦
+		//è¡¨ç¤º
 		Image::Draw(hPict_);
 
-		//Ÿ‚ÌˆÊ’u‚É‚¸‚ç‚·
+		//æ¬¡ã®ä½ç½®ã«ãšã‚‰ã™
 		px += width_ / (float)(Direct3D::screenWidth_ / 2.0f);
 	}
 }
 
-//•`‰æi®”’lj
+//æç”»ï¼ˆæ•´æ•°å€¤ï¼‰
 void Text::Draw(int x, int y, int value)
 {
-	//•¶š—ñ‚É•ÏŠ·
+	//æ–‡å­—åˆ—ã«å¤‰æ›
 	char str[256];
 	sprintf_s(str, "%d", value);
 
 	Draw(x, y, str);
 }
 
-//‰ğ•ú
+//è§£æ”¾
 void Text::Release()
 {
 	Image::Release(hPict_);

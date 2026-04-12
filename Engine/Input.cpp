@@ -3,24 +3,24 @@
 
 namespace Input
 {
-	//ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«
 	HWND	hWnd_;
 
-	//DirectInputƒIƒuƒWƒFƒNƒg
+	//DirectInputã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	LPDIRECTINPUT8			pDInput_;
 
-	//ƒL[ƒ{[ƒh
-	LPDIRECTINPUTDEVICE8	pKeyDevice_;	//ƒfƒoƒCƒXƒIƒuƒWƒFƒNƒg
-	BYTE keyState_[256];					//Œ»İ‚ÌŠeƒL[‚Ìó‘Ô
-	BYTE prevKeyState_[256];				//‘OƒtƒŒ[ƒ€‚Å‚ÌŠeƒL[‚Ìó‘Ô
+	//ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
+	LPDIRECTINPUTDEVICE8	pKeyDevice_;	//ãƒ‡ãƒã‚¤ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	BYTE keyState_[256];					//ç¾åœ¨ã®å„ã‚­ãƒ¼ã®çŠ¶æ…‹
+	BYTE prevKeyState_[256];				//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã§ã®å„ã‚­ãƒ¼ã®çŠ¶æ…‹
 
-	//ƒ}ƒEƒX
-	LPDIRECTINPUTDEVICE8	pMouseDevice_;	//ƒfƒoƒCƒXƒIƒuƒWƒFƒNƒg
-	DIMOUSESTATE mouseState_;				//ƒ}ƒEƒX‚Ìó‘Ô
-	DIMOUSESTATE prevMouseState_;			//‘OƒtƒŒ[ƒ€‚Ìƒ}ƒEƒX‚Ìó‘Ô
-	POINT mousePos_;							//ƒ}ƒEƒXƒJ[ƒ\ƒ‹‚ÌˆÊ’u
+	//ãƒã‚¦ã‚¹
+	LPDIRECTINPUTDEVICE8	pMouseDevice_;	//ãƒ‡ãƒã‚¤ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	DIMOUSESTATE mouseState_;				//ãƒã‚¦ã‚¹ã®çŠ¶æ…‹
+	DIMOUSESTATE prevMouseState_;			//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒã‚¦ã‚¹ã®çŠ¶æ…‹
+	POINT mousePos_;							//ãƒã‚¦ã‚¹ã‚«ãƒ¼ã‚½ãƒ«ã®ä½ç½®
 
-	//ƒRƒ“ƒgƒ[ƒ‰[
+	//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼
 	const int MAX_PAD_NUM = 4;
 	XINPUT_STATE controllerState_[MAX_PAD_NUM];
 	XINPUT_STATE prevControllerState_[MAX_PAD_NUM];
@@ -28,42 +28,42 @@ namespace Input
 
 
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	void Initialize(HWND hWnd)
 	{
-		//ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹
+		//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«
 		hWnd_ = hWnd;
 
-		//DirectInput–{‘Ì
+		//DirectInputæœ¬ä½“
 		DirectInput8Create(GetModuleHandle(nullptr), DIRECTINPUT_VERSION,
 			IID_IDirectInput8, (VOID**)&pDInput_, nullptr);
 
-		//ƒL[ƒ{[ƒh
+		//ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
 		pDInput_->CreateDevice(GUID_SysKeyboard, &pKeyDevice_, nullptr);
 		pKeyDevice_->SetDataFormat(&c_dfDIKeyboard);
 		pKeyDevice_->SetCooperativeLevel(NULL, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 
-		//ƒ}ƒEƒX
+		//ãƒã‚¦ã‚¹
 		pDInput_->CreateDevice(GUID_SysMouse, &pMouseDevice_, nullptr);
 		pMouseDevice_->SetDataFormat(&c_dfDIMouse);
 		pMouseDevice_->SetCooperativeLevel(hWnd_, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 	}
 
 
-	//XV
+	//æ›´æ–°
 	void Update()
 	{
-		//ƒL[ƒ{[ƒh
+		//ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
 		pKeyDevice_->Acquire();
 		memcpy(prevKeyState_, keyState_, sizeof(keyState_));
 		pKeyDevice_->GetDeviceState(sizeof(keyState_), &keyState_);
 
-		//ƒ}ƒEƒX
+		//ãƒã‚¦ã‚¹
 		pMouseDevice_->Acquire();
 		memcpy(&prevMouseState_, &mouseState_, sizeof(mouseState_));
 		pMouseDevice_->GetDeviceState(sizeof(mouseState_), &mouseState_);
 
-		//ƒRƒ“ƒgƒ[ƒ‰[
+		//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼
 		for (int i = 0; i < MAX_PAD_NUM; i++)
 		{
 			memcpy(&prevControllerState_[i], &controllerState_[i], sizeof(controllerState_[i]));
@@ -74,7 +74,7 @@ namespace Input
 
 
 
-	//ŠJ•ú
+	//é–‹æ”¾
 	void Release()
 	{
 		SAFE_RELEASE(pMouseDevice_);
@@ -84,12 +84,12 @@ namespace Input
 
 
 
-	/////////////////////////////@ƒL[ƒ{[ƒhî•ñæ“¾@//////////////////////////////////
+	/////////////////////////////ã€€ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰æƒ…å ±å–å¾—ã€€//////////////////////////////////
 
-	//ƒL[‚ª‰Ÿ‚³‚ê‚Ä‚¢‚é‚©’²‚×‚é
+	//ã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹
 	bool IsKey(int keyCode)
 	{
-		//‰Ÿ‚µ‚Ä‚é
+		//æŠ¼ã—ã¦ã‚‹
 		if (keyState_[keyCode] & 0x80)
 		{
 			return true;
@@ -98,10 +98,10 @@ namespace Input
 	}
 
 
-	//ƒL[‚ğ¡‰Ÿ‚µ‚½‚©’²‚×‚éi‰Ÿ‚µ‚Á‚Ï‚È‚µ‚Í–³Œøj
+	//ã‚­ãƒ¼ã‚’ä»ŠæŠ¼ã—ãŸã‹èª¿ã¹ã‚‹ï¼ˆæŠ¼ã—ã£ã±ãªã—ã¯ç„¡åŠ¹ï¼‰
 	bool IsKeyDown(int keyCode)
 	{
-		//¡‚Í‰Ÿ‚µ‚Ä‚ÄA‘O‰ñ‚Í‰Ÿ‚µ‚Ä‚È‚¢
+		//ä»Šã¯æŠ¼ã—ã¦ã¦ã€å‰å›ã¯æŠ¼ã—ã¦ãªã„
 		if (IsKey(keyCode) && !(prevKeyState_[keyCode] & 0x80))
 		{
 			return true;
@@ -110,10 +110,10 @@ namespace Input
 	}
 
 
-	//ƒL[‚ğ¡•ú‚µ‚½‚©’²‚×‚é
+	//ã‚­ãƒ¼ã‚’ä»Šæ”¾ã—ãŸã‹èª¿ã¹ã‚‹
 	bool IsKeyUp(int keyCode)
 	{
-		//¡‰Ÿ‚µ‚Ä‚È‚­‚ÄA‘O‰ñ‚Í‰Ÿ‚µ‚Ä‚é
+		//ä»ŠæŠ¼ã—ã¦ãªãã¦ã€å‰å›ã¯æŠ¼ã—ã¦ã‚‹
 		if (!IsKey(keyCode) && prevKeyState_[keyCode] & 0x80)
 		{
 			return true;
@@ -122,12 +122,12 @@ namespace Input
 	}
 
 
-	/////////////////////////////@ƒ}ƒEƒXî•ñæ“¾@//////////////////////////////////
+	/////////////////////////////ã€€ãƒã‚¦ã‚¹æƒ…å ±å–å¾—ã€€//////////////////////////////////
 
-	//ƒ}ƒEƒX‚Ìƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚Ä‚¢‚é‚©’²‚×‚é
+	//ãƒã‚¦ã‚¹ã®ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹
 	bool IsMouseButton(int buttonCode)
 	{
-		//‰Ÿ‚µ‚Ä‚é
+		//æŠ¼ã—ã¦ã‚‹
 		if (mouseState_.rgbButtons[buttonCode] & 0x80)
 		{
 			return true;
@@ -135,10 +135,10 @@ namespace Input
 		return false;
 	}
 
-	//ƒ}ƒEƒX‚Ìƒ{ƒ^ƒ“‚ğ¡‰Ÿ‚µ‚½‚©’²‚×‚éi‰Ÿ‚µ‚Á‚Ï‚È‚µ‚Í–³Œøj
+	//ãƒã‚¦ã‚¹ã®ãƒœã‚¿ãƒ³ã‚’ä»ŠæŠ¼ã—ãŸã‹èª¿ã¹ã‚‹ï¼ˆæŠ¼ã—ã£ã±ãªã—ã¯ç„¡åŠ¹ï¼‰
 	bool IsMouseButtonDown(int buttonCode)
 	{
-		//¡‚Í‰Ÿ‚µ‚Ä‚ÄA‘O‰ñ‚Í‰Ÿ‚µ‚Ä‚È‚¢
+		//ä»Šã¯æŠ¼ã—ã¦ã¦ã€å‰å›ã¯æŠ¼ã—ã¦ãªã„
 		if (IsMouseButton(buttonCode) && !(prevMouseState_.rgbButtons[buttonCode] & 0x80))
 		{
 			return true;
@@ -146,10 +146,10 @@ namespace Input
 		return false;
 	}
 
-	//ƒ}ƒEƒX‚Ìƒ{ƒ^ƒ“‚ğ¡•ú‚µ‚½‚©’²‚×‚é
+	//ãƒã‚¦ã‚¹ã®ãƒœã‚¿ãƒ³ã‚’ä»Šæ”¾ã—ãŸã‹èª¿ã¹ã‚‹
 	bool IsMouseButtonUp(int buttonCode)
 	{
-		//¡‰Ÿ‚µ‚Ä‚È‚­‚ÄA‘O‰ñ‚Í‰Ÿ‚µ‚Ä‚é
+		//ä»ŠæŠ¼ã—ã¦ãªãã¦ã€å‰å›ã¯æŠ¼ã—ã¦ã‚‹
 		if (!IsMouseButton(buttonCode) && prevMouseState_.rgbButtons[buttonCode] & 0x80)
 		{
 			return true;
@@ -157,14 +157,14 @@ namespace Input
 		return false;
 	}
 
-	//ƒ}ƒEƒXƒJ[ƒ\ƒ‹‚ÌˆÊ’u‚ğæ“¾
+	//ãƒã‚¦ã‚¹ã‚«ãƒ¼ã‚½ãƒ«ã®ä½ç½®ã‚’å–å¾—
 	XMFLOAT3 GetMousePosition()
 	{
 		XMFLOAT3 result = XMFLOAT3((float)mousePos_.x, (float)mousePos_.y, 0);
 		return result;
 	}
 
-	//ƒ}ƒEƒXƒJ[ƒ\ƒ‹‚ÌˆÊ’u‚ğƒZƒbƒg
+	//ãƒã‚¦ã‚¹ã‚«ãƒ¼ã‚½ãƒ«ã®ä½ç½®ã‚’ã‚»ãƒƒãƒˆ
 	void SetMousePosition(int x, int y)
 	{
 		mousePos_.x = x;
@@ -172,7 +172,7 @@ namespace Input
 	}
 
 
-	//‚»‚ÌƒtƒŒ[ƒ€‚Å‚Ìƒ}ƒEƒX‚ÌˆÚ“®—Ê‚ğæ“¾
+	//ãã®ãƒ•ãƒ¬ãƒ¼ãƒ ã§ã®ãƒã‚¦ã‚¹ã®ç§»å‹•é‡ã‚’å–å¾—
 	XMFLOAT3 GetMouseMove()
 	{
 		XMFLOAT3 result = XMFLOAT3((float)mouseState_.lX, (float)mouseState_.lY, (float)mouseState_.lZ);
@@ -180,22 +180,22 @@ namespace Input
 	}
 
 
-	/////////////////////////////@ƒRƒ“ƒgƒ[ƒ‰[î•ñæ“¾@//////////////////////////////////
+	/////////////////////////////ã€€ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼æƒ…å ±å–å¾—ã€€//////////////////////////////////
 
-	//ƒRƒ“ƒgƒ[ƒ‰[‚Ìƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚Ä‚¢‚é‚©’²‚×‚é
+	//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹
 	bool IsPadButton(int buttonCode, int padID)
 	{
 		if (controllerState_[padID].Gamepad.wButtons & buttonCode)
 		{
-			return true; //‰Ÿ‚µ‚Ä‚é
+			return true; //æŠ¼ã—ã¦ã‚‹
 		}
-		return false; //‰Ÿ‚µ‚Ä‚È‚¢
+		return false; //æŠ¼ã—ã¦ãªã„
 	}
 
-	//ƒRƒ“ƒgƒ[ƒ‰[‚Ìƒ{ƒ^ƒ“‚ğ¡‰Ÿ‚µ‚½‚©’²‚×‚éi‰Ÿ‚µ‚Á‚Ï‚È‚µ‚Í–³Œøj
+	//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®ãƒœã‚¿ãƒ³ã‚’ä»ŠæŠ¼ã—ãŸã‹èª¿ã¹ã‚‹ï¼ˆæŠ¼ã—ã£ã±ãªã—ã¯ç„¡åŠ¹ï¼‰
 	bool IsPadButtonDown(int buttonCode, int padID)
 	{
-		//¡‚Í‰Ÿ‚µ‚Ä‚ÄA‘O‰ñ‚Í‰Ÿ‚µ‚Ä‚È‚¢
+		//ä»Šã¯æŠ¼ã—ã¦ã¦ã€å‰å›ã¯æŠ¼ã—ã¦ãªã„
 		if (IsPadButton(buttonCode, padID) && !(prevControllerState_[padID].Gamepad.wButtons & buttonCode))
 		{
 			return true;
@@ -203,10 +203,10 @@ namespace Input
 		return false;
 	}
 
-	//ƒRƒ“ƒgƒ[ƒ‰[‚Ìƒ{ƒ^ƒ“‚ğ¡•ú‚µ‚½‚©’²‚×‚é
+	//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®ãƒœã‚¿ãƒ³ã‚’ä»Šæ”¾ã—ãŸã‹èª¿ã¹ã‚‹
 	bool IsPadButtonUp(int buttonCode, int padID)
 	{
-		//¡‰Ÿ‚µ‚Ä‚È‚­‚ÄA‘O‰ñ‚Í‰Ÿ‚µ‚Ä‚é
+		//ä»ŠæŠ¼ã—ã¦ãªãã¦ã€å‰å›ã¯æŠ¼ã—ã¦ã‚‹
 		if (!IsPadButton(buttonCode, padID) && prevControllerState_[padID].Gamepad.wButtons & buttonCode)
 		{
 			return true;
@@ -221,7 +221,7 @@ namespace Input
 
 		if (result > 0)
 		{
-			//ƒfƒbƒhƒ][ƒ“
+			//ãƒ‡ãƒƒãƒ‰ã‚¾ãƒ¼ãƒ³
 			if (result < deadZone)
 			{
 				result = 0;
@@ -234,7 +234,7 @@ namespace Input
 
 		else
 		{
-			//ƒfƒbƒhƒ][ƒ“
+			//ãƒ‡ãƒƒãƒ‰ã‚¾ãƒ¼ãƒ³
 			if (result > -deadZone)
 			{
 				result = 0;
@@ -249,7 +249,7 @@ namespace Input
 	}
 
 
-	//¶ƒXƒeƒBƒbƒN‚ÌŒX‚«‚ğæ“¾
+	//å·¦ã‚¹ãƒ†ã‚£ãƒƒã‚¯ã®å‚¾ãã‚’å–å¾—
 	XMFLOAT3 GetPadStickL(int padID)
 	{
 		float x = GetAnalogValue(controllerState_[padID].Gamepad.sThumbLX, 32767, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
@@ -257,7 +257,7 @@ namespace Input
 		return XMFLOAT3(x, y, 0);
 	}
 
-	//‰EƒXƒeƒBƒbƒN‚ÌŒX‚«‚ğæ“¾
+	//å³ã‚¹ãƒ†ã‚£ãƒƒã‚¯ã®å‚¾ãã‚’å–å¾—
 	XMFLOAT3 GetPadStickR(int padID)
 	{
 		float x = GetAnalogValue(controllerState_[padID].Gamepad.sThumbRX, 32767, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
@@ -265,25 +265,25 @@ namespace Input
 		return XMFLOAT3(x, y, 0);
 	}
 
-	//¶ƒgƒŠƒK[‚Ì‰Ÿ‚µ‚İ‹ï‡‚ğæ“¾
+	//å·¦ãƒˆãƒªã‚¬ãƒ¼ã®æŠ¼ã—è¾¼ã¿å…·åˆã‚’å–å¾—
 	float GetPadTrrigerL(int padID)
 	{
 		return GetAnalogValue(controllerState_[padID].Gamepad.bLeftTrigger, 255, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 	}
 
-	//‰EƒgƒŠƒK[‚Ì‰Ÿ‚µ‚İ‹ï‡‚ğæ“¾
+	//å³ãƒˆãƒªã‚¬ãƒ¼ã®æŠ¼ã—è¾¼ã¿å…·åˆã‚’å–å¾—
 	float GetPadTrrigerR(int padID)
 	{
 		return GetAnalogValue(controllerState_[padID].Gamepad.bRightTrigger, 255, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 	}
 
-	//U“®‚³‚¹‚é
+	//æŒ¯å‹•ã•ã›ã‚‹
 	void SetPadVibration(int l, int r, int padID)
 	{
 		XINPUT_VIBRATION vibration;
 		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
-		vibration.wLeftMotorSpeed = l; // ¶ƒ‚[ƒ^[‚Ì‹­‚³
-		vibration.wRightMotorSpeed = r;// ‰Eƒ‚[ƒ^[‚Ì‹­‚³
+		vibration.wLeftMotorSpeed = l; // å·¦ãƒ¢ãƒ¼ã‚¿ãƒ¼ã®å¼·ã•
+		vibration.wRightMotorSpeed = r;// å³ãƒ¢ãƒ¼ã‚¿ãƒ¼ã®å¼·ã•
 		XInputSetState(padID, &vibration);
 	}
 

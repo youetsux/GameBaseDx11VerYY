@@ -21,7 +21,7 @@ HRESULT Texture::Load(std::string fileName)
 	mbstowcs_s(&ret, wtext, fileName.c_str(), fileName.length());
 
 
-	// ƒeƒNƒXƒ`ƒƒ‚ğ“Ç‚İ‚Ş
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’èª­ã¿è¾¼ã‚€
 	CoInitialize(NULL);
 	IWICImagingFactory *pFactory = NULL;
 	IWICBitmapDecoder *pDecoder = NULL;
@@ -32,8 +32,8 @@ HRESULT Texture::Load(std::string fileName)
 	if(FAILED(hr))
 	{
 		char message[256];
-		wsprintf(message, "u%sv‚ªŒ©‚Â‚©‚è‚Ü‚ñ", fileName.c_str());
-		MessageBox(0, message, "‰æ‘œƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s", MB_OK);
+		wsprintf(message, "ã€Œ%sã€ãŒè¦‹ã¤ã‹ã‚Šã¾ã‚“", fileName.c_str());
+		MessageBox(0, message, "ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—", MB_OK);
 		return hr;
 	}
 	pDecoder->GetFrame(0, &pFrame);
@@ -44,8 +44,8 @@ HRESULT Texture::Load(std::string fileName)
 	pFormatConverter->GetSize(&imgWidth, &imgHeight);
 	size_ = XMFLOAT3((float)imgWidth, (float)imgHeight, 0);
 
-	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
-	ID3D11Texture2D*	pTexture;			// ƒeƒNƒXƒ`ƒƒƒf[ƒ^
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®è¨­å®š
+	ID3D11Texture2D*	pTexture;			// ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿
 	D3D11_TEXTURE2D_DESC texdec;
 	texdec.Width = imgWidth;
 	texdec.Height = imgHeight;
@@ -60,14 +60,14 @@ HRESULT Texture::Load(std::string fileName)
 	texdec.MiscFlags = 0;
 	Direct3D::pDevice_->CreateTexture2D(&texdec, NULL, &pTexture);
 
-	// ƒeƒNƒXƒ`ƒƒ‚ğ‘—‚é
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’é€ã‚‹
 	D3D11_MAPPED_SUBRESOURCE hMappedres;
 	Direct3D::pContext_->Map(pTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &hMappedres);
 	pFormatConverter->CopyPixels(NULL, imgWidth * 4, imgWidth * imgHeight * 4, (BYTE*)hMappedres.pData);
 	Direct3D::pContext_->Unmap(pTexture, 0);
 
 
-	// ƒVƒF[ƒ_ƒŠƒ\[ƒXƒrƒ…[(ƒeƒNƒXƒ`ƒƒ—p)‚Ìİ’è
+	// ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼(ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”¨)ã®è¨­å®š
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 	srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	srv.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -75,7 +75,7 @@ HRESULT Texture::Load(std::string fileName)
 	Direct3D::pDevice_->CreateShaderResourceView(pTexture, &srv, &pTextureSRV_);
 
 
-	// ƒeƒNƒXƒ`ƒƒ[—pƒTƒ“ƒvƒ‰[ì¬
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¼ç”¨ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ä½œæˆ
 	D3D11_SAMPLER_DESC  SamDesc;
 	ZeroMemory(&SamDesc, sizeof(D3D11_SAMPLER_DESC));
 	SamDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

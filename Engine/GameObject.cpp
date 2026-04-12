@@ -2,20 +2,20 @@
 #include <assert.h>
 #include "global.h"
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^ie‚à–¼‘O‚à‚È‚µj
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ï¼ˆè¦ªã‚‚åå‰ã‚‚ãªã—ï¼‰
 GameObject::GameObject(void) :
 	GameObject(nullptr, "")
 {
 
 }
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^i–¼‘O‚È‚µj
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ï¼ˆåå‰ãªã—ï¼‰
 GameObject::GameObject(GameObject * parent) :
 	GameObject(parent, "")
 {
 }
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^i•W€j
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ï¼ˆæ¨™æº–ï¼‰
 GameObject::GameObject(GameObject * parent, const std::string& name)
 	: pParent_(parent),
 
@@ -31,7 +31,7 @@ GameObject::GameObject(GameObject * parent, const std::string& name)
 
 }
 
-//ƒfƒXƒgƒ‰ƒNƒ^
+//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 GameObject::~GameObject()
 {
 	for (auto it = colliderList_.begin(); it != colliderList_.end(); it++)
@@ -41,117 +41,117 @@ GameObject::~GameObject()
 	colliderList_.clear();
 }
 
-// íœ‚·‚é‚©‚Ç‚¤‚©
+// å‰Šé™¤ã™ã‚‹ã‹ã©ã†ã‹
 bool GameObject::IsDead()
 {
 	return (state_.dead != 0);
 }
 
-// ©•ª‚ğíœ‚·‚é
+// è‡ªåˆ†ã‚’å‰Šé™¤ã™ã‚‹
 void GameObject::KillMe()
 {
 	state_.dead = 1;
 }
 
-// Update‚ğ‹–‰Â
+// Updateã‚’è¨±å¯
 void GameObject::Enter()
 {
 	state_.entered = 1;
 }
 
-// Update‚ğ‹‘”Û
+// Updateã‚’æ‹’å¦
 void GameObject::Leave()
 {
 	state_.entered = 0;
 }
 
-// Draw‚ğ‹–‰Â
+// Drawã‚’è¨±å¯
 void GameObject::Visible()
 {
 	state_.visible = 1;
 }
 
-// Draw‚ğ‹‘”Û
+// Drawã‚’æ‹’å¦
 void GameObject::Invisible()
 {
 	state_.visible = 0;
 }
 
-// ‰Šú‰»Ï‚İ‚©‚Ç‚¤‚©
+// åˆæœŸåŒ–æ¸ˆã¿ã‹ã©ã†ã‹
 bool GameObject::IsInitialized()
 {
 	return (state_.initialized != 0);
 }
 
-// ‰Šú‰»Ï‚İ‚É‚·‚é
+// åˆæœŸåŒ–æ¸ˆã¿ã«ã™ã‚‹
 void GameObject::SetInitialized()
 {
 	state_.initialized = 1;
 }
 
-// UpdateÀs‚µ‚Ä‚¢‚¢‚©
+// Updateå®Ÿè¡Œã—ã¦ã„ã„ã‹
 bool GameObject::IsEntered()
 {
 	return (state_.entered != 0);
 }
 
-// DrawÀs‚µ‚Ä‚¢‚¢‚©
+// Drawå®Ÿè¡Œã—ã¦ã„ã„ã‹
 bool GameObject::IsVisibled()
 {
 	return (state_.visible != 0);
 }
 
-//qƒIƒuƒWƒFƒNƒgƒŠƒXƒg‚ğæ“¾
+//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªã‚¹ãƒˆã‚’å–å¾—
 std::list<GameObject*>* GameObject::GetChildList()
 {
 	return &childList_;
 }
 
-//eƒIƒuƒWƒFƒNƒg‚ğæ“¾
+//è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
 GameObject * GameObject::GetParent(void)
 {
 	return pParent_;
 }
 
-//–¼‘O‚ÅƒIƒuƒWƒFƒNƒg‚ğŒŸõi‘ÎÛ‚Í©•ª‚Ìq‹ŸˆÈ‰ºj
+//åå‰ã§ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¤œç´¢ï¼ˆå¯¾è±¡ã¯è‡ªåˆ†ã®å­ä¾›ä»¥ä¸‹ï¼‰
 GameObject * GameObject::FindChildObject(const std::string & name)
 {
-	//q‹Ÿ‚ª‚¢‚È‚¢‚È‚çI‚í‚è
+	//å­ä¾›ãŒã„ãªã„ãªã‚‰çµ‚ã‚ã‚Š
 	if (childList_.empty())
 		return nullptr;
 
-	//ƒCƒeƒŒ[ƒ^
-	auto it = childList_.begin();	//æ“ª
-	auto end = childList_.end();	//––”ö
+	//ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+	auto it = childList_.begin();	//å…ˆé ­
+	auto end = childList_.end();	//æœ«å°¾
 
-	//qƒIƒuƒWƒFƒNƒg‚©‚ç’T‚·
+	//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰æ¢ã™
 	while (it != end) {
-		//“¯‚¶–¼‘O‚ÌƒIƒuƒWƒFƒNƒg‚ğŒ©‚Â‚¯‚½‚ç‚»‚ê‚ğ•Ô‚·
+		//åŒã˜åå‰ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¦‹ã¤ã‘ãŸã‚‰ãã‚Œã‚’è¿”ã™
 		if ((*it)->GetObjectName() == name)
 			return *it;
 
-		//‚»‚Ìq‹Ÿi‘·jˆÈ~‚É‚¢‚È‚¢‚©’T‚·
+		//ãã®å­ä¾›ï¼ˆå­«ï¼‰ä»¥é™ã«ã„ãªã„ã‹æ¢ã™
 		GameObject* obj = (*it)->FindChildObject(name);
 		if (obj != nullptr)
 		{
 			return obj;
 		}
 
-		//Ÿ‚Ìq‚Ö
+		//æ¬¡ã®å­ã¸
 		it++;
 	}
 
-	//Œ©‚Â‚©‚ç‚È‚©‚Á‚½
+	//è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ
 	return nullptr;
 }
 
-//ƒIƒuƒWƒFƒNƒg‚Ì–¼‘O‚ğæ“¾
+//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åå‰ã‚’å–å¾—
 const std::string& GameObject::GetObjectName(void) const
 {
 	return objectName_;
 }
 
-//qƒIƒuƒWƒFƒNƒg‚ğ’Ç‰ÁiƒŠƒXƒg‚ÌÅŒã‚Öj
+//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿½åŠ ï¼ˆãƒªã‚¹ãƒˆã®æœ€å¾Œã¸ï¼‰
 void GameObject::PushBackChild(GameObject * obj)
 {
 	assert(obj != nullptr);
@@ -160,7 +160,7 @@ void GameObject::PushBackChild(GameObject * obj)
 	childList_.push_back(obj);
 }
 
-//qƒIƒuƒWƒFƒNƒg‚ğ’Ç‰ÁiƒŠƒXƒg‚Ìæ“ª‚Öj
+//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿½åŠ ï¼ˆãƒªã‚¹ãƒˆã®å…ˆé ­ã¸ï¼‰
 void GameObject::PushFrontChild(GameObject * obj)
 {
 	assert(obj != nullptr);
@@ -169,18 +169,18 @@ void GameObject::PushFrontChild(GameObject * obj)
 	childList_.push_front(obj);
 }
 
-//qƒIƒuƒWƒFƒNƒg‚ğ‘S‚Äíœ
+//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å…¨ã¦å‰Šé™¤
 void GameObject::KillAllChildren(void)
 {
-	//q‹Ÿ‚ª‚¢‚È‚¢‚È‚çI‚í‚è
+	//å­ä¾›ãŒã„ãªã„ãªã‚‰çµ‚ã‚ã‚Š
 	if (childList_.empty())
 		return;
 
-	//ƒCƒeƒŒ[ƒ^
-	auto it = childList_.begin();	//æ“ª
-	auto end = childList_.end();	//––”ö
+	//ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+	auto it = childList_.begin();	//å…ˆé ­
+	auto end = childList_.end();	//æœ«å°¾
 
-	//qƒIƒuƒWƒFƒNƒg‚ğ1ŒÂ‚¸‚Âíœ
+	//å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’1å€‹ãšã¤å‰Šé™¤
 	while (it != end)
 	{
 		KillObjectSub(*it);
@@ -188,7 +188,7 @@ void GameObject::KillAllChildren(void)
 		it = childList_.erase(it);
 	}
 
-	//ƒŠƒXƒg‚ğƒNƒŠƒA
+	//ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢
 	childList_.clear();
 }
 
@@ -210,7 +210,7 @@ void GameObject::SetTranslateMatrix(XMMATRIX& m)
 	transform_.isSetDirect = true;
 }
 
-//ƒIƒuƒWƒFƒNƒgíœiÄ‹Aj
+//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå‰Šé™¤ï¼ˆå†å¸°ï¼‰
 void GameObject::KillObjectSub(GameObject * obj)
 {
 	if (!childList_.empty())
@@ -231,14 +231,14 @@ void GameObject::KillObjectSub(GameObject * obj)
 
 
 
-//ƒRƒ‰ƒCƒ_[iÕ“Ë”»’èj‚ğ’Ç‰Á‚·‚é
+//ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ï¼ˆè¡çªåˆ¤å®šï¼‰ã‚’è¿½åŠ ã™ã‚‹
 void GameObject::AddCollider(Collider* collider)
 {
 	collider->SetGameObject(this);
 	colliderList_.push_back(collider);
 }
 
-//ƒRƒ‰ƒCƒ_[iÕ“Ë”»’èj‚ğíœ
+//ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ï¼ˆè¡çªåˆ¤å®šï¼‰ã‚’å‰Šé™¤
 void GameObject::ClearCollider()
 {
 	for (auto it = colliderList_.begin(); it != colliderList_.end(); it++)
@@ -248,34 +248,34 @@ void GameObject::ClearCollider()
 	colliderList_.clear();
 }
 
-//Õ“Ë”»’è
+//è¡çªåˆ¤å®š
 void GameObject::Collision(GameObject * pTarget)
 {
-	//©•ª“¯m‚Ì“–‚½‚è”»’è‚Í‚µ‚È‚¢
+	//è‡ªåˆ†åŒå£«ã®å½“ãŸã‚Šåˆ¤å®šã¯ã—ãªã„
 	if (pTarget == nullptr || this == pTarget)
 	{
 		return;
 	}
 
-	//©•ª‚ÆpTarget‚ÌƒRƒŠƒWƒ‡ƒ“î•ñ‚ğg‚Á‚Ä“–‚½‚è”»’è
-	//1‚Â‚ÌƒIƒuƒWƒFƒNƒg‚ª•¡”‚ÌƒRƒŠƒWƒ‡ƒ“î•ñ‚ğ‚Á‚Ä‚éê‡‚à‚ ‚é‚Ì‚Å“ñdƒ‹[ƒv
+	//è‡ªåˆ†ã¨pTargetã®ã‚³ãƒªã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’ä½¿ã£ã¦å½“ãŸã‚Šåˆ¤å®š
+	//1ã¤ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¤‡æ•°ã®ã‚³ãƒªã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’æŒã£ã¦ã‚‹å ´åˆã‚‚ã‚ã‚‹ã®ã§äºŒé‡ãƒ«ãƒ¼ãƒ—
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
 	{
 		for (auto j = pTarget->colliderList_.begin(); j != pTarget->colliderList_.end(); j++)
 		{
 			if ((*i)->IsHit(*j))
 			{
-				//“–‚½‚Á‚½
+				//å½“ãŸã£ãŸ
 				this->OnCollision(pTarget);
 			}
 		}
 	}
 
-	//q‹Ÿ‚ª‚¢‚È‚¢‚È‚çI‚í‚è
+	//å­ä¾›ãŒã„ãªã„ãªã‚‰çµ‚ã‚ã‚Š
 	if (pTarget->childList_.empty())
 		return;
 
-	//q‹Ÿ‚à“–‚½‚è”»’è
+	//å­ä¾›ã‚‚å½“ãŸã‚Šåˆ¤å®š
 	for (auto i = pTarget->childList_.begin(); i != pTarget->childList_.end(); i++)
 	{
 		Collision(*i);
@@ -283,7 +283,7 @@ void GameObject::Collision(GameObject * pTarget)
 }
 
 
-//ƒeƒXƒg—p‚ÌÕ“Ë”»’è˜g‚ğ•\¦
+//ãƒ†ã‚¹ãƒˆç”¨ã®è¡çªåˆ¤å®šæ ã‚’è¡¨ç¤º
 void GameObject::CollisionDraw()
 {
 	Direct3D::SetShader(Direct3D::SHADER_UNLIT);
@@ -296,7 +296,7 @@ void GameObject::CollisionDraw()
 	Direct3D::SetShader(Direct3D::SHADER_3D);
 }
 
-//RootJob‚ğæ“¾
+//RootJobã‚’å–å¾—
 GameObject * GameObject::GetRootJob()
 {
 	if (GetParent() == nullptr)
@@ -329,7 +329,7 @@ void GameObject::UpdateSub()
 		}
 		else
 		{
-			//“–‚½‚è”»’è
+			//å½“ãŸã‚Šåˆ¤å®š
 			(*it)->Collision(GetParent());
 			it++;
 		}
@@ -341,16 +341,16 @@ void GameObject::DrawSub()
 	Draw();
 
 
-	//ƒŠƒŠ[ƒX‚Ííœ
+	//ãƒªãƒªãƒ¼ã‚¹æ™‚ã¯å‰Šé™¤
 #ifdef _DEBUG
-		//ƒRƒŠƒWƒ‡ƒ“‚Ì•`‰æ
+		//ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®æç”»
 	if (Direct3D::isDrawCollision_)
 	{
 		CollisionDraw();
 	}
 #endif
 
-	//‚»‚ÌqƒIƒuƒWƒFƒNƒg‚Ì•`‰æˆ—
+	//ãã®å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æç”»å‡¦ç†
 	for (auto it = childList_.begin(); it != childList_.end(); it++)
 	{
 		(*it)->DrawSub();
@@ -359,7 +359,7 @@ void GameObject::DrawSub()
 
 void GameObject::ReleaseSub()
 {
-	//ƒRƒ‰ƒCƒ_[‚ğíœ
+	//ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’å‰Šé™¤
 	ClearCollider();
 
 
@@ -375,13 +375,13 @@ void GameObject::ReleaseSub()
 
 
 
-////ƒ[ƒJƒ‹s—ñ‚Ìæ“¾i‚±‚ÌƒIƒuƒWƒFƒNƒg‚Ìs—ñj
+////ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã®å–å¾—ï¼ˆã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¡Œåˆ—ï¼‰
 //XMMATRIX GameObject::GetLocalMatrix(void)
 //{
 //	return transform_.GetWorldMatrix();
 //}
 
-//ƒ[ƒ‹ƒhs—ñ‚Ìæ“¾ie‚Ì‰e‹¿‚ğó‚¯‚½ÅI“I‚Ès—ñj
+//ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã®å–å¾—ï¼ˆè¦ªã®å½±éŸ¿ã‚’å—ã‘ãŸæœ€çµ‚çš„ãªè¡Œåˆ—ï¼‰
 XMMATRIX GameObject::GetWorldMatrix(void)
 {
 	return transform_.GetWorldMatrix();

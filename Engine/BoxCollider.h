@@ -3,23 +3,23 @@
 
 
 //-----------------------------------------------------------
-//���^�̓����蔻��
+//箱型の当たり判定
 //-----------------------------------------------------------
 class BoxCollider :	public Collider
 {
-	//Collider�N���X��private�����o�ɃA�N�Z�X�ł���悤�ɂ���
+	//Colliderクラスのprivateメンバにアクセスできるようにする
 	friend class Collider;
 
 public:
-	//�R���X�g���N�^�i�����蔻��̍쐬�j
-	//�����FbasePos	�����蔻��̒��S�ʒu�i�Q�[���I�u�W�F�N�g�̌��_���猩���ʒu�j
-	//�����Fsize	�����蔻��̃T�C�Y�i���A�����A���s���j
+	//コンストラクタ（当たり判定の作成）
+	//引数：basePos	当たり判定の中心位置（ゲームオブジェクトの原点から見た位置）
+	//引数：size	当たり判定のサイズ（幅、高さ、奥行き）
 	BoxCollider(XMFLOAT3 basePos, XMFLOAT3 size);
 
 private:
-	//�ڐG����
-	//�����Ftarget	����̓����蔻��
-	//�ߒl�F�ڐG���Ă��true
+	//接触判定
+	//引数：target	相手の当たり判定
+	//戻値：接触してればtrue
 	bool IsHit(Collider* target) override;
 };
 
