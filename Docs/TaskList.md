@@ -253,8 +253,8 @@ TASK-06  (ログ整理)      → TASK-04,05 完了後が望ましい（調査中
 
 | 日付 | タスク | 変更内容 | 変更ファイル |
 |------|--------|----------|-------------|
-| 2025-xx-xx | -      | タスク表新規作成・セッションメモ追記 | `Docs/TaskList.md` |
-| 2025-xx-xx | TASK-01 | `Init(FbxNode*)` / `Init(FbxMesh*)` の末尾 `return E_NOTIMPL` → `return S_OK` | `Engine/FbxParts.cpp` |
-| 2025-xx-xx | TASK-02 | `InitMaterial(FbxNode*)` 279行目 / `InitMaterial(FbxMesh*)` 345行目 : Phong 強制Cキャスト削除 → ClassId 分岐 + `static_cast` に変更。Lambert 時は Specular/Shininess を 0 固定 | `Engine/FbxParts.cpp` |
-| 2025-xx-xx | TASK-03 | `InitTexture` 367行目 : `_splitpath_s` + `wsprintf` 削除 → `std::filesystem::path::filename()` に置き換え。`GetRelativeFileName()` が空の場合 `GetFileName()` にフォールバック | `Engine/FbxParts.cpp` |
-| 2025-xx-xx | TASK-04 | 手順書作成・3 Step 分割方針決定。次回 Step 1 から着手 | `Docs/TASK04_手順書.md` |
+| 2026-04-13 | -      | タスク表新規作成・セッションメモ追記 | `Docs/TaskList.md` |
+| 2026-04-13 | TASK-01 | `Init(FbxNode*)` / `Init(FbxMesh*)` の末尾 `return E_NOTIMPL` → `return S_OK` | `Engine/FbxParts.cpp` |
+| 2026-04-13 | TASK-02 | `InitMaterial(FbxNode*)` 279行目 / `InitMaterial(FbxMesh*)` 345行目 : Phong 強制Cキャスト削除 → ClassId 分岐 + `static_cast` に変更。Lambert 時は Specular/Shininess を 0 固定 | `Engine/FbxParts.cpp` |
+| 2026-04-13 | TASK-03 | `InitTexture` 367行目 : `_splitpath_s` + `wsprintf` 削除 → `std::filesystem::path::filename()` に置き換え。`GetRelativeFileName()` が空の場合 `GetFileName()` にフォールバック | `Engine/FbxParts.cpp` |
+| 2026-04-13 | TASK-04 | 手順書作成・3 Step 分割方針決定。次回 Step 1 から着手 | `Docs/TASK04_手順書.md` |
