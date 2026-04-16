@@ -400,35 +400,29 @@ void FbxParts::InitIndex(fbxsdk::FbxMesh* mesh)
 	ppIndexBuffer_ = new ID3D11Buffer * [materialCount_];
 	ppIndexData_ = new DWORD * [materialCount_];
 
-	int count = 0;
+	FbxLayerElementMaterial* mtl = mesh->GetLayer(0)->GetMaterials();
 
-	// マテリアルから「ポリゴン平面」の情報を抽出する
 	for (DWORD i = 0; i < materialCount_; i++)
 	{
-		count = 0;
+		int count = 0;
 		DWORD* pIndex = new DWORD[polygonCount_ * 3];
-		ZeroMemory(&pIndex[i], sizeof(pIndex[i]));
 
-		// ポリゴンを構成する三角形平面が、
-		// 「頂点バッファ」内のどの頂点を利用しているかを調べる
+		// linearIndex = poly * 3 + vertex が頂点の実体なのでそのまま詰める
 		for (DWORD j = 0; j < polygonCount_; j++)
 		{
-			FbxLayerElementMaterial* mtl = mesh->GetLayer(0)->GetMaterials();
 			int mtlId = mtl->GetIndexArray().GetAt(j);
-			if (mtlId == i)
+			if (mtlId == (int)i)
 			{
-				for (DWORD k = 0; k < 3; k++)
-					{
-						pIndex[count + k] = mesh->GetPolygonVertex(j, k);
-					}
-				count += 3;
+				pIndex[count++] = j * 3 + 0;
+				pIndex[count++] = j * 3 + 1;
+				pIndex[count++] = j * 3 + 2;
 			}
 		}
 
 		// インデックスバッファを生成する
 		D3D11_BUFFER_DESC   bd;
 		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(int) * count;
+		bd.ByteWidth = sizeof(DWORD) * count;
 		bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
@@ -440,14 +434,12 @@ void FbxParts::InitIndex(fbxsdk::FbxMesh* mesh)
 		if (FAILED(Direct3D::pDevice_->CreateBuffer(&bd, &InitData, &ppIndexBuffer_[i])))
 		{
 			//MessageBox(0, "インデックスバッファの生成に失敗", fbxFileName, MB_OK);
-			//return FALSE;
 		}
 		pMaterial_[i].polygonCount = count / 3;
 		ppIndexData_[i] = new DWORD[count];
 		memcpy(ppIndexData_[i], pIndex, sizeof(DWORD) * count);
 		SAFE_DELETE_ARRAY(pIndex);
 	}
-
 }
 
 //骨の情報を準備
