@@ -39,14 +39,20 @@ for poly:
 
 ---
 
-## 作業手順（3 Step に分割）
+## 作業手順（5 Step に細分化）
 
-### ✅ Step 1 : `InitVertex` + `InitIndex` を変える（静的メッシュ確認）
+> **コミットのタイミング**  
+> Step 1-A と Step 2-A は「中間状態」なのでコミットしない。  
+> ビルドが通ることだけ確認してすぐ次の Step に進む。
 
-**影響関数 :** `InitVertex` / `InitIndex`  
-**確認方法 :** スキンなし静的メッシュの FBX をビューワーに D&D して形状・テクスチャが正しく出るか目視
+---
 
-#### InitVertex の変更点
+### ⬜ Step 1-A : `InitVertex` を linearIndex 方式に変更（ビルド確認のみ）
+
+**影響関数 :** `InitVertex`  
+**確認方法 :** ビルドエラーが出ないことだけ確認。描画は壊れていてよい（`InitIndex` が旧来のままなので）。コミットしない。
+
+#### 変更内容
 
 ```cpp
 // --------- 変更前 ---------
@@ -59,17 +65,15 @@ for (DWORD poly = 0; poly < polygonCount_; poly++)
         int index = mesh->GetPolygonVertex(poly, vertex);  // control point index
         pVertexData_[index].position = ...;
         pVertexData_[index].normal   = ...;
-        // UV: eIndexToDirect / eDirect の分岐（MappingMode未チェック）
+        // UV: ReferenceMode だけ見ていて MappingMode を無視している
         pVertexData_[index].uv = ...;
     }
 }
-
-// バッファサイズも controlPointCount 基準
 bd_vertex.ByteWidth = sizeof(VERTEX) * mesh->GetControlPointsCount();
 
 
 // --------- 変更後 ---------
-// vertexCount_ を polygon vertex 展開済みサイズに上書き
+// (1) vertexCount_ を polygon vertex 展開済みサイズに上書き
 vertexCount_ = polygonCount_ * 3;
 pVertexData_ = new VERTEX[vertexCount_];
 
@@ -82,7 +86,7 @@ for (DWORD poly = 0; poly < polygonCount_; poly++)
 {
     for (int vertex = 0; vertex < 3; vertex++)
     {
-        int linearIndex = (int)(poly * 3 + vertex);
+        int linearIndex = (int)(poly * 3 + vertex);    // ← 通し番号
         int cpIndex     = mesh->GetPolygonVertex(poly, vertex); // 位置取得にだけ使う
 
         // 位置
@@ -125,21 +129,25 @@ for (DWORD poly = 0; poly < polygonCount_; poly++)
     }
 }
 
-// バッファサイズも展開済みサイズ
+// (2) バッファサイズも展開済みサイズに変更
 bd_vertex.ByteWidth = sizeof(VERTEX) * vertexCount_;
 ```
 
-#### InitIndex の変更点
+---
 
-インデックスが単純な連番になるので大幅にシンプルになる。
+### ⬜ Step 1-B : `InitIndex` を linearIndex 連番方式に変更（静的メッシュ目視・コミット）
+
+**影響関数 :** `InitIndex`  
+**確認方法 :** ビルド確認 → 静的メッシュを D&D して形状・テクスチャが正しく出るか目視 → **コミット**
+
+#### 変更内容
 
 ```cpp
 // --------- 変更前 ---------
-// マテリアル毎にポリゴンを走査して GetPolygonVertex で index を拾う
+// GetPolygonVertex(j, k) で control point index を拾っていた
 
 // --------- 変更後 ---------
-// linearIndex = poly * 3 + vertex が頂点の実体なので
-// マテリアルが一致するポリゴンの linearIndex をそのまま詰める
+// linearIndex = poly * 3 + vertex が頂点の実体なのでそのまま詰める
 
 for (DWORD i = 0; i < materialCount_; i++)
 {
@@ -161,112 +169,109 @@ for (DWORD i = 0; i < materialCount_; i++)
 }
 ```
 
-**Step 1 完了後にコミットすること。**
-
 ---
 
-### ⬜ Step 2 : `InitSkelton` のウェイトマッピングを展開済みに合わせる（スキンメッシュ確認）
+### ⬜ Step 2-A : `InitSkelton` に cp2linear テーブルを追加（ビルド確認のみ）
 
 **影響関数 :** `InitSkelton`  
-**確認方法 :** スキンメッシュ FBX をビューワーに D&D してバインドポーズが崩れないか目視
+**確認方法 :** ビルドエラーが出ないことだけ確認。ウェイト書き込みはまだ旧来のまま。コミットしない。
 
-#### 変更の考え方
+#### 変更内容
 
-FBX SDK のウェイト情報は **controlPoint 基準**で持っている。  
-展開後は頂点が `linearIndex = poly * 3 + vertex` になるので、  
-`controlPoint → [linearIndex, ...]` の逆引きテーブルが必要。
+`InitSkelton` の `numBone_` / `ppCluster_` を確定させた直後（`pWeightArray_` 確保の前）に追加する。
 
 ```cpp
-// Step 2 での追加処理（InitSkelton 冒頭）
-
-// controlPoint → linearIndex の逆引きテーブルを作成
 // cp2linear[cpIndex] = { linearIndex0, linearIndex1, ... }
-std::vector<std::vector<int>> cp2linear(mesh->GetControlPointsCount());
+std::vector<std::vector<int>> cp2linear(pMesh->GetControlPointsCount());
 for (DWORD poly = 0; poly < polygonCount_; poly++)
 {
     for (int v = 0; v < 3; v++)
     {
-        int cpIdx  = mesh->GetPolygonVertex(poly, v);
+        int cpIdx  = pMesh->GetPolygonVertex(poly, v);
         int linIdx = (int)(poly * 3 + v);
         cp2linear[cpIdx].push_back(linIdx);
     }
 }
+```
 
-// ウェイト配列を展開済みサイズで確保
-pWeightArray_ = new FbxParts::Weight[vertexCount_];  // vertexCount_ は展開済みサイズ
-for (DWORD i = 0; i < vertexCount_; i++)
+---
+
+### ⬜ Step 2-B : `InitSkelton` のウェイト書き込みを cp2linear 経由に変更（スキンメッシュ目視・コミット）
+
+**影響関数 :** `InitSkelton`  
+**確認方法 :** ビルド確認 → スキンメッシュを D&D してバインドポーズが崩れないか目視 → **コミット**
+
+#### 変更内容
+
+既存のウェイト書き込みループ（`pWeightArray_[piIndex[k]]` を直接参照している箇所）を cp2linear 経由に書き換える。
+
+```cpp
+// --------- 変更前 ---------
+for (int k = 0; k < numIndex; k++)
 {
-    pWeightArray_[i].posOrigin    = pVertexData_[i].position;
-    pWeightArray_[i].normalOrigin = pVertexData_[i].normal;
-    pWeightArray_[i].pBoneIndex   = new int[numBone_];
-    pWeightArray_[i].pBoneWeight  = new float[numBone_];
-    for (int j = 0; j < numBone_; j++)
+    for (int m = 0; m < 4; m++)
     {
-        pWeightArray_[i].pBoneIndex[j]  = -1;
-        pWeightArray_[i].pBoneWeight[j] = 0.0f;
+        // piIndex[k] = control point index をそのまま使っている
+        if (pdWeight[k] > pWeightArray_[piIndex[k]].pBoneWeight[m])
+        {
+            // ... pWeightArray_[piIndex[k]] に書き込み
+        }
     }
 }
 
-// ボーンのウェイトを controlPoint → linearIndex に展開して書き込む
-for (int i = 0; i < numBone_; i++)
+// --------- 変更後 ---------
+for (int k = 0; k < numIndex; k++)
 {
-    int    numIdx  = ppCluster_[i]->GetControlPointIndicesCount();
-    int*   piIndex = ppCluster_[i]->GetControlPointIndices();
-    double* pdWeight = ppCluster_[i]->GetControlPointWeights();
-
-    for (int k = 0; k < numIdx; k++)
+    int cpIdx = piIndex[k];
+    // この control point に対応する全 linearIndex にウェイトを書く
+    for (int linIdx : cp2linear[cpIdx])
     {
-        int cpIdx = piIndex[k];
-        // このcontrolPointに対応する全linearIndexにウェイトを書く
-        for (int linIdx : cp2linear[cpIdx])
+        for (int m = 0; m < 4; m++)
         {
-            for (int m = 0; m < 4; m++)
+            if (m >= numBone_) break;
+            if (pdWeight[k] > pWeightArray_[linIdx].pBoneWeight[m])
             {
-                if (m >= numBone_) break;
-                if (pdWeight[k] > pWeightArray_[linIdx].pBoneWeight[m])
+                for (int n = numBone_ - 1; n > m; n--)
                 {
-                    for (int n = numBone_ - 1; n > m; n--)
-                    {
-                        pWeightArray_[linIdx].pBoneIndex[n]  = pWeightArray_[linIdx].pBoneIndex[n - 1];
-                        pWeightArray_[linIdx].pBoneWeight[n] = pWeightArray_[linIdx].pBoneWeight[n - 1];
-                    }
-                    pWeightArray_[linIdx].pBoneIndex[m]  = i;
-                    pWeightArray_[linIdx].pBoneWeight[m] = (float)pdWeight[k];
-                    break;
+                    pWeightArray_[linIdx].pBoneIndex[n]  = pWeightArray_[linIdx].pBoneIndex[n - 1];
+                    pWeightArray_[linIdx].pBoneWeight[n] = pWeightArray_[linIdx].pBoneWeight[n - 1];
                 }
+                pWeightArray_[linIdx].pBoneIndex[m]  = i;
+                pWeightArray_[linIdx].pBoneWeight[m] = (float)pdWeight[k];
+                break;
             }
         }
     }
 }
 ```
 
-**Step 2 完了後にコミットすること。**
-
 ---
 
-### ⬜ Step 3 : `DrawSkinAnime` の整合確認
+### ⬜ Step 3 : `DrawSkinAnime` の整合確認（アニメ目視・コミット）
 
 **影響関数 :** `DrawSkinAnime`  
-**確認方法 :** スキンメッシュのアニメーションを再生して変形が正しいか目視
+**確認方法 :** スキンメッシュのアニメーションを再生して変形が正しいか目視 → **コミット**
 
 `vertexCount_` が展開済みサイズになっているだけなので、  
 ループ自体は `for (DWORD i = 0; i < vertexCount_; i++)` のままで動くはず。  
-動作確認して問題なければそのままコミット。
+変更が必要なら対応、問題なければそのままコミット。
 
 ---
 
 ## 作業チェックリスト
 
-- [ ] Step 1 : `InitVertex` 変更・ビルド確認・静的メッシュ目視確認・コミット
-- [ ] Step 1 : `InitIndex` 変更・ビルド確認・静的メッシュ目視確認・コミット
-- [ ] Step 2 : `InitSkelton` 変更・ビルド確認・スキンメッシュ目視確認・コミット
-- [ ] Step 3 : `DrawSkinAnime` 整合確認・コミット
+- [x] Step 1-A : `InitVertex` 変更・ビルド確認（コミットしない）
+- [ ] Step 1-B : `InitIndex` 変更・ビルド確認・静的メッシュ目視確認・**コミット**
+- [ ] Step 2-A : `InitSkelton` に cp2linear テーブル追加・ビルド確認（コミットしない）
+- [ ] Step 2-B : `InitSkelton` ウェイト書き込みを cp2linear 経由に変更・ビルド確認・スキンメッシュ目視確認・**コミット**
+- [ ] Step 3  : `DrawSkinAnime` 整合確認・アニメーション目視確認・**コミット**
 - [ ] `TaskList.md` の TASK-04 ステータスを ✅ に更新
 
 ---
 
 ## 注意事項
 
-- **Step 1 が通ってからStep 2 に進むこと**（スキンと頂点のバグを混ぜない）
+- **Step 1-A 単体では描画が壊れる**（InitIndex が旧来のまま）。ビルドが通ることだけ確認して Step 1-B に進む
+- **Step 2-A 単体ではウェイトがズレたまま**。ビルドが通ることだけ確認して Step 2-B に進む
 - `vertexCount_` は `InitVertex` の中で `polygonCount_ * 3` に上書きする。`Init()` で `GetControlPointsCount()` を代入している箇所はそのままでよい（`InitVertex` 内で上書きされる）
 - `SplitPoints()` の呼び出しは **残したままでよい**（呼んでも害はない）

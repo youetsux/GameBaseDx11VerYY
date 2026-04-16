@@ -143,11 +143,13 @@ Blenderはテクスチャに絶対パスを埋め込むため、相対パスが�
 #### 分割方針（決定済み）
 一気にやらず 3 Step に分割する。
 
-| Step | 内容 | 確認方法 |
-|------|------|----------|
-| Step 1 | `InitVertex` + `InitIndex` | 静的メッシュ目視 |
-| Step 2 | `InitSkelton` ウェイトマッピング | スキンメッシュ目視 |
-| Step 3 | `DrawSkinAnime` 整合確認 | アニメーション目視 |
+| Step | 内容 | 確認方法 | コミット |
+|------|------|----------|----------|
+| Step 1-A | `InitVertex` を linearIndex 方式に変更 | ビルド確認のみ | しない |
+| Step 1-B | `InitIndex` を linearIndex 連番方式に変更 | 静的メッシュ目視 | する |
+| Step 2-A | `InitSkelton` に cp2linear テーブル追加 | ビルド確認のみ | しない |
+| Step 2-B | `InitSkelton` ウェイト書き込みを cp2linear 経由に変更 | スキンメッシュ目視 | する |
+| Step 3 | `DrawSkinAnime` 整合確認 | アニメーション目視 | する |
 
 #### 背景
 現状は `pVertexData_[controlPointIndex]` に法線・UV を上書きしている。
@@ -257,4 +259,5 @@ TASK-06  (ログ整理)      → TASK-04,05 完了後が望ましい（調査中
 | 2026-04-13 | TASK-01 | `Init(FbxNode*)` / `Init(FbxMesh*)` の末尾 `return E_NOTIMPL` → `return S_OK` | `Engine/FbxParts.cpp` |
 | 2026-04-13 | TASK-02 | `InitMaterial(FbxNode*)` 279行目 / `InitMaterial(FbxMesh*)` 345行目 : Phong 強制Cキャスト削除 → ClassId 分岐 + `static_cast` に変更。Lambert 時は Specular/Shininess を 0 固定 | `Engine/FbxParts.cpp` |
 | 2026-04-13 | TASK-03 | `InitTexture` 367行目 : `_splitpath_s` + `wsprintf` 削除 → `std::filesystem::path::filename()` に置き換え。`GetRelativeFileName()` が空の場合 `GetFileName()` にフォールバック | `Engine/FbxParts.cpp` |
-| 2026-04-13 | TASK-04 | 手順書作成・3 Step 分割方針決定。次回 Step 1 から着手 | `Docs/TASK04_手順書.md` |
+| 2026-04-13 | TASK-04 | 手順書作成・5 Step 細分化。Step 1-A/1-B/2-A/2-B/3 に分割 | `Docs/TASK04_手順書.md` |
+| 2026-04-13 | TASK-04 Step 1-A | `InitVertex` を polygon vertex 展開方式に変更。`vertexCount_` = `polygonCount_ * 3` に上書き、`linearIndex = poly*3+vertex` で書き込み、UV を MappingMode + ReferenceMode 全4パターン対応、`pUV` null ガード・`uvIndex < 0` ガード追加、`ByteWidth` を `vertexCount_` 基準に修正 | `Engine/FbxParts.cpp` |
