@@ -25,7 +25,7 @@ Fbx::~Fbx()
 
 HRESULT Fbx::Load(std::string fileName)
 {
-	// FBX‚Ì“Ç‚İ‚İ
+	// FBXã®èª­ã¿è¾¼ã¿
 	pFbxManager_ = FbxManager::Create();
 	pFbxScene_ = FbxScene::Create(pFbxManager_, "fbxscene");
 	FbxString FileName(fileName.c_str());
@@ -33,14 +33,14 @@ HRESULT Fbx::Load(std::string fileName)
 	
 	if (!fbxImporter->Initialize(FileName.Buffer(), -1, pFbxManager_->GetIOSettings()))
 	{
-		//¸”s
+		//å¤±æ•—
 		return E_FAIL;
 	}
 
 	fbxImporter->Import(pFbxScene_);
 	fbxImporter->Destroy();
 
-	// FBXÀ•WŒni‰EèY-upj¨ DirectXÀ•WŒni¶èY-upj‚ÖˆêŠ‡•ÏŠ·
+	// FBXåº§æ¨™ç³»ï¼ˆå³æ‰‹Y-upï¼‰â†’ DirectXåº§æ¨™ç³»ï¼ˆå·¦æ‰‹Y-upï¼‰ã¸ä¸€æ‹¬å¤‰æ›
 	FbxAxisSystem::DirectX.DeepConvertScene(pFbxScene_);
 
 	FbxGeometryConverter geometryConverter(pFbxManager_);
@@ -69,25 +69,25 @@ HRESULT Fbx::Load(std::string fileName)
 #pragma endregion SplitMesh
 
 
-	// ƒAƒjƒ[ƒVƒ‡ƒ“‚Ìƒ^ƒCƒ€ƒ‚[ƒh‚Ìæ“¾
+	// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¿ã‚¤ãƒ ãƒ¢ãƒ¼ãƒ‰ã®å–å¾—
 	_frameRate = pFbxScene_->GetGlobalSettings().GetTimeMode();
 
-	//Œ»İ‚ÌƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ‚ğŠo‚¦‚Ä‚¨‚­
+	//ç¾åœ¨ã®ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’è¦šãˆã¦ãŠã
 	char defaultCurrentDir[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, defaultCurrentDir);
 
-	//ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ‚ğƒtƒ@ƒCƒ‹‚ª‚ ‚Á‚½êŠ‚É•ÏX
+	//ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’ãƒ•ã‚¡ã‚¤ãƒ«ãŒã‚ã£ãŸå ´æ‰€ã«å¤‰æ›´
 	char dir[MAX_PATH];
 	_splitpath_s(fileName.c_str(), nullptr, 0, dir, MAX_PATH, nullptr, 0, nullptr, 0);
 	SetCurrentDirectory(dir);
 
-	//ƒ‹[ƒgƒm[ƒh‚ğæ“¾‚µ‚Ä
+	//ãƒ«ãƒ¼ãƒˆãƒãƒ¼ãƒ‰ã‚’å–å¾—ã—ã¦
 	//FbxNode* rootNode = pFbxScene_->GetRootNode();
 
-	////‚»‚¢‚Â‚Ìq‹Ÿ‚Ì”‚ğ’²‚×‚Ä
+	////ãã„ã¤ã®å­ä¾›ã®æ•°ã‚’èª¿ã¹ã¦
 	//int childCount = rootNode->GetChildCount();
 
-	////1ŒÂ‚¸‚Âƒ`ƒFƒbƒN
+	////1å€‹ãšã¤ãƒã‚§ãƒƒã‚¯
 	//for (int i = 0; childCount > i; i++)
 	//{
 	//	CheckNode(rootNode->GetChild(i), &parts_);
@@ -99,13 +99,13 @@ HRESULT Fbx::Load(std::string fileName)
 	int meshCount = pFbxScene_->GetSrcObjectCount<FbxMesh>();
 	for (int i = 0; i < meshCount; ++i)
 	{
-		// <‚½‚Á‚½‚±‚ê‚¾‚¯‚Å‘S‚Ä‚ÌƒƒbƒVƒ…ƒf[ƒ^‚ğæ“¾‚Å‚«‚é>
+		// <ãŸã£ãŸã“ã‚Œã ã‘ã§å…¨ã¦ã®ãƒ¡ãƒƒã‚·ãƒ¥ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã§ãã‚‹>
 		FbxMesh* mesh = pFbxScene_->GetSrcObject<FbxMesh>(i);
-		//ƒp[ƒc‚ğ—pˆÓ
+		//ãƒ‘ãƒ¼ãƒ„ã‚’ç”¨æ„
 		FbxParts* pParts = new FbxParts(this);
 		pParts->Init(mesh);
 
-		//ƒp[ƒcî•ñ‚ğ“®“I”z—ñ‚É’Ç‰Á
+		//ãƒ‘ãƒ¼ãƒ„æƒ…å ±ã‚’å‹•çš„é…åˆ—ã«è¿½åŠ 
 		parts_.push_back(pParts);
 	
 	}
@@ -115,7 +115,7 @@ HRESULT Fbx::Load(std::string fileName)
 	//	meshList.push_back(mesh);
 	//}
 
-	//ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ‚ğŒ³‚ÌˆÊ’u‚É–ß‚·
+	//ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’å…ƒã®ä½ç½®ã«æˆ»ã™
 	SetCurrentDirectory(defaultCurrentDir);
 
 	return S_OK;
@@ -123,24 +123,24 @@ HRESULT Fbx::Load(std::string fileName)
 
 void Fbx::CheckNode(FbxNode * pNode, std::vector<FbxParts*>* pPartsList)
 {
-	//‚»‚Ìƒm[ƒh‚É‚ÍƒƒbƒVƒ…î•ñ‚ª“ü‚Á‚Ä‚¢‚é‚¾‚ë‚¤‚©H
+	//ãã®ãƒãƒ¼ãƒ‰ã«ã¯ãƒ¡ãƒƒã‚·ãƒ¥æƒ…å ±ãŒå…¥ã£ã¦ã„ã‚‹ã ã‚ã†ã‹ï¼Ÿ
 	FbxNodeAttribute* attr = pNode->GetNodeAttribute();
 	if (attr != nullptr && attr->GetAttributeType() == FbxNodeAttribute::eMesh)
 	{
-		//ƒp[ƒc‚ğ—pˆÓ
+		//ãƒ‘ãƒ¼ãƒ„ã‚’ç”¨æ„
 		FbxParts* pParts = new FbxParts(this);
 		pParts->Init(pNode);
 
-		//ƒp[ƒcî•ñ‚ğ“®“I”z—ñ‚É’Ç‰Á
+		//ãƒ‘ãƒ¼ãƒ„æƒ…å ±ã‚’å‹•çš„é…åˆ—ã«è¿½åŠ 
 		pPartsList->push_back(pParts);
 	}
 
-	//qƒm[ƒh‚É‚àƒf[ƒ^‚ª‚ ‚é‚©‚àII
+	//å­ãƒãƒ¼ãƒ‰ã«ã‚‚ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚‹ã‹ã‚‚ï¼ï¼
 	{
-		//q‹Ÿ‚Ì”‚ğ’²‚×‚Ä
+		//å­ä¾›ã®æ•°ã‚’èª¿ã¹ã¦
 		int childCount = pNode->GetChildCount();
 
-		//ˆêl‚¸‚Âƒ`ƒFƒbƒN
+		//ä¸€äººãšã¤ãƒã‚§ãƒƒã‚¯
 		for (int i = 0; i < childCount; i++)
 		{
 			CheckNode(pNode->GetChild(i), pPartsList);
@@ -179,20 +179,20 @@ void Fbx::Draw(Transform& transform, int frame)
 {
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
-	//ƒp[ƒc‚ğ1ŒÂ‚¸‚Â•`‰æ
+	//ãƒ‘ãƒ¼ãƒ„ã‚’1å€‹ãšã¤æç”»
 	for (int k = 0; k < parts_.size(); k++)
 	{
-		// ‚»‚ÌuŠÔ‚Ì©•ª‚Ìp¨s—ñ‚ğ“¾‚é
+		// ç›¸å¯¾ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’çµ¶å¯¾ãƒ•ãƒ¬ãƒ¼ãƒ ã«å¤‰æ›
 		FbxTime     time;
-		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
+		time.SetTime(0, 0, 0, frame + _startFrame, 0, 0, _frameRate);
 
-		//ƒXƒLƒ“ƒAƒjƒ[ƒVƒ‡ƒ“iƒ{[ƒ“—L‚èj‚Ìê‡
+		//ã‚¹ã‚­ãƒ³ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ï¼ˆãƒœãƒ¼ãƒ³æœ‰ã‚Šï¼‰ã®å ´åˆ
 		if (parts_[k]->GetSkinInfo() != nullptr)
 		{
 			parts_[k]->DrawSkinAnime(transform, time);
 		}
 
-		//ƒƒbƒVƒ…ƒAƒjƒ[ƒVƒ‡ƒ“‚Ìê‡
+		//ãƒ¡ãƒƒã‚·ãƒ¥ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®å ´åˆ
 		else
 		{
 			parts_[k]->DrawMeshAnime(transform, time, pFbxScene_);
@@ -201,10 +201,10 @@ void Fbx::Draw(Transform& transform, int frame)
 }
 
 
-//ƒŒƒCƒLƒƒƒXƒgiƒŒƒC‚ğ”ò‚Î‚µ‚Ä“–‚½‚è”»’èj
+//ãƒ¬ã‚¤ã‚­ãƒ£ã‚¹ãƒˆï¼ˆãƒ¬ã‚¤ã‚’é£›ã°ã—ã¦å½“ãŸã‚Šåˆ¤å®šï¼‰
 void Fbx::RayCast(RayCastData * data)
 {
-	//‚·‚×‚Ä‚Ìƒp[ƒc‚Æ”»’è
+	//ã™ã¹ã¦ã®ãƒ‘ãƒ¼ãƒ„ã¨åˆ¤å®š
 	for (int i = 0; i < parts_.size(); i++)
 	{
 		parts_[i]->RayCast(data);
@@ -212,19 +212,19 @@ void Fbx::RayCast(RayCastData * data)
 }
 
 
-// ƒAƒjƒ[ƒVƒ‡ƒ“ƒXƒ^ƒbƒN‚Ì‘”‚ğ•Ô‚·
+// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¹ã‚¿ãƒƒã‚¯ã®ç·æ•°ã‚’è¿”ã™
 int Fbx::GetAnimStackCount()
 {
 return pFbxScene_->GetSrcObjectCount<FbxAnimStack>();
 }
 
-// Œ»İ‚ÌƒXƒ^ƒbƒNƒCƒ“ƒfƒbƒNƒX‚ğ•Ô‚·
+// ç¾åœ¨ã®ã‚¹ã‚¿ãƒƒã‚¯ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è¿”ã™
 int Fbx::GetCurrentAnimStack()
 {
 return _currentAnimStack;
 }
 
-// ƒXƒ^ƒbƒN‚ğØ‚è‘Ö‚¦AŠJnEI—¹ƒtƒŒ[ƒ€‚ğXV‚·‚é
+// ã‚¹ã‚¿ãƒƒã‚¯ã‚’åˆ‡ã‚Šæ›¿ãˆã€é–‹å§‹ãƒ»çµ‚äº†ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’æ›´æ–°ã™ã‚‹
 void Fbx::SetAnimStack(int index)
 {
 if (index < 0 || index >= GetAnimStackCount()) return;
@@ -233,23 +233,30 @@ FbxAnimStack* pAnimStack = pFbxScene_->GetSrcObject<FbxAnimStack>(index);
 if (pAnimStack == nullptr) return;
 
 pFbxScene_->SetCurrentAnimationStack(pAnimStack);
-_currentAnimStack = index;
 
-// Reset the evaluator cache so it picks up the new stack
-pFbxScene_->GetAnimationEvaluator()->Reset();
+	if (pFbxScene_->GetAnimationEvaluator() != nullptr)
+	{
+		pFbxScene_->GetAnimationEvaluator()->Reset();
+	}
 
-FbxTimeSpan span = pAnimStack->GetLocalTimeSpan();
-_startFrame = (int)span.GetStart().GetFrameCount(_frameRate);
-_endFrame   = (int)span.GetStop() .GetFrameCount(_frameRate);
+	_currentAnimStack = index;
+
+	// LocalTimeSpan ã¨ ReferenceTimeSpan ã®é•·ã„æ–¹ã‚’ä½¿ã†
+	FbxTimeSpan localSpan = pAnimStack->GetLocalTimeSpan();
+	FbxTimeSpan refSpan   = pAnimStack->GetReferenceTimeSpan();
+	FbxTimeSpan span = (localSpan.GetDuration() >= refSpan.GetDuration()) ? localSpan : refSpan;
+
+	_startFrame = (int)span.GetStart().GetFrameCount(_frameRate);
+	_endFrame   = (int)span.GetStop() .GetFrameCount(_frameRate);
 }
 
-// ŠJnƒtƒŒ[ƒ€‚ğ•Ô‚·
+// é–‹å§‹ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’è¿”ã™
 int Fbx::GetStartFrame()
 {
 return _startFrame;
 }
 
-// I—¹ƒtƒŒ[ƒ€‚ğ•Ô‚·
+// çµ‚äº†ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’è¿”ã™
 int Fbx::GetEndFrame()
 {
 return _endFrame;
