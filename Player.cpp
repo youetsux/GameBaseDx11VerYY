@@ -22,14 +22,14 @@ void Player::Initialize()
 
 void Player::Update()
 {
-	transform_.rotate_.y +=1;
+	//transform_.rotate_.y +=1;
 
 }
 
 void Player::Draw()
 {
-	transform_.scale_ = { 0.05,0.05,0.05 };
-	transform_.position_ = { 0, -5.0, 0 };
+	transform_.scale_ = { 0.005,0.005,0.005 };
+	transform_.position_ = { 0, 2.0, -3 };
 	Model::SetTransform(hSilly, transform_);
 	Model::Draw(hSilly);
 }

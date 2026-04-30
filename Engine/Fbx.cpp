@@ -39,8 +39,10 @@ HRESULT Fbx::Load(std::string fileName)
 
 	fbxImporter->Import(pFbxScene_);
 	fbxImporter->Destroy();
-	
-	
+
+	// FBX座標系（右手Y-up）→ DirectX座標系（左手Y-up）へ一括変換
+	FbxAxisSystem::DirectX.DeepConvertScene(pFbxScene_);
+
 	FbxGeometryConverter geometryConverter(pFbxManager_);
 	//geometryConverter.Triangulate(pFbxScene_, true);
 	//geometryConverter.RemoveBadPolygonsFromMeshes(pFbxScene_);

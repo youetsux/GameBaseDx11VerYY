@@ -116,12 +116,12 @@ void FbxParts::InitVertex(fbxsdk::FbxMesh* mesh)
 
 			/////////////////////////頂点の位置/////////////////////////////////////
 			FbxVector4 pos = mesh->GetControlPointAt(index);
-			pVertexData_[index].position = XMFLOAT3((float)pos[0], (float)pos[1], -(float)pos[2]);
+			pVertexData_[index].position = XMFLOAT3((float)pos[0], (float)pos[1], (float)pos[2]);
 
 			/////////////////////////頂点の法線/////////////////////////////////////
 			FbxVector4 Normal;
 			mesh->GetPolygonVertexNormal(poly, vertex, Normal);	//ｉ番目のポリゴンの、ｊ番目の頂点の法線をゲット
-			pVertexData_[index].normal = XMFLOAT3((float)Normal[0], (float)Normal[1], -(float)Normal[2]);
+			pVertexData_[index].normal = XMFLOAT3((float)Normal[0], (float)Normal[1], (float)Normal[2]);
 
 			/////////////////////////////頂点のＵＶ/////////////////////////////////////
 			//FbxLayerElementUV* pUV = mesh->GetLayer(0)->GetUVs();
@@ -358,8 +358,7 @@ void FbxParts::InitIndex(fbxsdk::FbxMesh* mesh)
 			{
 				for (DWORD k = 0; k < 3; k++)
 				{
-					//pIndex[count +  k] = mesh->GetPolygonVertex(j, 2-k);
-					pIndex[count + k] = mesh->GetPolygonVertex(j, 2-k);
+					pIndex[count + k] = mesh->GetPolygonVertex(j, k);
 				}
 				count += 3;
 			}
@@ -623,17 +622,10 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 			}
 		}
 
-		XMFLOAT4X4 mmat;
-		XMMATRIX mMirror;
-		mMirror = XMMatrixIdentity();
-		XMStoreFloat4x4(&mmat, mMirror);
-		mmat.m[2][2] = -1.0f;
-		mMirror = XMLoadFloat4x4(&mmat);
-
-		// オフセット時のポーズの差分を計算する
-		pBoneArray_[i].newPose = XMLoadFloat4x4(&pose) * mMirror;
-		pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose*mMirror);
-		pBoneArray_[i].diffPose = pBoneArray_[i].diffPose * pBoneArray_[i].newPose;
+// DeepConvertScene によりSDK側で座標変換済みのためmMirrorは不要
+pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
+pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
+pBoneArray_[i].diffPose = pBoneArray_[i].diffPose * pBoneArray_[i].newPose;
 
 		//反転無し
 		//pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
