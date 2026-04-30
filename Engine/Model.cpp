@@ -16,52 +16,52 @@ namespace Model
 	//モデルをロード
 	int Load(std::string fileName)
 	{
-			ModelData* pData = new ModelData;
+		ModelData* pData = new ModelData;
 
 
-			//開いたファイル一覧から同じファイル名のものが無いか探す
-			bool isExist = false;
-			for (int i = 0; i < _datas.size(); i++)
+		//開いたファイル一覧から同じファイル名のものが無いか探す
+		bool isExist = false;
+		for (int i = 0; i < _datas.size(); i++)
+		{
+			//すでに開いている場合
+			if (_datas[i] != nullptr && _datas[i]->fileName == fileName)
 			{
-				//すでに開いている場合
-				if (_datas[i] != nullptr && _datas[i]->fileName == fileName)
-				{
-					pData->pFbx = _datas[i]->pFbx;
-					isExist = true;
-					break;
-				}
+				pData->pFbx = _datas[i]->pFbx;
+				isExist = true;
+				break;
+			}
+		}
+
+		//新たにファイルを開く
+		if (isExist == false)
+		{
+			pData->pFbx = new Fbx;
+			if (FAILED(pData->pFbx->Load(fileName)))
+			{
+				//開けなかった
+				SAFE_DELETE(pData->pFbx);
+				SAFE_DELETE(pData);
+				return -1;
 			}
 
-			//新たにファイルを開く
-			if (isExist == false)
+			//無事開けた
+			pData->fileName = fileName;
+		}
+
+
+		//使ってない番号が無いか探す
+		for (int i = 0; i < _datas.size(); i++)
+		{
+			if (_datas[i] == nullptr)
 			{
-				pData->pFbx = new Fbx;
-				if (FAILED(pData->pFbx->Load(fileName)))
-				{
-					//開けなかった
-					SAFE_DELETE(pData->pFbx);
-					SAFE_DELETE(pData);
-					return -1;
-				}
-
-				//無事開けた
-				pData->fileName = fileName;
+				_datas[i] = pData;
+				return i;
 			}
+		}
 
-
-			//使ってない番号が無いか探す
-			for (int i = 0; i < _datas.size(); i++)
-			{
-				if (_datas[i] == nullptr)
-				{
-					_datas[i] = pData;
-					return i;
-				}
-			}
-
-			//新たに追加
-			_datas.push_back(pData);
-			return (int)_datas.size() - 1;
+		//新たに追加
+		_datas.push_back(pData);
+		return (int)_datas.size() - 1;
 	}
 
 
@@ -111,7 +111,7 @@ namespace Model
 		}
 
 		//使ってなければモデル解放
-		if (isExist == false )
+		if (isExist == false)
 		{
 			SAFE_DELETE(_datas[handle]->pFbx);
 		}
@@ -168,7 +168,7 @@ namespace Model
 	}
 
 	//ワールド行列を設定
-	void SetTransform(int handle, Transform & transform)
+	void SetTransform(int handle, Transform& transform)
 	{
 		if (handle < 0 || handle >= _datas.size())
 		{
@@ -187,17 +187,47 @@ namespace Model
 
 
 	//レイキャスト（レイを飛ばして当たり判定）
-	void RayCast(int handle, RayCastData *data)
+	void RayCast(int handle, RayCastData* data)
 	{
-			XMFLOAT3 target = Transform::Float3Add(data->start, data->dir);
-			XMMATRIX matInv = XMMatrixInverse(nullptr, _datas[handle]->transform.GetWorldMatrix());
-			XMVECTOR vecStart = XMVector3TransformCoord(XMLoadFloat3(&data->start), matInv);
-			XMVECTOR vecTarget = XMVector3TransformCoord(XMLoadFloat3(&target), matInv);
-			XMVECTOR vecDir = vecTarget - vecStart;
+		XMFLOAT3 target = Transform::Float3Add(data->start, data->dir);
+		XMMATRIX matInv = XMMatrixInverse(nullptr, _datas[handle]->transform.GetWorldMatrix());
+		XMVECTOR vecStart = XMVector3TransformCoord(XMLoadFloat3(&data->start), matInv);
+		XMVECTOR vecTarget = XMVector3TransformCoord(XMLoadFloat3(&target), matInv);
+		XMVECTOR vecDir = vecTarget - vecStart;
 
-			XMStoreFloat3(&data->start, vecStart);
-			XMStoreFloat3(&data->dir, vecDir);
+		XMStoreFloat3(&data->start, vecStart);
+		XMStoreFloat3(&data->dir, vecDir);
 
-			_datas[handle]->pFbx->RayCast(data); 
+		_datas[handle]->pFbx->RayCast(data);
+	}
+
+
+	// Switches the animation stack and syncs start/end frames to ModelData
+	void SetAnimStack(int handle, int index)
+	{
+		if (handle < 0 || handle >= (int)_datas.size() || _datas[handle] == nullptr) return;
+		if (_datas[handle]->pFbx == nullptr) return;
+
+		_datas[handle]->pFbx->SetAnimStack(index);
+		_datas[handle]->startFrame = _datas[handle]->pFbx->GetStartFrame();
+		_datas[handle]->endFrame = _datas[handle]->pFbx->GetEndFrame();
+		_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
+	}
+
+	// Returns the total number of animation stacks
+	int GetAnimStackCount(int handle)
+	{
+		if (handle < 0 || handle >= (int)_datas.size() || _datas[handle] == nullptr) return 0;
+		if (_datas[handle]->pFbx == nullptr) return 0;
+		return _datas[handle]->pFbx->GetAnimStackCount();
+	}
+
+
+	// Returns the current animation stack index
+	int GetCurrentAnimStack(int handle)
+	{
+		if (handle < 0 || handle >= (int)_datas.size() || _datas[handle] == nullptr) return 0;
+		if (_datas[handle]->pFbx == nullptr) return 0;
+		return _datas[handle]->pFbx->GetCurrentAnimStack();
 	}
 }

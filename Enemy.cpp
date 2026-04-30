@@ -9,6 +9,7 @@ Enemy::Enemy(GameObject* parent)
 void Enemy::Initialize()
 {
 	hEModel = Model::Load("animal-bee.fbx");
+	Model::SetAnimStack(hEModel, 2);
 	Model::SetAnimFrame(hEModel, 0, 30, 1.0);
 }
 

@@ -78,6 +78,15 @@ namespace Model
 	//現在のアニメーションのフレームを取得
 	int GetAnimFrame(int handle);
 
+// Switches the animation stack by index (start/end frames are updated automatically)
+void SetAnimStack(int handle, int index);
+
+// Returns the total number of animation stacks
+int GetAnimStackCount(int handle);
+
+// Returns the current animation stack index
+int GetCurrentAnimStack(int handle);
+
 	//任意のボーンの位置を取得
 	//引数：handle		調べたいモデルの番号
 	//引数：boneName	調べたいボーンの名前

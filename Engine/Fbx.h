@@ -53,6 +53,9 @@ class Fbx
 	//アニメーションの最初と最後のフレーム
 	int _startFrame, _endFrame;
 
+	// 現在のアニメーションスタックのインデックス
+	int _currentAnimStack;
+
 	//ノードの中身を調べる
 	//引数：pNode		調べるノード
 	//引数：pPartsList	パーツのリスト
@@ -94,5 +97,18 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
+
+// アニメーションスタックの総数を取得
+int GetAnimStackCount();
+
+// 現在のアニメーションスタックのインデックスを取得
+int GetCurrentAnimStack();
+
+// アニメーションスタックを切り替え（開始・終了フレームも自動更新）
+void SetAnimStack(int index);
+
+// 開始・終了フレームを取得
+int GetStartFrame();
+int GetEndFrame();
 };
 

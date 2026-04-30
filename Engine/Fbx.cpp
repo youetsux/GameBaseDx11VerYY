@@ -7,7 +7,7 @@
 #pragma comment(lib, "LibXml2-MT.lib")
 #pragma comment(lib, "zlib-MT.lib")
 
-Fbx::Fbx():_animSpeed(0)
+Fbx::Fbx():_animSpeed(0), _currentAnimStack(0), _startFrame(0), _endFrame(0)
 {
 }
 
@@ -209,4 +209,48 @@ void Fbx::RayCast(RayCastData * data)
 	{
 		parts_[i]->RayCast(data);
 	}
+}
+
+
+// アニメーションスタックの総数を返す
+int Fbx::GetAnimStackCount()
+{
+return pFbxScene_->GetSrcObjectCount<FbxAnimStack>();
+}
+
+// 現在のスタックインデックスを返す
+int Fbx::GetCurrentAnimStack()
+{
+return _currentAnimStack;
+}
+
+// スタックを切り替え、開始・終了フレームを更新する
+void Fbx::SetAnimStack(int index)
+{
+if (index < 0 || index >= GetAnimStackCount()) return;
+
+FbxAnimStack* pAnimStack = pFbxScene_->GetSrcObject<FbxAnimStack>(index);
+if (pAnimStack == nullptr) return;
+
+pFbxScene_->SetCurrentAnimationStack(pAnimStack);
+_currentAnimStack = index;
+
+// Reset the evaluator cache so it picks up the new stack
+pFbxScene_->GetAnimationEvaluator()->Reset();
+
+FbxTimeSpan span = pAnimStack->GetLocalTimeSpan();
+_startFrame = (int)span.GetStart().GetFrameCount(_frameRate);
+_endFrame   = (int)span.GetStop() .GetFrameCount(_frameRate);
+}
+
+// 開始フレームを返す
+int Fbx::GetStartFrame()
+{
+return _startFrame;
+}
+
+// 終了フレームを返す
+int Fbx::GetEndFrame()
+{
+return _endFrame;
 }
