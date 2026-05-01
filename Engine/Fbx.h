@@ -9,56 +9,56 @@
 
 class FbxParts;
 
-//���C�L���X�g�p�\����
+//レイキャスト用構造体
 struct RayCastData
 {
-	XMFLOAT3	start;	//���C���ˈʒu
-	XMFLOAT3	dir;	//���C�̌����x�N�g��
-	float       dist;	//�Փ˓_�܂ł̋���
-	BOOL        hit;	//���C������������
-	XMFLOAT3 normal;	//�@��
+	XMFLOAT3	start;	//レイ発射位置
+	XMFLOAT3	dir;	//レイの向きベクトル
+	float       dist;	//衝突点までの距離
+	BOOL        hit;	//レイが当たったか
+	XMFLOAT3 normal;	//法線
 
 	RayCastData() { dist = 99999.0f; }
 };
 
 //-----------------------------------------------------------
-//�@FBX�t�@�C���������N���X
-//�@�قƂ�ǂ̏����͊e�p�[�c���Ƃ�FbxParts�N���X�ōs��
+//　FBXファイルを扱うクラス
+//　ほとんどの処理は各パーツごとにFbxPartsクラスで行う
 //-----------------------------------------------------------
 class Fbx
 {
-	//FbxPart�N���X���t�����h�N���X�ɂ���
-	//FbxPart��private�Ȋ֐��ɂ��A�N�Z�X��
+	//FbxPartクラスをフレンドクラスにする
+	//FbxPartのprivateな関数にもアクセス可
 	friend class FbxParts;
 
 
 
-	//���f���̊e�p�[�c�i�������邩���j
+	//モデルの各パーツ（複数あるかも）
 	std::vector<FbxParts*>	parts_;
 
-	//FBX�t�@�C���������@�\�̖{��
+	//FBXファイルを扱う機能の本体
 	FbxManager* pFbxManager_;
 
-	//FBX�t�@�C���̃V�[���iMaya�ō�������ׂĂ̕��́j������
+	//FBXファイルのシーン（Mayaで作ったすべての物体）を扱う
 	FbxScene*	pFbxScene_;
 
 
 
-	// �A�j���[�V�����̃t���[�����[�g
+	// アニメーションのフレームレート
 	FbxTime::EMode	_frameRate;
 
-	//�A�j���[�V�������x
+	//アニメーション速度
 	float			_animSpeed;
 
-	//�A�j���[�V�����̍ŏ��ƍŌ�̃t���[��
+	//アニメーションの最初と最後のフレーム
 	int _startFrame, _endFrame;
 
-	// ���݂̃A�j���[�V�����X�^�b�N�̃C���f�b�N�X
+	// 現在のアニメーションスタックのインデックス
 	int _currentAnimStack;
 
-	//�m�[�h�̒��g�𒲂ׂ�
-	//�����FpNode		���ׂ�m�[�h
-	//�����FpPartsList	�p�[�c�̃��X�g
+	//ノードの中身を調べる
+	//引数：pNode		調べるノード
+	//引数：pPartsList	パーツのリスト
 	void CheckNode(FbxNode* pNode, std::vector<FbxParts*> *pPartsList);
 
 public:
@@ -72,42 +72,48 @@ public:
 		return pFbxScene_;
 	}
 
-	//���[�h
-	//�����FfileName	�t�@�C����
-	//�ߒl�F�����������ǂ���
+	//ロード
+	//引数：fileName	ファイル名
+	//戻値：成功したかどうか
 	virtual HRESULT Load(std::string fileName);
 
-	//�`��
-	//�����FWorld	���[���h�s��
+	//描画
+	//引数：World	ワールド行列
 	void    Draw(Transform& transform, int frame);
 
-	//���
+	// 光源視点からの描画（シャドウパス用）
+	// 引数：transform		変換行列
+	// 引数：frame			現在のアニメーションフレーム
+	// 引数：isShadowReceiver	影を受けるかどうか
+	void    DrawShadow(Transform& transform, int frame, bool isShadowReceiver);
+
+	//解放
 	void    Release();
 
-	//�C�ӂ̃{�[���̈ʒu���擾
-	//�����FboneName	�擾�������{�[���̈ʒu
-	//�ߒl�F�{�[���̈ʒu
+	//任意のボーンの位置を取得
+	//引数：boneName	取得したいボーンの位置
+	//戻値：ボーンの位置
 	XMFLOAT3 GetBonePosition(std::string boneName);
 
-	//�X�L�����b�V���A�j�����̌��݂̔C�ӂ̃{�[���̈ʒu���擾
-	//�����FboneName	�擾�������{�[���̈ʒu
-	//�ߒl�F�{�[���̈ʒu
+	//スキンメッシュアニメ中の現在の任意のボーンの位置を取得
+	//引数：boneName	取得したいボーンの位置
+	//戻値：ボーンの位置
 	XMFLOAT3 GetAnimBonePosition(std::string boneName);
 
-	//���C�L���X�g�i���C���΂��ē����蔻��j
-	//�����Fdata	�K�v�Ȃ��̂��܂Ƃ߂��f�[�^
+	//レイキャスト（レイを飛ばして当たり判定）
+	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
 
-// �A�j���[�V�����X�^�b�N�̑������擾
+// アニメーションスタックの総数を取得
 int GetAnimStackCount();
 
-// ���݂̃A�j���[�V�����X�^�b�N�̃C���f�b�N�X���擾
+// 現在のアニメーションスタックのインデックスを取得
 int GetCurrentAnimStack();
 
-// �A�j���[�V�����X�^�b�N��؂�ւ��i�J�n�E�I���t���[���������X�V�j
+// アニメーションスタックを切り替え（開始・終了フレームも自動更新）
 void SetAnimStack(int index);
 
-// �J�n�E�I���t���[�����擾
+// 開始・終了フレームを取得
 int GetStartFrame();
 int GetEndFrame();
 };

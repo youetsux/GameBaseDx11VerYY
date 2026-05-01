@@ -27,9 +27,15 @@ namespace Model
 		float nowFrame, animSpeed;
 		int startFrame, endFrame;
 
+		// 影を落とすか（true=影を作る）
+		bool isShadowCaster;
+
+		// 影を受けるか（true=影が落ちてくる）
+		bool isShadowReceiver;
 
 		//初期化
-		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0)
+		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0),
+					  isShadowCaster(true), isShadowReceiver(true)
 		{
 		}
 
@@ -117,5 +123,19 @@ int GetCurrentAnimStack(int handle);
 	//引数：handle	判定したいモデルの番号
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(int handle, RayCastData *data);
+
+	// 影を落とすかどうかを設定する
+	// 引数：handle　　　対象モデルの番号
+	// 引数：enable　　　true=影を作る / false=影を作らない
+	void SetShadowCaster(int handle, bool enable);
+
+	// 影を受けるかどうかを設定する
+	// 引数：handle　　　対象モデルの番号
+	// 引数：enable　　　true=影を受ける / false=影を受けない
+	void SetShadowReceiver(int handle, bool enable);
+
+	// シャドウパス用に全モデルを描画する
+	// （影を作るモデルだけ描画する。Main.cpp のシャドウパス内で呼ぶ）
+	void DrawShadowAll();
 
 };

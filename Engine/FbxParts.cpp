@@ -4,6 +4,7 @@
 #include "Direct3D.h"
 #include "Camera.h"
 #include "Debug.h"
+#include "ShadowMap.h"
 
 //コンストラクタ
 FbxParts::FbxParts() :
@@ -607,6 +608,11 @@ void FbxParts::Draw(Transform& transform)
 		cb.lightDirection = XMFLOAT4(-1, -1, 1, 0);
 		cb.isTexture = pMaterial_[i].pTexture != nullptr;
 
+		// シャドウマップ用データをセット
+		// 光源のビュー×プロジェクション行列（影の判定に使う）
+		cb.matLightVP        = XMMatrixTranspose(ShadowMap::GetLightViewProjection());
+		cb.isShadowReceiver  = ShadowMap::IsEnabled() ? TRUE : FALSE;
+
 
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
 		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));		// リソースへ値を送る
@@ -628,6 +634,134 @@ void FbxParts::Draw(Transform& transform)
 		Direct3D::pContext_->DrawIndexed(pMaterial_[i].polygonCount * 3, 0, 0);
 	}
 
+}
+
+//-----------------------------------------------------------
+// 描画（影レシーバーフラグ付き）
+// 引数：shadowReceiver　trueのとき影を受ける（影が落ちる）
+//-----------------------------------------------------------
+void FbxParts::Draw(Transform& transform, bool shadowReceiver)
+{
+	// 頂点バッファをセット
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	Direct3D::pContext_->IASetVertexBuffers(0, 1, &pVertexBuffer_, &stride, &offset);
+
+	// コンスタントバッファをシェーダーにセット
+	Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);
+	Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);
+
+	for (DWORD i = 0; i < materialCount_; i++)
+	{
+		UINT    idxStride = sizeof(int);
+		UINT    idxOffset = 0;
+		Direct3D::pContext_->IASetIndexBuffer(ppIndexBuffer_[i], DXGI_FORMAT_R32_UINT, 0);
+
+		D3D11_MAPPED_SUBRESOURCE pdata;
+		CONSTANT_BUFFER cb;
+		cb.worldVewProj      = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
+		cb.world             = XMMatrixTranspose(transform.GetWorldMatrix());
+		cb.normalTrans       = XMMatrixTranspose(transform.matRotate_ * XMMatrixInverse(nullptr, transform.matScale_));
+		cb.ambient           = pMaterial_[i].ambient;
+		cb.diffuse           = pMaterial_[i].diffuse;
+		cb.speculer          = pMaterial_[i].specular;
+		cb.shininess         = pMaterial_[i].shininess;
+		cb.cameraPosition    = XMFLOAT4(Camera::GetPosition().x, Camera::GetPosition().y, Camera::GetPosition().z, 0);
+		cb.lightDirection    = XMFLOAT4(-1, -1, 1, 0);
+		cb.isTexture         = pMaterial_[i].pTexture != nullptr;
+
+		// 影レシーバーフラグを引数から設定
+		cb.matLightVP       = XMMatrixTranspose(ShadowMap::GetLightViewProjection());
+		cb.isShadowReceiver = (ShadowMap::IsEnabled() && shadowReceiver) ? TRUE : FALSE;
+
+		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);
+		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));
+
+		if (cb.isTexture)
+		{
+			ID3D11SamplerState* pSampler = pMaterial_[i].pTexture->GetSampler();
+			Direct3D::pContext_->PSSetSamplers(0, 1, &pSampler);
+
+			ID3D11ShaderResourceView* pSRV = pMaterial_[i].pTexture->GetSRV();
+			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
+		}
+		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);
+
+		Direct3D::pContext_->DrawIndexed(pMaterial_[i].polygonCount * 3, 0, 0);
+	}
+}
+
+//-----------------------------------------------------------
+// シャドウパス用の描画
+// 光源の視点からシーンを描画して、深度バッファに書き込む
+// 引数：transform　　　変換行列
+// 引数：time　　　　　 アニメーションの現在時刻
+// 引数：isShadowReceiver　（未使用。将来のために残してある）
+//-----------------------------------------------------------
+void FbxParts::DrawShadow(Transform& transform, FbxTime time, bool isShadowReceiver)
+{
+	// ボーンがある（スキンアニメーション）場合は頂点を変形させてから描画する
+	if (pSkinInfo_ != nullptr)
+	{
+		// ===== ボーンごとの現在の行列を計算する =====
+		for (int i = 0; i < numBone_; i++)
+		{
+			FbxAnimEvaluator* evaluator = ppCluster_[i]->GetLink()->GetScene()->GetAnimationEvaluator();
+			FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[i]->GetLink(), time, FbxNode::eSourcePivot, false, true);
+
+			XMFLOAT4X4 pose;
+			for (DWORD x = 0; x < 4; x++)
+				for (DWORD y = 0; y < 4; y++)
+					pose(x, y) = (float)mCurrentOrentation.Get(x, y);
+
+			pBoneArray_[i].newPose  = XMLoadFloat4x4(&pose);
+			pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose) * pBoneArray_[i].newPose;
+		}
+
+		// ===== 頂点をボーンに合わせて変形する =====
+		for (DWORD i = 0; i < vertexCount_; i++)
+		{
+			XMMATRIX matrix;
+			ZeroMemory(&matrix, sizeof(matrix));
+			for (int m = 0; m < numBone_; m++)
+			{
+				if (pWeightArray_[i].pBoneIndex[m] < 0) break;
+				matrix += pBoneArray_[pWeightArray_[i].pBoneIndex[m]].diffPose * pWeightArray_[i].pBoneWeight[m];
+			}
+
+			XMVECTOR Pos    = XMLoadFloat3(&pWeightArray_[i].posOrigin);
+			XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
+			XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
+
+			XMFLOAT3X3 mat33;
+			XMStoreFloat3x3(&mat33, matrix);
+			XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, XMLoadFloat3x3(&mat33)));
+		}
+
+		// 変形後の頂点データを頂点バッファに書き込む
+		D3D11_MAPPED_SUBRESOURCE msr = {};
+		Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+		if (msr.pData)
+		{
+			memcpy_s(msr.pData, msr.RowPitch, pVertexData_, sizeof(VERTEX) * vertexCount_);
+			Direct3D::pContext_->Unmap(pVertexBuffer_, 0);
+		}
+	}
+
+	// ===== 光源の WVP 行列をコンスタントバッファに送って描画 =====
+	ShadowMap::UpdateAndBindConstantBuffer(transform.GetWorldMatrix());
+
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	Direct3D::pContext_->IASetVertexBuffers(0, 1, &pVertexBuffer_, &stride, &offset);
+
+	for (DWORD i = 0; i < materialCount_; i++)
+	{
+		UINT idxStride = sizeof(int);
+		UINT idxOffset = 0;
+		Direct3D::pContext_->IASetIndexBuffer(ppIndexBuffer_[i], DXGI_FORMAT_R32_UINT, 0);
+		Direct3D::pContext_->DrawIndexed(pMaterial_[i].polygonCount * 3, 0, 0);
+	}
 }
 
 //ボーン有りのモデルを描画

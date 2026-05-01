@@ -18,7 +18,7 @@ void TestScene::Initialize()
 	Instantiate <Ground>(this);
 	Instantiate <Player>(this);
 	Instantiate <Enemy>(this);
-	Camera::SetPosition({ 0, 5, -15 });
+	Camera::SetPosition({ 0, 5, -10 });
 	Camera::SetTarget({ 0, 0, 0 });
 
 }
