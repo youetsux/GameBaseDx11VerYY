@@ -151,6 +151,7 @@
     <ClCompile Include="Engine\Input.cpp" />
     <ClCompile Include="Engine\Main.cpp" />
     <ClCompile Include="Engine\Model.cpp" />
+    <ClCompile Include="Engine\ShadowMap.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
     <ClCompile Include="Engine\RootObject.cpp" />
     <ClCompile Include="Engine\SceneManager.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="Engine\Image.h" />
     <ClInclude Include="Engine\Input.h" />
     <ClInclude Include="Engine\Model.h" />
+    <ClInclude Include="Engine\ShadowMap.h" />
     <ClInclude Include="Engine\VFX.h" />
     <ClInclude Include="Engine\RootObject.h" />
     <ClInclude Include="Engine\SceneManager.h" />
@@ -202,6 +204,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName>
     </FxCompile>
+    <FxCompile Include="Assets\Shader\ShadowMap.hlsl"><EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName><EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName></FxCompile>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName>
@@ -215,6 +218,7 @@
     <None Include=".github\copilot-instructions.md" />
     <None Include=".github\upgrades\scenarios\cppbuildtoolsupgrade\assessment.md" />
     <None Include=".github\upgrades\scenarios\cppbuildtoolsupgrade\execution-log.md" />
+    <None Include="Docs\ShadowMapping_Plan.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

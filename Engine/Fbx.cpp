@@ -200,6 +200,26 @@ void Fbx::Draw(Transform& transform, int frame)
 	}
 }
 
+//-----------------------------------------------------------
+// シャドウパス用の描画
+// 光源の視点でシーンを描画し、深度バッファに書き込む
+// 引数：transform　　　変換行列
+// 引数：frame　　　　　現在のアニメーションフレーム（相対フレーム）
+// 引数：isShadowReceiver　このモデルが影を受けるか
+//-----------------------------------------------------------
+void Fbx::DrawShadow(Transform& transform, int frame, bool isShadowReceiver)
+{
+	for (int k = 0; k < parts_.size(); k++)
+	{
+		// 相対フレームを絶対フレームに変換（Draw と同じ処理）
+		FbxTime time;
+		time.SetTime(0, 0, 0, frame + _startFrame, 0, 0, _frameRate);
+
+		// 全パーツをシャドウ用に描画する
+		parts_[k]->DrawShadow(transform, time, isShadowReceiver);
+	}
+}
+
 
 //レイキャスト（レイを飛ばして当たり判定）
 void Fbx::RayCast(RayCastData * data)

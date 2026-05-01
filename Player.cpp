@@ -7,15 +7,15 @@
 
 Player::Player(GameObject* parent)
 	:GameObject(parent), hSilly(-1){
-	//swordDir‚É‚ÍA‰Šú•ûŒü‚Æ‚µ‚ÄAƒ[ƒJƒ‹ƒ‚ƒfƒ‹‚ÌŒ•‚Ìª‚Á‚±‚©‚ç
-	//æ’[‚Ü‚Å‚ÌƒxƒNƒgƒ‹‚Æ‚µ‚Äi0,1,0)‚ğ‘ã“ü‚µ‚Ä‚¨‚­
-	//‰ŠúˆÊ’u‚ÍŒ´“_
+	//swordDirã«ã¯ã€åˆæœŸæ–¹å‘ã¨ã—ã¦ã€ãƒ­ãƒ¼ã‚«ãƒ«ãƒ¢ãƒ‡ãƒ«ã®å‰£ã®æ ¹ã£ã“ã‹ã‚‰
+	//å…ˆç«¯ã¾ã§ã®ãƒ™ã‚¯ãƒˆãƒ«ã¨ã—ã¦ï¼ˆ0,1,0)ã‚’ä»£å…¥ã—ã¦ãŠã
+	//åˆæœŸä½ç½®ã¯åŸç‚¹
 }
 
 void Player::Initialize()
 {
 	hSilly = Model::Load("GS_MotionSet.fbx");
-	Model::SetAnimFrame(hSilly, 0, 1200, 1.0);
+	Model::SetAnimFrame(hSilly, 0, 2475, 1.0);
 
 
 }
@@ -28,8 +28,9 @@ void Player::Update()
 
 void Player::Draw()
 {
-	transform_.scale_ = { 0.005,0.005,0.005 };
+	transform_.scale_ = { 0.01,0.01,0.01 };
 	transform_.position_ = { 0, 2.0, -3 };
+	transform_.rotate_ = { 0, 180, 0 };
 	Model::SetTransform(hSilly, transform_);
 	Model::Draw(hSilly);
 }

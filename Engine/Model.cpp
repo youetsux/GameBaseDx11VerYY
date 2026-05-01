@@ -81,10 +81,9 @@ namespace Model
 		if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
 			_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
 
-
-
 		if (_datas[handle]->pFbx)
 		{
+			// isShadowReceiver フラグを渡して描画（影を受けるかどうかをシェーダーに伝える）
 			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame);
 		}
 	}
@@ -238,5 +237,46 @@ namespace Model
 		if (handle < 0 || handle >= (int)_datas.size() || _datas[handle] == nullptr) return 0;
 		if (_datas[handle]->pFbx == nullptr) return 0;
 		return _datas[handle]->pFbx->GetCurrentAnimStack();
+	}
+
+	//-----------------------------------------------------------
+	// 影を落とすかどうかを設定する
+	//-----------------------------------------------------------
+	void SetShadowCaster(int handle, bool enable)
+	{
+		if (handle < 0 || handle >= (int)_datas.size() || _datas[handle] == nullptr) return;
+		_datas[handle]->isShadowCaster = enable;
+	}
+
+	//-----------------------------------------------------------
+	// 影を受けるかどうかを設定する
+	//-----------------------------------------------------------
+	void SetShadowReceiver(int handle, bool enable)
+	{
+		if (handle < 0 || handle >= (int)_datas.size() || _datas[handle] == nullptr) return;
+		_datas[handle]->isShadowReceiver = enable;
+	}
+
+	//-----------------------------------------------------------
+	// シャドウパス用に全モデルを描画する
+	// 影を作る（isShadowCaster=true）モデルだけ描画する
+	// Main.cpp の影描画パスの中で呼ぶ
+	//-----------------------------------------------------------
+	void DrawShadowAll()
+	{
+		for (int i = 0; i < (int)_datas.size(); i++)
+		{
+			// データが空か、影を作らない設定ならスキップ
+			if (_datas[i] == nullptr) continue;
+			if (!_datas[i]->isShadowCaster) continue;
+			if (_datas[i]->pFbx == nullptr) continue;
+
+			// 光源の視点からこのモデルを描画する
+			_datas[i]->pFbx->DrawShadow(
+				_datas[i]->transform,
+				(int)_datas[i]->nowFrame,
+				_datas[i]->isShadowReceiver
+			);
+		}
 	}
 }
