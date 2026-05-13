@@ -152,17 +152,18 @@ namespace Direct3D
 		//深度テストを行う深度ステンシルステートの作成
 		{
 			//デフォルト
-			D3D11_DEPTH_STENCIL_DESC desc = {};
-			desc.DepthEnable = true;
-			desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-			desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			desc.StencilEnable = true;
-			pDevice_->CreateDepthStencilState(&desc, &pDepthStencilState[BLEND_DEFAULT]);
-			pContext_->OMSetDepthStencilState(pDepthStencilState[BLEND_DEFAULT], 0);
+				D3D11_DEPTH_STENCIL_DESC desc = {};
+				desc.DepthEnable = true;
+				desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+				desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+				desc.StencilEnable = true;
+				pDevice_->CreateDepthStencilState(&desc, &pDepthStencilState[BLEND_DEFAULT]);
+				pContext_->OMSetDepthStencilState(pDepthStencilState[BLEND_DEFAULT], 0);
 
-			//加算合成用（書き込みなし）
-			desc.StencilEnable = false;
-			pDevice_->CreateDepthStencilState(&desc, &pDepthStencilState[BLEND_ADD]);
+				//加算合成用（書き込みなし）
+				desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+				desc.StencilEnable = false;
+				pDevice_->CreateDepthStencilState(&desc, &pDepthStencilState[BLEND_ADD]);
 		}
 
 
