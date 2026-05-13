@@ -6,6 +6,7 @@
 #include "Debug.h"
 #include <cassert>
 #include <filesystem>
+#include <vector>
 
 //コンストラクタ
 FbxParts::FbxParts() :
@@ -234,19 +235,10 @@ void FbxParts::InitVertex(fbxsdk::FbxMesh* mesh)
 			if (pUV != nullptr)
 			{
 				if (pUV->GetMappingMode() == FbxLayerElement::eByPolygonVertex)
-				{
-					if (pUV->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
-					{
-						int uvIndex = mesh->GetTextureUVIndex(poly, vertex, FbxLayerElement::eTextureDiffuse);
-						if (uvIndex >= 0)
-							uv = pUV->GetDirectArray().GetAt(uvIndex);
-					}
-					else // eDirect
 					{
 						bool unmapped = false;
 						mesh->GetPolygonVertexUV(poly, vertex, uvSetName, uv, unmapped);
 					}
-				}
 				else // eByControlPoint
 				{
 					if (pUV->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
@@ -313,7 +305,7 @@ void FbxParts::InitMaterial(fbxsdk::FbxNode* pNode)
 			// Lambert には Specular / Shininess がないので 0 固定
 		}
 
-		pMaterial_[i].ambient   = XMFLOAT4((float)ambient[0],  (float)ambient[1],  (float)ambient[2],  1.0f);
+		pMaterial_[i].ambient   = XMFLOAT4((float)ambient[0],  (float)ambient[1],  (float)ambient[2],  0.0f);
 		pMaterial_[i].diffuse   = XMFLOAT4((float)diffuse[0],  (float)diffuse[1],  (float)diffuse[2],  1.0f);
 		pMaterial_[i].specular  = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
 
@@ -355,7 +347,7 @@ void FbxParts::InitMaterial(fbxsdk::FbxMesh* pMesh)
 			// Lambert には Specular / Shininess がないので 0 固定
 		}
 
-		pMaterial_[i].ambient   = XMFLOAT4((float)ambient[0],  (float)ambient[1],  (float)ambient[2],  1.0f);
+		pMaterial_[i].ambient   = XMFLOAT4((float)ambient[0],  (float)ambient[1],  (float)ambient[2],  0.0f);
 		pMaterial_[i].diffuse   = XMFLOAT4((float)diffuse[0],  (float)diffuse[1],  (float)diffuse[2],  1.0f);
 		pMaterial_[i].specular  = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
 
@@ -515,6 +507,19 @@ void FbxParts::InitSkelton(FbxMesh* pMesh)
 		}
 	}
 
+	// cp2linear テーブル: control point index → linearIndex のリスト
+	int cpCount = pMesh->GetControlPointsCount();
+	std::vector<std::vector<int>> cp2linear(cpCount);
+	for (DWORD poly = 0; poly < polygonCount_; poly++)
+	{
+		for (int v = 0; v < 3; v++)
+		{
+			int cpIdx  = pMesh->GetPolygonVertex(poly, v);
+			int linIdx = (int)(poly * 3 + v);
+			cp2linear[cpIdx].push_back(linIdx);
+		}
+	}
+
 	// それぞれのボーンに影響を受ける頂点を調べる
 	// そこから逆に、頂点ベースでボーンインデックス・重みを整頓する
 	for (int i = 0; i < numBone_; i++)
@@ -526,25 +531,28 @@ void FbxParts::InitSkelton(FbxMesh* pMesh)
 		//頂点側からインデックスをたどって、頂点サイドで整理する
 		for (int k = 0; k < numIndex; k++)
 		{
-			// 頂点に関連付けられたウェイト情報がボーン５本以上の場合は、重みの大きい順に４本に絞る
-			for (int m = 0; m < 4; m++)
+			int cpIdx = piIndex[k];
+			for (int linIdx : cp2linear[cpIdx])
 			{
-				if (m >= numBone_)
-					break;
-
-				if (pdWeight[k] > pWeightArray_[piIndex[k]].pBoneWeight[m])
+				// 頂点に関連付けられたウェイト情報がボーン５本以上の場合は、重みの大きい順に４本に絞る
+				for (int m = 0; m < 4; m++)
 				{
-					for (int n = numBone_ - 1; n > m; n--)
+					if (m >= numBone_)
+						break;
+
+					if (pdWeight[k] > pWeightArray_[linIdx].pBoneWeight[m])
 					{
-						pWeightArray_[piIndex[k]].pBoneIndex[n] = pWeightArray_[piIndex[k]].pBoneIndex[n - 1];
-						pWeightArray_[piIndex[k]].pBoneWeight[n] = pWeightArray_[piIndex[k]].pBoneWeight[n - 1];
+						for (int n = numBone_ - 1; n > m; n--)
+						{
+							pWeightArray_[linIdx].pBoneIndex[n] = pWeightArray_[linIdx].pBoneIndex[n - 1];
+							pWeightArray_[linIdx].pBoneWeight[n] = pWeightArray_[linIdx].pBoneWeight[n - 1];
+						}
+						pWeightArray_[linIdx].pBoneIndex[m] = i;
+						pWeightArray_[linIdx].pBoneWeight[m] = (float)pdWeight[k];
+						break;
 					}
-					pWeightArray_[piIndex[k]].pBoneIndex[m] = i;
-					pWeightArray_[piIndex[k]].pBoneWeight[m] = (float)pdWeight[k];
-					break;
 				}
 			}
-
 		}
 	}
 
@@ -628,6 +636,9 @@ void FbxParts::Draw(Transform& transform)
 		cb.normalTrans = XMMatrixTranspose(transform.matRotate_ * XMMatrixInverse(nullptr, transform.matScale_));
 
 		cb.ambient = pMaterial_[i].ambient;
+		cb.ambient.x = max(cb.ambient.x, 0.35f);
+		cb.ambient.y = max(cb.ambient.y, 0.35f);
+		cb.ambient.z = max(cb.ambient.z, 0.35f);
 		cb.diffuse = pMaterial_[i].diffuse;
 		cb.speculer = pMaterial_[i].specular;
 		cb.shininess = pMaterial_[i].shininess;

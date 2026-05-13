@@ -14,8 +14,8 @@ Player::Player(GameObject* parent)
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("skg.fbx");
-	Model::SetAnimFrame(hSilly, 0, 1200, 1.0);
+	hSilly = Model::Load("SquarePrism2.fbx");
+	Model::SetAnimFrame(hSilly, 0, 240, 1.0);
 
 
 }
@@ -28,7 +28,7 @@ void Player::Update()
 
 void Player::Draw()
 {
-	transform_.scale_ = { 0.05,0.05,0.05 };
+	transform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	transform_.position_ = { 0, -5.0, 0 };
 	Model::SetTransform(hSilly, transform_);
 	Model::Draw(hSilly);
