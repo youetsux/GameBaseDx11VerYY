@@ -32,6 +32,12 @@ void Camera::Update()
 	_billBoard = XMMatrixInverse(nullptr, _billBoard);
 }
 
+//プロジェクション行列を更新（near/far指定）
+void Camera::SetProjection(float nearZ, float farZ)
+{
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, (FLOAT)Direct3D::screenWidth_ / (FLOAT)Direct3D::screenHeight_, nearZ, farZ);
+}
+
 //焦点を設定
 void Camera::SetTarget(XMFLOAT3 target) { _target = target; }
 
