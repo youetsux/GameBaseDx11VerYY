@@ -107,7 +107,13 @@ HRESULT FbxParts::Init(fbxsdk::FbxMesh* pMesh)
 	}
 
 	//メッシュのコントロールポイントを、マテリアルをベースに分割する
-	pMesh->SplitPoints(FbxLayerElement::eTextureDiffuse);
+	// スキンメッシュ（デフォーマあり）は SplitPoints を呼ぶとクラスターの
+	// CP インデックスとズレるため呼ばない
+	bool hasSkin = (pMesh->GetDeformer(0) != nullptr);
+	if (!hasSkin)
+	{
+		pMesh->SplitPoints(FbxLayerElement::eTextureDiffuse);
+	}
 
 	vertexCount_ = pMesh->GetControlPointsCount();			//頂点の数
 	polygonCount_ = pMesh->GetPolygonCount();				//ポリゴンの数
