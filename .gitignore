@@ -351,3 +351,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /Assets/animal-parrot.mv1
+/Assets/Ball.zip
