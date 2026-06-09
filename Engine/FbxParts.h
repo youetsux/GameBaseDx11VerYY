@@ -128,12 +128,6 @@ class FbxParts
 	// ベイク済みアニメーションデータ（スタック数分）
 	std::vector<AnimStackData> animStacks_;
 
-	// bindShapeログ制御
-	bool      log_header_written_;
-	bool      log_with_written_;
-	bool      log_without_written_;
-	int       log_loopCount_;
-
 	/////////privateな関数（Init関数から呼ばれる）//////////////////////////
 	void InitVertex(fbxsdk::FbxMesh * pMesh);	//頂点バッファ準備
 	void InitMaterial(fbxsdk::FbxNode * pNode);	//マテリアル準備
@@ -202,9 +196,6 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
-
-	// アニメーション1周完了通知（Fbx::NotifyLooped から呼ばれる）
-	void OnLooped() { log_loopCount_++; }
 
 private:
 	AABB aabb_;	// このパーツの軸平行境界ボックス

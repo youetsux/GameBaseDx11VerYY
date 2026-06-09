@@ -191,5 +191,6 @@
     <None Include="Docs\TASK04_手順書.md" />
     <None Include=".editorconfig" />
     <None Include="Docs\changelog.md" />
+    <None Include="PROGRESS.md" />
   </ItemGroup>
 </Project>

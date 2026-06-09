@@ -81,8 +81,6 @@ namespace Model
 		if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
 		{
 			_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
-			if (_datas[handle]->pFbx && _datas[handle]->animSpeed != 0.0f)
-				_datas[handle]->pFbx->NotifyLooped();
 		}
 
 		if (_datas[handle]->pFbx)

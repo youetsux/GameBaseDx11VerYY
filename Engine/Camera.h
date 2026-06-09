@@ -32,4 +32,7 @@ namespace Camera
 
 	//ビルボード用回転行列を取得
 	XMMATRIX GetBillboardMatrix();
+
+	//プロジェクション行列を更新（near/far指定）
+	void SetProjection(float nearZ, float farZ);
 };

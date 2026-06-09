@@ -156,7 +156,4 @@ public:
 
 	// AABBを取得（Load後に有効）
 	const AABB& GetAABB() const { return aabb_; }
-
-	// アニメーションが1周したことを通知する（Model::Draw から呼ぶ）
-	void NotifyLooped();
 };

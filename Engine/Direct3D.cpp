@@ -252,7 +252,7 @@ namespace Direct3D
 			rdc.CullMode = D3D11_CULL_BACK;
 			rdc.FillMode = D3D11_FILL_SOLID;
 			rdc.FrontCounterClockwise = FALSE;	//反時計回りは表面じゃない
-			rdc.DepthClipEnable = TRUE;			//near/farクリッピング有効
+			rdc.DepthClipEnable = FALSE;		//near/farの幾何クリッピング無効（Zテストは有効）
 			pDevice_->CreateRasterizerState(&rdc, &shaderBundle[SHADER_3D].pRasterizerState);
 		}
 

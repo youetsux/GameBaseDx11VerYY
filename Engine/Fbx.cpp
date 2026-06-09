@@ -265,12 +265,6 @@ void Fbx::CheckNode(FbxNode * pNode, std::vector<FbxParts*>* pPartsList)
 	}
 }
 
-void Fbx::NotifyLooped()
-{
-	for (int i = 0; i < (int)parts_.size(); i++)
-		parts_[i]->OnLooped();
-}
-
 void Fbx::Release()
 {
 }

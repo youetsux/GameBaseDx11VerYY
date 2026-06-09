@@ -156,6 +156,9 @@ void ViewerScene::FitCameraToAABB()
     camYaw_   = INIT_YAW;
     camPitch_ = INIT_PITCH;
 
+    // モデルスケールに合わせてnear/farを動的設定（DepthClipEnable=TRUEによるちょん切れ防止）
+    Camera::SetProjection(fitDist_ * 0.01f, fitDist_ * 200.0f);
+
     // Store center as camera target offset (used in UpdateCamera)
     // We keep origin-relative orbit: translate model to origin in Draw()
     // so target stays at (0,0,0), but we offset camPitch-compensated Y
