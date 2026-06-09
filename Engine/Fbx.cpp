@@ -191,38 +191,16 @@ HRESULT Fbx::Load(std::string fileName)
 	fs::current_path(fs::path(fileName).parent_path());
 
 	//ルートノードを取得して
-	//FbxNode* rootNode = pFbxScene_->GetRootNode();
+	FbxNode* rootNode = pFbxScene_->GetRootNode();
 
-	////そいつの子供の数を調べて
-	//int childCount = rootNode->GetChildCount();
+	//そいつの子供の数を調べて
+	int childCount = rootNode->GetChildCount();
 
-	////1個ずつチェック
-	//for (int i = 0; childCount > i; i++)
-	//{
-	//	CheckNode(rootNode->GetChild(i), &parts_);
-	//}
-
-	//pFbxScene_->GetSrcObjectCount<FbxSurfacePhong>();
-	//std::vector<FbxMesh*> meshList;
-	//
-	int meshCount = pFbxScene_->GetSrcObjectCount<FbxMesh>();
-	for (int i = 0; i < meshCount; ++i)
+	//1個ずつチェック
+	for (int i = 0; childCount > i; i++)
 	{
-		// <たったこれだけで全てのメッシュデータを取得できる>
-		FbxMesh* mesh = pFbxScene_->GetSrcObject<FbxMesh>(i);
-		//パーツを用意
-		FbxParts* pParts = new FbxParts(this);
-		pParts->Init(mesh);
-
-		//パーツ情報を動的配列に追加
-		parts_.push_back(pParts);
-	
+		CheckNode(rootNode->GetChild(i), &parts_);
 	}
-	//	std::string name = mesh->GetName();
-	//	//m_fbxMeshNames.push_back(name);
-	//	//m_fbxMeshes.insert({ mesh, name });
-	//	meshList.push_back(mesh);
-	//}
 
 	//カレントディレクトリを元の位置に戻す
 	fs::current_path(defaultCurrentDir);
